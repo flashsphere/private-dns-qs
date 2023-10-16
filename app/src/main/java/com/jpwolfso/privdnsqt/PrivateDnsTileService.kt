@@ -3,6 +3,7 @@ package com.jpwolfso.privdnsqt
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.content.pm.PackageManager
 import android.graphics.drawable.Icon
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -26,9 +27,9 @@ class PrivateDnsTileService : TileService() {
         val tile = this.qsTile
 
         if (DNS_MODE_OFF.equals(dnsmode, ignoreCase = true)) {
-            refreshTile(tile, Tile.STATE_INACTIVE, getString(R.string.qt_off), R.drawable.ic_dnsoff)
+            refreshTile(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff)
         } else if (DNS_MODE_AUTO.equals(dnsmode, ignoreCase = true) || dnsmode == null) {
-            refreshTile(tile, Tile.STATE_ACTIVE, getString(R.string.qt_auto), R.drawable.ic_dnsauto)
+            refreshTile(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dnsauto)
         } else if (DNS_MODE_ON.equals(dnsmode, ignoreCase = true)) {
             val dnsprovider = Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER)
             if (dnsprovider != null) {
@@ -73,7 +74,7 @@ class PrivateDnsTileService : TileService() {
         val tile = this.qsTile
         if (DNS_MODE_OFF.equals(dnsmode, ignoreCase = true)) {
             if (toggleauto) {
-                changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.qt_auto), R.drawable.ic_dnsauto, DNS_MODE_AUTO)
+                changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dnsauto, DNS_MODE_AUTO)
             } else if (toggleon) {
                 changeTileState(tile, Tile.STATE_ACTIVE, dnsprovider, R.drawable.ic_dnson, DNS_MODE_ON)
             }
@@ -82,18 +83,18 @@ class PrivateDnsTileService : TileService() {
                 if (toggleon) {
                     changeTileState(tile, Tile.STATE_ACTIVE, dnsprovider, R.drawable.ic_dnson, DNS_MODE_ON)
                 } else if (toggleoff) {
-                    changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.qt_off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
+                    changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
                 }
             } else {
                 if (toggleoff) {
-                    changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.qt_off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
+                    changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
                 }
             }
         } else if (DNS_MODE_ON.equals(dnsmode, ignoreCase = true)) {
             if (toggleoff) {
-                changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.qt_off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
+                changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
             } else if (toggleauto) {
-                changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.qt_auto), R.drawable.ic_dnsauto, DNS_MODE_AUTO)
+                changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dnsauto, DNS_MODE_AUTO)
             }
         }
     }
@@ -102,17 +103,27 @@ class PrivateDnsTileService : TileService() {
         return checkCallingOrSelfPermission(WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_DENIED
     }
 
-    private fun changeTileState(tile: Tile, state: Int, label: String?, icon: Int, dnsmode: String?) {
-        tile.label = label
+    private fun changeTileState(tile: Tile, state: Int, label: String, icon: Int, dnsmode: String) {
         tile.state = state
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            tile.label = getString(R.string.qt_default)
+            tile.subtitle = label
+        } else {
+            tile.label = label
+        }
         tile.icon = Icon.createWithResource(this, icon)
         Settings.Global.putString(contentResolver, PRIVATE_DNS_MODE, dnsmode)
         tile.updateTile()
     }
 
-    private fun refreshTile(tile: Tile, state: Int, label: String?, icon: Int) {
+    private fun refreshTile(tile: Tile, state: Int, label: String, icon: Int) {
         tile.state = state
-        tile.label = label
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            tile.label = getString(R.string.qt_default)
+            tile.subtitle = label
+        } else {
+            tile.label = label
+        }
         tile.icon = Icon.createWithResource(this, icon)
         tile.updateTile()
     }

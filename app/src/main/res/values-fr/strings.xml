@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Paramètre rapide du DNS privé</string>
-    <string name="qt_auto" translatable="false">DNS automatique</string>
+    <string name="qt_auto">DNS automatique</string>
     <string name="qt_off">DNS désactivé</string>
     <string name="dns_on">DNS activé</string>
+    <string name="off">Désactivé</string>
+    <string name="auto">Automatique</string>
+    <string name="on">Activé</string>
     <string name="qt_default">DNS privé</string>
     <string name="require_unlock">Require device to be unlocked to use tile</string>
     <string name="app_config">Modes de paramètre rapide du DNS privé</string>
