@@ -16,10 +16,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 public class PrivateDnsConfigActivity extends Activity {
 
@@ -41,7 +39,7 @@ public class PrivateDnsConfigActivity extends Activity {
 
         if ((!hasPermission()) || togglestates.getBoolean("first_run", true) ){
             HelpMenu();
-            editor.putBoolean("first_run", false).commit();
+            editor.putBoolean("first_run", false).apply();
         }
 
         if (togglestates.getBoolean("toggle_off", true)) {
@@ -65,60 +63,47 @@ public class PrivateDnsConfigActivity extends Activity {
             texthostname.setText(dnsprovider);
         }
 
-        checkoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (checkoff.isChecked()) {
-                    editor.putBoolean("toggle_off", true);
-                } else {
-                    editor.putBoolean("toggle_off", false);
-                }
+        checkoff.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (checkoff.isChecked()) {
+                editor.putBoolean("toggle_off", true);
+            } else {
+                editor.putBoolean("toggle_off", false);
             }
         });
 
-        checkauto.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (checkauto.isChecked()) {
-                    editor.putBoolean("toggle_auto", true);
-                } else {
-                    editor.putBoolean("toggle_auto", false);
-                }
+        checkauto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (checkauto.isChecked()) {
+                editor.putBoolean("toggle_auto", true);
+            } else {
+                editor.putBoolean("toggle_auto", false);
             }
         });
 
-        checkon.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        checkon.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (checkon.isChecked()) {
+                editor.putBoolean("toggle_on", true);
+                texthostname.setEnabled(true);
+            } else {
+                editor.putBoolean("toggle_on", false);
+                texthostname.setEnabled(false);
+            }
+        });
+
+        okbutton.setOnClickListener(v -> {
+            if (hasPermission()) {
                 if (checkon.isChecked()) {
-                    editor.putBoolean("toggle_on", true);
-                    texthostname.setEnabled(true);
-                } else {
-                    editor.putBoolean("toggle_on", false);
-                    texthostname.setEnabled(false);
-                }
-            }
-        });
-
-        okbutton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (hasPermission()) {
-                    if (checkon.isChecked()) {
-                        if (texthostname.getText().toString().isEmpty()) {
-                            Toast.makeText(PrivateDnsConfigActivity.this, R.string.toast_no_dns, Toast.LENGTH_SHORT).show();
-                            return;
-                        } else {
-                            Settings.Global.putString(getContentResolver(), "private_dns_specifier", texthostname.getText().toString());
-                        }
+                    if (texthostname.getText().toString().isEmpty()) {
+                        Toast.makeText(PrivateDnsConfigActivity.this, R.string.toast_no_dns, Toast.LENGTH_SHORT).show();
+                        return;
+                    } else {
+                        Settings.Global.putString(getContentResolver(), "private_dns_specifier", texthostname.getText().toString());
                     }
-                    editor.commit();
-                    Toast.makeText(PrivateDnsConfigActivity.this, R.string.toast_changes_saved, Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    Toast.makeText(PrivateDnsConfigActivity.this, getString(R.string.toast_no_permission), Toast.LENGTH_SHORT).show();
-                    return;
                 }
+                editor.commit();
+                Toast.makeText(PrivateDnsConfigActivity.this, R.string.toast_changes_saved, Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(PrivateDnsConfigActivity.this, getString(R.string.toast_no_permission), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -142,10 +127,6 @@ public class PrivateDnsConfigActivity extends Activity {
             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             intent.setData(Uri.parse("package:" + getPackageName()));
             startActivity(intent);
-        } else if (id == R.id.action_fdroid) {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse(getString(R.string.url_fdroid)));
-            startActivity(intent);
         } else if (id == R.id.action_help) {
             HelpMenu();
         }
@@ -155,10 +136,6 @@ public class PrivateDnsConfigActivity extends Activity {
     public void HelpMenu() {
         LayoutInflater layoutInflater = LayoutInflater.from(PrivateDnsConfigActivity.this);
         View helpView = layoutInflater.inflate(R.layout.dialog_help, null);
-
-        VideoView videoView = helpView.findViewById(R.id.videoView);
-        videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.terminal));
-        videoView.start();
 
         AlertDialog helpDialog = new AlertDialog
                 .Builder(PrivateDnsConfigActivity.this)

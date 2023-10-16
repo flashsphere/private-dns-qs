@@ -10,7 +10,6 @@
     <string name="dns_hostname_hint">Enter hostname of DNS provider</string>
     <string name="toast_no_dns">DNS provider not configured</string>
     <string name="toast_changes_saved">Your changes have been saved</string>
-    <string name="url_fdroid">https://f-droid.org/en/packages/com.jpwolfso.privdnsqt/</string>
     <string name="message_help">To modify the Private DNS settings, this app requires the WRITE_SECURE_SETTINGS permission, which can only be granted by ADB:</string>
     <string name="app_info">App info</string>
     <string name="view_fdroid">View on F-Droid</string>
