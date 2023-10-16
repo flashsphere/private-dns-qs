@@ -12,7 +12,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/message_help_adb"
         android:textIsSelectable="true"
-        android:textSize="12sp"
+        android:textSize="14sp"
         android:typeface="monospace"
         app:layout_constraintTop_toTopOf="parent" />
 
