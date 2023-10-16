@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import com.jpwolfso.privdnsqt.PrivateDnsConstants.PRIVATE_DNS_MODE
 import com.jpwolfso.privdnsqt.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
+import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_REQUIRE_UNLOCK
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_AUTO
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_OFF
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_ON
@@ -26,7 +27,7 @@ class PrivateDnsTileService : TileService() {
 
         if (DNS_MODE_OFF.equals(dnsmode, ignoreCase = true)) {
             refreshTile(tile, Tile.STATE_INACTIVE, getString(R.string.qt_off), R.drawable.ic_dnsoff)
-        } else if (DNS_MODE_AUTO.equals(dnsmode, ignoreCase = true)) {
+        } else if (DNS_MODE_AUTO.equals(dnsmode, ignoreCase = true) || dnsmode == null) {
             refreshTile(tile, Tile.STATE_ACTIVE, getString(R.string.qt_auto), R.drawable.ic_dnsauto)
         } else if (DNS_MODE_ON.equals(dnsmode, ignoreCase = true)) {
             val dnsprovider = Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER)
@@ -41,6 +42,20 @@ class PrivateDnsTileService : TileService() {
     override fun onClick() {
         super.onClick()
 
+        val togglestates = SharedPreferencesHelper(this)
+        val isLocked = this.isSecure && this.isLocked
+        val requireUnlock = togglestates.getBoolean(SHARED_PREF_REQUIRE_UNLOCK, false)
+
+        if (!isLocked || !requireUnlock) {
+            toggle()
+        } else {
+            unlockAndRun {
+                toggle()
+            }
+        }
+    }
+
+    private fun toggle() {
         val togglestates = SharedPreferencesHelper(this)
 
         val toggleoff = togglestates.getBoolean(SHARED_PREF_TOGGLE_OFF, true)
@@ -62,7 +77,7 @@ class PrivateDnsTileService : TileService() {
             } else if (toggleon) {
                 changeTileState(tile, Tile.STATE_ACTIVE, dnsprovider, R.drawable.ic_dnson, DNS_MODE_ON)
             }
-        } else if (DNS_MODE_AUTO.equals(dnsmode, ignoreCase = true)) {
+        } else if (DNS_MODE_AUTO.equals(dnsmode, ignoreCase = true) || dnsmode == null) {
             if (dnsprovider != null) {
                 if (toggleon) {
                     changeTileState(tile, Tile.STATE_ACTIVE, dnsprovider, R.drawable.ic_dnson, DNS_MODE_ON)
@@ -91,7 +106,7 @@ class PrivateDnsTileService : TileService() {
         tile.label = label
         tile.state = state
         tile.icon = Icon.createWithResource(this, icon)
-        Settings.Global.putString(contentResolver, "private_dns_mode", dnsmode)
+        Settings.Global.putString(contentResolver, PRIVATE_DNS_MODE, dnsmode)
         tile.updateTile()
     }
 

@@ -5,6 +5,7 @@
     <string name="qt_off">DNS désactivé</string>
     <string name="dns_on">DNS activé</string>
     <string name="qt_default">DNS privé</string>
+    <string name="require_unlock">Require device to be unlocked to use tile</string>
     <string name="app_config">Modes de paramètre rapide du DNS privé</string>
     <string name="dns_hostname_hint">Entrez le nom d\'hôte du fournisseur DNS privé</string>
     <string name="toast_changes_saved">Vos modifications ont été enregistrées</string>

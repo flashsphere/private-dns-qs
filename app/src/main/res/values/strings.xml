@@ -5,6 +5,7 @@
     <string name="qt_off">DNS Off</string>
     <string name="qt_auto">DNS Auto</string>
     <string name="dns_on">DNS On</string>
+    <string name="require_unlock">Require device to be unlocked to use tile</string>
     <string name="toast_no_permission">WRITE_SECURE_SETTINGS permission not granted</string>
     <string name="dns_hostname_hint">Enter hostname of DNS provider</string>
     <string name="toast_no_dns">DNS provider not configured</string>

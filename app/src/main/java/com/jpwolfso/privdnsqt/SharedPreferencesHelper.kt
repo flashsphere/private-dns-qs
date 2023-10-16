@@ -25,5 +25,6 @@ class SharedPreferencesHelper(
         const val SHARED_PREF_TOGGLE_OFF = "toggle_off"
         const val SHARED_PREF_TOGGLE_AUTO = "toggle_auto"
         const val SHARED_PREF_TOGGLE_ON = "toggle_on"
+        const val SHARED_PREF_REQUIRE_UNLOCK = "require_unlock"
     }
 }

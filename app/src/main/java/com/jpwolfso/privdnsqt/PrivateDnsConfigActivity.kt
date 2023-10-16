@@ -19,6 +19,7 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import com.jpwolfso.privdnsqt.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_FIRST_RUN
+import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_REQUIRE_UNLOCK
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_AUTO
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_OFF
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_ON
@@ -34,6 +35,8 @@ class PrivateDnsConfigActivity : Activity() {
         val checkoff = findViewById<CheckBox>(R.id.check_off)
         val checkauto = findViewById<CheckBox>(R.id.check_auto)
         val checkon = findViewById<CheckBox>(R.id.check_on)
+
+        val requireUnlock = findViewById<CheckBox>(R.id.require_unlock)
 
         val texthostname = findViewById<EditText>(R.id.text_hostname)
 
@@ -59,6 +62,10 @@ class PrivateDnsConfigActivity : Activity() {
             texthostname.isEnabled = false
         }
 
+        if (togglestates.getBoolean(SHARED_PREF_REQUIRE_UNLOCK, false)) {
+            requireUnlock.isChecked = true
+        }
+
         val dnsprovider = Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER)
         if (dnsprovider != null) {
             texthostname.setText(dnsprovider)
@@ -77,10 +84,14 @@ class PrivateDnsConfigActivity : Activity() {
             texthostname.isEnabled = isChecked
         }
 
+        requireUnlock.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
+            togglestates.update(SHARED_PREF_REQUIRE_UNLOCK, isChecked)
+        }
+
         okbutton.setOnClickListener {
             if (hasPermission()) {
                 if (checkon.isChecked) {
-                    val hostname = texthostname.text.toString()
+                    val hostname = texthostname.text.toString().trim()
                     if (hostname.isEmpty()) {
                         showToast(R.string.toast_no_dns)
                         return@setOnClickListener
