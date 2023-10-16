@@ -4,10 +4,6 @@
         android:id="@+id/action_appinfo">
     </item>
     <item
-        android:title="View on F-Droid"
-        android:id="@+id/action_fdroid">
-    </item>
-    <item
         android:title="@string/help"
         android:id="@+id/action_help">
     </item>

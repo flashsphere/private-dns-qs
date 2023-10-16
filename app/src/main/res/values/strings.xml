@@ -12,6 +12,5 @@
     <string name="message_help">To modify the Private DNS settings, this app requires the WRITE_SECURE_SETTINGS permission, which can only be granted by ADB:</string>
     <string name="message_help_adb" translatable="false">adb shell pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="app_info">App info</string>
-    <string name="view_fdroid">View on F-Droid</string>
     <string name="help">Help</string>
 </resources>

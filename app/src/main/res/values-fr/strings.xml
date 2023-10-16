@@ -13,5 +13,4 @@
     <string name="toast_no_dns">Le nom d\'hôte du fournisseur DNS privé n\'est pas configuré</string>
     <string name="help">Aide</string>
     <string name="app_info">Info sur l\'app</string>
-    <string name="view_fdroid">Afficher les détails sur F-Droid</string>
 </resources>
