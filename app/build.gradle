@@ -22,9 +22,25 @@ android {
         sourceCompatibility 11
         targetCompatibility 11
     }
+    signingConfigs {
+        release {
+            storeFile file(PRIVATE_DNS_QS_RELEASE_STORE_FILE)
+            storePassword PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD
+            keyAlias PRIVATE_DNS_QS_RELEASE_KEY_ALIAS
+            keyPassword PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD
+
+            v1SigningEnabled true
+            v2SigningEnabled true
+            enableV3Signing = true
+            enableV4Signing = true
+        }
+    }
     buildTypes {
         release {
+            debuggable false
             minifyEnabled true
+            shrinkResources true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

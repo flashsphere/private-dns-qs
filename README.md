@@ -3,7 +3,7 @@ Private DNS Quick Tile - toggle and configure your Private DNS settings on Andro
 This is a fork of [joshuawolfsohn/Private-DNS-Quick-Tile](https://github.com/joshuawolfsohn/Private-DNS-Quick-Tile) with changes to support newer versions of Android.
 
 In order to change the Private DNS settings, this app requires the
-`WRITE_SECURE_SETTINGS`` permission.
+`WRITE_SECURE_SETTINGS` permission.
 
 This permission can only be granted in an ADB shell with the command:
 ```
