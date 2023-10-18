@@ -32,9 +32,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew clean assembleRelease --no-daemon
+        run: ./gradlew clean assembleRelease bundleRelease --no-daemon
       - uses: actions/upload-artifact@v3
         with:
-          name: APKs
-          path: app/build/outputs/apk/release/app-release.apk
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
