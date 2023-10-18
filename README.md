@@ -1,4 +1,4 @@
-Private DNS Quick Tile - toggle and configure your Private DNS settings on Android 9+ from the comfort of your quick settings panel.
+Private DNS Quick Setting - toggle and configure your Private DNS settings on Android 9+ from the comfort of your quick settings panel.
 
 This is a fork of [joshuawolfsohn/Private-DNS-Quick-Tile](https://github.com/joshuawolfsohn/Private-DNS-Quick-Tile) with changes to support newer versions of Android.
 
