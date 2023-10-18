@@ -44,19 +44,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    afterEvaluate {
-        assembleRelease.finalizedBy(copyReleaseApk)
-    }
 }
 
 dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.annotation:annotation:1.7.0'
-}
-
-tasks.register('copyReleaseApk', Copy) {
-    from 'build/outputs/apk/release'
-    into 'release' // folder above the app folder
-    include '*release.apk'
-    dependsOn assembleRelease
 }
