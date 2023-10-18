@@ -5,13 +5,16 @@
     <string name="qt_off">DNS Off</string>
     <string name="qt_auto">DNS Auto</string>
     <string name="dns_on">DNS On</string>
+    <string name="off">Off</string>
+    <string name="auto">Auto</string>
+    <string name="on">On</string>
+    <string name="require_unlock">Require device to be unlocked to toggle tile</string>
     <string name="toast_no_permission">WRITE_SECURE_SETTINGS permission not granted</string>
     <string name="dns_hostname_hint">Enter hostname of DNS provider</string>
     <string name="toast_no_dns">DNS provider not configured</string>
     <string name="toast_changes_saved">Your changes have been saved</string>
-    <string name="url_fdroid">https://f-droid.org/en/packages/com.jpwolfso.privdnsqt/</string>
     <string name="message_help">To modify the Private DNS settings, this app requires the WRITE_SECURE_SETTINGS permission, which can only be granted by ADB:</string>
+    <string name="message_help_adb" translatable="false">adb shell pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="app_info">App info</string>
-    <string name="view_fdroid">View on F-Droid</string>
     <string name="help">Help</string>
 </resources>

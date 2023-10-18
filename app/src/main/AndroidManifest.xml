@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:toolsNs="http://schemas.android.com/tools"
-    package="com.jpwolfso.privdnsqt">
+    xmlns:toolsNs="http://schemas.android.com/tools">
 
     <uses-permission
         android:name="android.permission.WRITE_SECURE_SETTINGS"
@@ -18,7 +17,8 @@
         <activity
             android:name=".PrivateDnsConfigActivity"
             android:excludeFromRecents="true"
-            android:label="@string/app_config">
+            android:label="@string/app_config"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,6 +33,8 @@
             android:icon="@drawable/ic_dnsauto"
             android:label="@string/qt_default"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="true" />
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
