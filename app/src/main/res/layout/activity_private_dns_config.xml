@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".PrivateDnsConfigActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="10dp">
+        android:padding="10dp">
 
         <RadioGroup
             android:id="@+id/radioGroup2"
@@ -26,7 +27,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="15dp"
-                android:paddingVertical="10dp"
                 android:text="@string/qt_off" />
 
             <CheckBox
@@ -35,7 +35,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="15dp"
-                android:paddingVertical="10dp"
                 android:text="@string/qt_auto" />
 
             <CheckBox
@@ -44,35 +43,33 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="15dp"
-                android:paddingVertical="10dp"
                 android:text="@string/dns_on" />
         </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/text_hostname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:hint="@string/dns_hostname_hint"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:scrollHorizontally="false"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup2" />
 
         <CheckBox
             android:id="@+id/require_unlock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="15dp"
-            android:paddingVertical="10dp"
+            android:text="@string/require_unlock"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
-            android:text="@string/require_unlock" />
-
-        <EditText
-            android:id="@+id/text_hostname"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:hint="@string/dns_hostname_hint"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:paddingVertical="10dp"
-            android:singleLine="true"
-            android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/require_unlock" />
+            app:layout_constraintTop_toBottomOf="@+id/text_hostname" />
 
         <Button
             android:id="@+id/button_ok"
@@ -84,7 +81,7 @@
             android:text="@android:string/ok"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_hostname" />
+            app:layout_constraintTop_toBottomOf="@+id/require_unlock" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
