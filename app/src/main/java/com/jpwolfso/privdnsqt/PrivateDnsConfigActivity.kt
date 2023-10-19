@@ -1,14 +1,11 @@
 package com.jpwolfso.privdnsqt
 
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
-import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
@@ -17,6 +14,8 @@ import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jpwolfso.privdnsqt.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_FIRST_RUN
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_REQUIRE_UNLOCK
@@ -24,7 +23,7 @@ import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGG
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_OFF
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_ON
 
-class PrivateDnsConfigActivity : Activity() {
+class PrivateDnsConfigActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,30 +115,30 @@ class PrivateDnsConfigActivity : Activity() {
         return true
     }
 
-    override fun onMenuItemSelected(featureId: Int, item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_appinfo -> {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 intent.data = Uri.parse("package:$packageName")
                 startActivity(intent)
+                return true
             }
             R.id.action_help -> {
                 showHelpMenu()
+                return true
             }
             else -> {
             }
         }
-        return super.onMenuItemSelected(featureId, item)
+        return super.onOptionsItemSelected(item)
     }
 
     private fun showHelpMenu() {
-        val helpView = LayoutInflater.from(this).inflate(R.layout.dialog_help, null)
-        AlertDialog.Builder(this)
-                .setMessage(R.string.message_help)
-                .setPositiveButton(android.R.string.ok, null)
-                .setView(helpView)
-                .create()
-                .show()
+        MaterialAlertDialogBuilder(this)
+            .setMessage(R.string.message_help)
+            .setPositiveButton(android.R.string.ok, null)
+            .setView(R.layout.dialog_help)
+            .show()
     }
 
     private fun showToast(@StringRes resId: Int) {
