@@ -48,17 +48,6 @@
                 android:text="@string/dns_on" />
         </RadioGroup>
 
-        <CheckBox
-            android:id="@+id/require_unlock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:paddingVertical="10dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
-            android:text="@string/require_unlock" />
-
         <EditText
             android:id="@+id/text_hostname"
             android:layout_width="wrap_content"
@@ -72,7 +61,19 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/require_unlock" />
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup2" />
+
+        <CheckBox
+            android:id="@+id/require_unlock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:paddingVertical="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_hostname"
+            android:text="@string/require_unlock" />
+
 
         <Button
             android:id="@+id/button_ok"
@@ -84,7 +85,7 @@
             android:text="@android:string/ok"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_hostname" />
+            app:layout_constraintTop_toBottomOf="@+id/require_unlock" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
