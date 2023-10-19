@@ -38,6 +38,8 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
         val requireUnlock = findViewById<CheckBox>(R.id.require_unlock)
 
         val texthostname = findViewById<EditText>(R.id.text_hostname)
+        texthostname.maxLines = Integer.MAX_VALUE
+        texthostname.setHorizontallyScrolling(false)
 
         val okbutton = findViewById<Button>(R.id.button_ok)
 
