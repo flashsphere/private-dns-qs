@@ -25,91 +25,86 @@ import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGG
 
 class PrivateDnsConfigActivity : AppCompatActivity() {
 
+    private lateinit var preferences: SharedPreferencesHelper
+    private lateinit var checkoff: CheckBox
+    private lateinit var checkauto: CheckBox
+    private lateinit var checkon: CheckBox
+    private lateinit var requireUnlock: CheckBox
+    private lateinit var texthostname: EditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_private_dns_config)
 
-        val togglestates = SharedPreferencesHelper(this)
+        preferences = SharedPreferencesHelper(this)
 
-        val checkoff = findViewById<CheckBox>(R.id.check_off)
-        val checkauto = findViewById<CheckBox>(R.id.check_auto)
-        val checkon = findViewById<CheckBox>(R.id.check_on)
+        checkoff = findViewById(R.id.check_off)
+        checkauto = findViewById(R.id.check_auto)
+        checkon = findViewById(R.id.check_on)
 
-        val requireUnlock = findViewById<CheckBox>(R.id.require_unlock)
+        requireUnlock = findViewById(R.id.require_unlock)
 
-        val texthostname = findViewById<EditText>(R.id.text_hostname)
+        texthostname = findViewById(R.id.text_hostname)
         texthostname.maxLines = Integer.MAX_VALUE
         texthostname.setHorizontallyScrolling(false)
 
         val okbutton = findViewById<Button>(R.id.button_ok)
 
-        if (!hasPermission() || togglestates.getBoolean(SHARED_PREF_FIRST_RUN, true)) {
+        if (!hasPermission() || preferences.getBoolean(SHARED_PREF_FIRST_RUN, true)) {
             showHelpMenu()
-            togglestates.update(SHARED_PREF_FIRST_RUN, false)
+            preferences.update(SHARED_PREF_FIRST_RUN, false)
         }
 
-        if (togglestates.getBoolean(SHARED_PREF_TOGGLE_OFF, true)) {
-            checkoff.isChecked = true
-        }
-
-        if (togglestates.getBoolean(SHARED_PREF_TOGGLE_AUTO, true)) {
-            checkauto.isChecked = true
-        }
-
-        if (togglestates.getBoolean(SHARED_PREF_TOGGLE_ON, true)) {
-            checkon.isChecked = true
-            texthostname.isEnabled = true
-        } else {
-            texthostname.isEnabled = false
-        }
-
-        if (togglestates.getBoolean(SHARED_PREF_REQUIRE_UNLOCK, false)) {
-            requireUnlock.isChecked = true
-        }
-
-        val dnsprovider = Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER)
-        if (dnsprovider != null) {
-            texthostname.setText(dnsprovider)
-        }
-
+        checkoff.isChecked = preferences.getBoolean(SHARED_PREF_TOGGLE_OFF, true)
         checkoff.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-            togglestates.update(SHARED_PREF_TOGGLE_OFF, isChecked)
+            preferences.update(SHARED_PREF_TOGGLE_OFF, isChecked)
         }
 
+        checkauto.isChecked = preferences.getBoolean(SHARED_PREF_TOGGLE_AUTO, true)
         checkauto.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-            togglestates.update(SHARED_PREF_TOGGLE_AUTO, isChecked)
+            preferences.update(SHARED_PREF_TOGGLE_AUTO, isChecked)
         }
 
+        checkon.isChecked = preferences.getBoolean(SHARED_PREF_TOGGLE_ON, true)
         checkon.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-            togglestates.update(SHARED_PREF_TOGGLE_ON, isChecked)
+            preferences.update(SHARED_PREF_TOGGLE_ON, isChecked)
             texthostname.isEnabled = isChecked
         }
 
+        texthostname.setText(Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER))
+        texthostname.isEnabled = checkon.isChecked
+
+        requireUnlock.isChecked = preferences.getBoolean(SHARED_PREF_REQUIRE_UNLOCK, false)
         requireUnlock.setOnCheckedChangeListener { _: CompoundButton?, isChecked: Boolean ->
-            togglestates.update(SHARED_PREF_REQUIRE_UNLOCK, isChecked)
+            preferences.update(SHARED_PREF_REQUIRE_UNLOCK, isChecked)
         }
 
         okbutton.setOnClickListener {
-            if (hasPermission()) {
-                if (checkon.isChecked) {
-                    val hostname = texthostname.text.toString().trim()
-                    if (hostname.isEmpty()) {
-                        showToast(R.string.toast_no_dns)
-                        return@setOnClickListener
-                    } else {
-                        Settings.Global.putString(contentResolver, PRIVATE_DNS_SPECIFIER, hostname)
-                    }
-                }
-                showToast(R.string.toast_changes_saved)
-                finish()
-            } else {
-                showToast(R.string.toast_no_permission)
-            }
+            handleOkButton()
         }
     }
 
     private fun hasPermission(): Boolean {
         return checkCallingOrSelfPermission(WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_DENIED
+    }
+
+    private fun handleOkButton() {
+        if (hasPermission()) {
+            if (checkon.isChecked) {
+                val hostname = texthostname.text.toString().trim()
+                if (hostname.isEmpty()) {
+                    texthostname.requestFocus()
+                    showToast(R.string.toast_no_dns)
+                    return
+                } else {
+                    Settings.Global.putString(contentResolver, PRIVATE_DNS_SPECIFIER, hostname)
+                }
+            }
+            showToast(R.string.toast_changes_saved)
+            finish()
+        } else {
+            showToast(R.string.toast_no_permission)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -125,10 +120,12 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
                 startActivity(intent)
                 return true
             }
+
             R.id.action_help -> {
                 showHelpMenu()
                 return true
             }
+
             else -> {
             }
         }

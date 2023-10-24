@@ -17,9 +17,9 @@
 
         <activity
             android:name=".PrivateDnsConfigActivity"
-            android:excludeFromRecents="true"
             android:exported="true"
-            android:label="@string/app_config">
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
                 <category android:name="android.intent.category.LAUNCHER" />

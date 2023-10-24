@@ -10,74 +10,101 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp">
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/modes"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dns_modes_to_toggle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <RadioGroup
-            android:id="@+id/radioGroup2"
-            android:layout_width="wrap_content"
+            android:id="@+id/dns_mode_radio_group"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/modes">
 
-            <CheckBox
-                android:id="@+id/check_off"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="15dp"
-                android:text="@string/qt_off" />
+                android:layout_height="wrap_content">
 
-            <CheckBox
-                android:id="@+id/check_auto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="15dp"
-                android:text="@string/qt_auto" />
+                <CheckBox
+                    android:id="@+id/check_off"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="@string/qt_off"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            <CheckBox
-                android:id="@+id/check_on"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="15dp"
-                android:text="@string/dns_on" />
+                <CheckBox
+                    android:id="@+id/check_auto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="@string/qt_auto"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/check_off" />
+
+                <CheckBox
+                    android:id="@+id/check_on"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="@string/dns_on"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/check_auto" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/text_hostname"
+                    android:layout_width="0dp"
+                    android:paddingTop="16dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:hint="@string/dns_hostname_hint"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:scrollHorizontally="false"
+                    android:textSize="16sp"
+                    app:layout_constraintLeft_toRightOf="@+id/check_on"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/check_on" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </RadioGroup>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/text_hostname"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/other_settings"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:hint="@string/dns_hostname_hint"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:scrollHorizontally="false"
-            android:textSize="16sp"
+            android:layout_marginTop="16dp"
+            android:text="@string/other_settings"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroup2" />
+            app:layout_constraintTop_toBottomOf="@+id/dns_mode_radio_group" />
 
         <CheckBox
             android:id="@+id/require_unlock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="15dp"
+            android:padding="16dp"
             android:text="@string/require_unlock"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_hostname" />
+            app:layout_constraintTop_toBottomOf="@+id/other_settings" />
 
         <Button
             android:id="@+id/button_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_margin="20dp"
-            android:paddingVertical="10dp"
             android:text="@android:string/ok"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
