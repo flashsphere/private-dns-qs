@@ -1,11 +1,17 @@
 package com.jpwolfso.privdnsqt
 
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
+import android.app.StatusBarManager
+import android.content.ComponentName
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.content.pm.PackageManager
+import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +22,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.ExecutorCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jpwolfso.privdnsqt.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
 import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_FIRST_RUN
@@ -110,15 +117,25 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_overflow, menu)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            menu?.findItem(R.id.action_add_tile)?.isVisible = true
+        }
+
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_appinfo -> {
+            R.id.action_app_info -> {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 intent.data = Uri.parse("package:$packageName")
                 startActivity(intent)
+                return true
+            }
+
+            R.id.action_add_tile -> {
+                requestAddTile()
                 return true
             }
 
@@ -131,6 +148,35 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun requestAddTile() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+
+        val statusBarManager = getSystemService(StatusBarManager::class.java)!!
+        statusBarManager.requestAddTileService(
+            ComponentName(this, PrivateDnsTileService::class.java),
+            getString(R.string.qt_default),
+            Icon.createWithResource(this, R.drawable.ic_dnsauto),
+            ExecutorCompat.create(Handler(Looper.getMainLooper())),
+        ) { resultCode ->
+            val message = when (resultCode) {
+                StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ADDED -> {
+                    getString(R.string.tile_added)
+                }
+                StatusBarManager.TILE_ADD_REQUEST_RESULT_TILE_ALREADY_ADDED -> {
+                    getString(R.string.tile_already_added)
+                }
+                else -> {
+                    getString(R.string.tile_not_added, resultCode)
+                }
+            }
+            runOnUiThread {
+                showToast(message)
+            }
+        }
     }
 
     private fun showHelpMenu() {
@@ -149,6 +195,11 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
     private fun showToast(@StringRes resId: Int) {
         Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
     }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
     companion object {
         val HELP_URL: Uri by lazy { Uri.parse("https://private-dns-qs.web.app/help") }
     }
