@@ -1,16 +1,19 @@
-package com.jpwolfso.privdnsqt
+package com.flashsphere.privatednsqs.ui
 
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.app.StatusBarManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
 import android.view.Menu
@@ -23,13 +26,20 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.ExecutorCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
+import com.flashsphere.privatednsqs.R
+import com.flashsphere.privatednsqs.service.PrivateDnsService
+import com.flashsphere.privatednsqs.service.PrivateDnsTileService
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_FIRST_RUN
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_REQUIRE_UNLOCK
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_AUTO
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_OFF
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_ON
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.jpwolfso.privdnsqt.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_FIRST_RUN
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_REQUIRE_UNLOCK
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_AUTO
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_OFF
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_ON
+import timber.log.Timber
 
 class PrivateDnsConfigActivity : AppCompatActivity() {
 
@@ -43,6 +53,7 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_private_dns_config)
+        lifecycle.addObserver(serviceConnection)
 
         preferences = SharedPreferencesHelper(this)
 
@@ -194,6 +205,40 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
 
     private fun showToast(@StringRes resId: Int) {
         Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
+    }
+
+    private val serviceConnection = object : ServiceConnection, DefaultLifecycleObserver {
+        private var bound = false
+
+        override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+            Timber.i("PrivateDnsService connected")
+            bound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            Timber.i("PrivateDnsService disconnected")
+            bound = false
+        }
+
+        override fun onCreate(owner: LifecycleOwner) {
+            val intent = Intent(this@PrivateDnsConfigActivity, PrivateDnsService::class.java)
+            try {
+                startService(intent)
+                bindService(intent, this, Context.BIND_AUTO_CREATE)
+            } catch (e: Exception) {
+                Timber.e(e, "Can't start/bind service")
+            }
+        }
+
+        override fun onDestroy(owner: LifecycleOwner) {
+            if (bound) {
+                try {
+                    unbindService(this)
+                } catch (e: Exception) {
+                    Timber.e(e, "Can't unbind service")
+                }
+            }
+        }
     }
 
     private fun showToast(message: String) {

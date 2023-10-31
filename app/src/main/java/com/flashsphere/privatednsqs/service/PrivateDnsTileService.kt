@@ -1,4 +1,4 @@
-package com.jpwolfso.privdnsqt
+package com.flashsphere.privatednsqs.service
 
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.content.pm.PackageManager
@@ -11,12 +11,14 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.widget.Toast
 import androidx.annotation.StringRes
-import com.jpwolfso.privdnsqt.PrivateDnsConstants.PRIVATE_DNS_MODE
-import com.jpwolfso.privdnsqt.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_REQUIRE_UNLOCK
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_AUTO
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_OFF
-import com.jpwolfso.privdnsqt.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_ON
+import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_MODE
+import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
+import com.flashsphere.privatednsqs.R
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_REQUIRE_UNLOCK
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_AUTO
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_OFF
+import com.flashsphere.privatednsqs.util.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_ON
 
 class PrivateDnsTileService : TileService() {
 
@@ -74,27 +76,41 @@ class PrivateDnsTileService : TileService() {
         val tile = this.qsTile
         if (DNS_MODE_OFF.equals(dnsmode, ignoreCase = true)) {
             if (toggleauto) {
-                changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dnsauto, DNS_MODE_AUTO)
+                changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto),
+                    R.drawable.ic_dnsauto, DNS_MODE_AUTO
+                )
             } else if (toggleon) {
-                changeTileState(tile, Tile.STATE_ACTIVE, dnsprovider, R.drawable.ic_dnson, DNS_MODE_ON)
+                changeTileState(tile, Tile.STATE_ACTIVE, dnsprovider,
+                    R.drawable.ic_dnson, DNS_MODE_ON
+                )
             }
         } else if (DNS_MODE_AUTO.equals(dnsmode, ignoreCase = true) || dnsmode == null) {
             if (dnsprovider != null) {
                 if (toggleon) {
-                    changeTileState(tile, Tile.STATE_ACTIVE, dnsprovider, R.drawable.ic_dnson, DNS_MODE_ON)
+                    changeTileState(tile, Tile.STATE_ACTIVE, dnsprovider,
+                        R.drawable.ic_dnson, DNS_MODE_ON
+                    )
                 } else if (toggleoff) {
-                    changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
+                    changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off),
+                        R.drawable.ic_dnsoff, DNS_MODE_OFF
+                    )
                 }
             } else {
                 if (toggleoff) {
-                    changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
+                    changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off),
+                        R.drawable.ic_dnsoff, DNS_MODE_OFF
+                    )
                 }
             }
         } else if (DNS_MODE_ON.equals(dnsmode, ignoreCase = true)) {
             if (toggleoff) {
-                changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff, DNS_MODE_OFF)
+                changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off),
+                    R.drawable.ic_dnsoff, DNS_MODE_OFF
+                )
             } else if (toggleauto) {
-                changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dnsauto, DNS_MODE_AUTO)
+                changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto),
+                    R.drawable.ic_dnsauto, DNS_MODE_AUTO
+                )
             }
         }
     }

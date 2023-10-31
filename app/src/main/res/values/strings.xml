@@ -24,4 +24,5 @@
     <string name="app_info">App info</string>
     <string name="add_tile">Add tile</string>
     <string name="help">Help</string>
+    <string name="channel_name_ongoing">Ongoing</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.jpwolfso.privdnsqt
+package com.flashsphere.privatednsqs
 
 object PrivateDnsConstants {
     const val PRIVATE_DNS_SPECIFIER = "private_dns_specifier"

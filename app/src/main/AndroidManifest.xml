@@ -2,8 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:toolsNs="http://schemas.android.com/tools">
 
-    <uses-permission
-        android:name="android.permission.WRITE_SECURE_SETTINGS"
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
         toolsNs:ignore="ProtectedPermissions" />
 
     <application
@@ -16,7 +23,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".PrivateDnsConfigActivity"
+            android:name=".ui.PrivateDnsConfigActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
@@ -28,7 +35,7 @@
         </activity>
 
         <service
-            android:name=".PrivateDnsTileService"
+            android:name=".service.PrivateDnsTileService"
             android:enabled="true"
             android:exported="true"
             android:icon="@drawable/ic_dnsauto"
@@ -41,5 +48,20 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".service.PrivateDnsService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
+        <receiver
+            android:name=".BootCompletedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
