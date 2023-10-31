@@ -2,6 +2,7 @@ package com.jpwolfso.privdnsqt
 
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -136,11 +137,19 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setMessage(R.string.message_help)
             .setPositiveButton(android.R.string.ok, null)
+            .setNeutralButton(R.string.more_details) { _, _ -> openUrl(HELP_URL) }
             .setView(R.layout.dialog_help)
             .show()
     }
 
+    private fun openUrl(url: Uri) {
+        startActivity(Intent(ACTION_VIEW, url))
+    }
+
     private fun showToast(@StringRes resId: Int) {
         Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
+    }
+    companion object {
+        val HELP_URL: Uri by lazy { Uri.parse("https://private-dns-qs.web.app/help") }
     }
 }
