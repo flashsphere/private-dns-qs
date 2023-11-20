@@ -9,3 +9,5 @@ This permission can only be granted in an ADB shell with the command:
 ```
 pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS
 ```
+
+Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the permission.
