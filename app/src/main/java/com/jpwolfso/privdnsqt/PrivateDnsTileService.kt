@@ -57,6 +57,7 @@ class PrivateDnsTileService : TileService() {
     }
 
     private fun toggle() {
+        val tile = this.qsTile ?: return
         val togglestates = SharedPreferencesHelper(this)
 
         val toggleoff = togglestates.getBoolean(SHARED_PREF_TOGGLE_OFF, true)
@@ -71,7 +72,6 @@ class PrivateDnsTileService : TileService() {
         }
 
         val dnsmode = Settings.Global.getString(contentResolver, PRIVATE_DNS_MODE)
-        val tile = this.qsTile
         if (DNS_MODE_OFF.equals(dnsmode, ignoreCase = true)) {
             if (toggleauto) {
                 changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dnsauto, DNS_MODE_AUTO)
