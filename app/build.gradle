@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace "com.jpwolfso.privdnsqt"
+    namespace "com.flashsphere.privatednsqs"
     compileSdk 34
 
     defaultConfig {
