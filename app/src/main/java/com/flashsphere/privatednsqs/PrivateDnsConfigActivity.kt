@@ -20,6 +20,7 @@ import android.widget.CheckBox
 import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.ExecutorCompat
@@ -41,6 +42,7 @@ class PrivateDnsConfigActivity : AppCompatActivity() {
     private lateinit var texthostname: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_private_dns_config)
 

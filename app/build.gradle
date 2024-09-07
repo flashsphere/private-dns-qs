@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace "com.flashsphere.privatednsqs"
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.flashsphere.privatednsqs"
         minSdkVersion 28
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode libs.versions.appVersionCode.get().toInteger()
         versionName libs.versions.appVersionName.get()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
