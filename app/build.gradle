@@ -1,18 +1,19 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
-    namespace "com.jpwolfso.privdnsqt"
-    compileSdk 34
+    namespace "com.flashsphere.privatednsqs"
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.flashsphere.privatednsqs"
         minSdkVersion 28
-        targetSdkVersion 34
-        versionCode 13
-        versionName '1.10'
+        targetSdkVersion 35
+        versionCode libs.versions.appVersionCode.get().toInteger()
+        versionName libs.versions.appVersionName.get()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     kotlin {
@@ -21,6 +22,9 @@ android {
     compileOptions {
         sourceCompatibility 11
         targetCompatibility 11
+    }
+    buildFeatures {
+        compose true
     }
     signingConfigs {
         release {
@@ -56,16 +60,36 @@ android {
         density {
             enableSplit = false
         }
-        abi {
-            enableSplit = false
-        }
     }
 }
 
+composeCompiler {
+    enableStrongSkippingMode = true
+
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+}
+
 dependencies {
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.annotation:annotation:1.7.0'
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.annotation)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    def composeBom = platform(libs.androidx.compose.bom)
+    implementation composeBom
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material3)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation libs.google.material
+
+    androidTestImplementation composeBom
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }

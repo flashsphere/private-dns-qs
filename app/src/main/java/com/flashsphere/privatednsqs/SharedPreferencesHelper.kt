@@ -1,4 +1,4 @@
-package com.jpwolfso.privdnsqt
+package com.flashsphere.privatednsqs
 
 import android.app.Activity
 import android.content.Context
