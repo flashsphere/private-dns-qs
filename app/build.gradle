@@ -1,6 +1,6 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -11,8 +11,8 @@ android {
         applicationId "com.flashsphere.privatednsqs"
         minSdkVersion 28
         targetSdkVersion 34
-        versionCode 13
-        versionName '1.10'
+        versionCode libs.versions.appVersionCode.get().toInteger()
+        versionName libs.versions.appVersionName.get()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     kotlin {
@@ -56,16 +56,13 @@ android {
         density {
             enableSplit = false
         }
-        abi {
-            enableSplit = false
-        }
     }
 }
 
 dependencies {
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.annotation:annotation:1.8.0'
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.annotation
+    implementation libs.androidx.core
+    implementation libs.androidx.appcompat
+    implementation libs.google.material
 }
