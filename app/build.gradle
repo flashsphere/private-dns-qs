@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -21,6 +22,9 @@ android {
     compileOptions {
         sourceCompatibility 11
         targetCompatibility 11
+    }
+    buildFeatures {
+        compose true
     }
     signingConfigs {
         release {
@@ -59,10 +63,33 @@ android {
     }
 }
 
+composeCompiler {
+    enableStrongSkippingMode = true
+
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+}
+
 dependencies {
-    implementation libs.androidx.constraintlayout
-    implementation libs.androidx.annotation
-    implementation libs.androidx.core
-    implementation libs.androidx.appcompat
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.annotation)
+    implementation(libs.androidx.core)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    def composeBom = platform(libs.androidx.compose.bom)
+    implementation composeBom
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material3)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
     implementation libs.google.material
+
+    androidTestImplementation composeBom
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }
