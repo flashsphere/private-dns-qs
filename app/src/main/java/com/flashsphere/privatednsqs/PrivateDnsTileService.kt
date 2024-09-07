@@ -23,8 +23,8 @@ class PrivateDnsTileService : TileService() {
     override fun onStartListening() {
         super.onStartListening()
 
+        val tile = this.qsTile ?: return
         val dnsmode = Settings.Global.getString(contentResolver, PRIVATE_DNS_MODE)
-        val tile = this.qsTile
 
         if (DNS_MODE_OFF.equals(dnsmode, ignoreCase = true)) {
             refreshTile(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff)
