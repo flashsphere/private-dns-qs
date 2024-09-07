@@ -1,19 +1,17 @@
 package com.flashsphere.privatednsqs
 
-import android.Manifest.permission.WRITE_SECURE_SETTINGS
-import android.content.pm.PackageManager
-import android.provider.Settings
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
-import com.flashsphere.privatednsqs.SharedPreferencesHelper.Companion.SHARED_PREF_REQUIRE_UNLOCK
-import com.flashsphere.privatednsqs.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_AUTO
-import com.flashsphere.privatednsqs.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_OFF
-import com.flashsphere.privatednsqs.SharedPreferencesHelper.Companion.SHARED_PREF_TOGGLE_ON
+import com.flashsphere.privatednsqs.datastore.PrivateDns
+import com.flashsphere.privatednsqs.datastore.dataStore
+import com.flashsphere.privatednsqs.datastore.dnsAutoToggle
+import com.flashsphere.privatednsqs.datastore.dnsOffToggle
+import com.flashsphere.privatednsqs.datastore.dnsOnToggle
+import com.flashsphere.privatednsqs.datastore.requireUnlock
 import com.flashsphere.privatednsqs.ui.ChangesSavedMessage
 import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
@@ -26,10 +24,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val application: PrivateDnsApplication,
+    application: PrivateDnsApplication,
 ) : ViewModel() {
-    private val preferences = SharedPreferencesHelper(application)
-    private val contentResolver = application.contentResolver
+    private val dataStore = application.dataStore
+    private val privateDns = PrivateDns(application)
 
     private val _snackbarMessages = MutableSharedFlow<SnackbarMessage>(
         replay = 0,
@@ -38,41 +36,41 @@ class MainViewModel(
     )
     val snackbarMessages = _snackbarMessages.asSharedFlow()
 
-    private val _dnsOffChecked = MutableStateFlow(preferences.getBoolean(SHARED_PREF_TOGGLE_OFF, true))
+    private val _dnsOffChecked = MutableStateFlow(dataStore.dnsOffToggle())
     val dnsOffChecked = _dnsOffChecked.asStateFlow()
 
-    private val _dnsAutoChecked = MutableStateFlow(preferences.getBoolean(SHARED_PREF_TOGGLE_AUTO, true))
+    private val _dnsAutoChecked = MutableStateFlow(dataStore.dnsAutoToggle())
     val dnsAutoChecked = _dnsAutoChecked.asStateFlow()
 
-    private val _dnsOnChecked = MutableStateFlow(preferences.getBoolean(SHARED_PREF_TOGGLE_ON, true))
+    private val _dnsOnChecked = MutableStateFlow(dataStore.dnsOnToggle())
     val dnsOnChecked = _dnsOnChecked.asStateFlow()
 
-    private val _requireUnlockChecked = MutableStateFlow(preferences.getBoolean(SHARED_PREF_REQUIRE_UNLOCK, false))
+    private val _requireUnlockChecked = MutableStateFlow(dataStore.requireUnlock())
     val requireUnlockChecked = _requireUnlockChecked.asStateFlow()
 
-    val dnsHostnameTextFieldState = TextFieldState(Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER) ?: "")
+    val dnsHostnameTextFieldState = TextFieldState(privateDns.getHostname() ?: "")
 
     fun dnsOffChecked(checked: Boolean) {
         _dnsOffChecked.value = checked
-        preferences.update(SHARED_PREF_TOGGLE_OFF, checked)
+        dataStore.dnsOffToggle(checked)
     }
     fun dnsAutoChecked(checked: Boolean) {
         _dnsAutoChecked.value = checked
-        preferences.update(SHARED_PREF_TOGGLE_AUTO, checked)
+        dataStore.dnsAutoToggle(checked)
     }
     fun dnsOnChecked(checked: Boolean) {
         _dnsOnChecked.value = checked
-        preferences.update(SHARED_PREF_TOGGLE_ON, checked)
+        dataStore.dnsOnToggle(checked)
     }
     fun requireUnlockChecked(checked: Boolean) {
         _requireUnlockChecked.value = checked
-        preferences.update(SHARED_PREF_REQUIRE_UNLOCK, checked)
+        dataStore.requireUnlock(checked)
     }
     fun showSnackbarMessage(message: SnackbarMessage) {
         viewModelScope.launch { _snackbarMessages.emit(message) }
     }
     fun hasPermission(): Boolean {
-        return application.checkCallingOrSelfPermission(WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_DENIED
+        return privateDns.hasPermission()
     }
     fun save() {
         if (!hasPermission()) {
@@ -84,7 +82,7 @@ class MainViewModel(
             viewModelScope.launch { _snackbarMessages.emit(NoDnsHostnameMessage) }
             return
         }
-        Settings.Global.putString(contentResolver, PRIVATE_DNS_SPECIFIER, dnsHostName)
+        privateDns.setHostname(dnsHostName)
         viewModelScope.launch { _snackbarMessages.emit(ChangesSavedMessage) }
     }
 

@@ -1,8 +1,15 @@
 package com.flashsphere.privatednsqs
 
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.StatusBarManager
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
@@ -67,5 +74,13 @@ class MainActivity : ComponentActivity() {
                 viewModel.showSnackbarMessage(message)
             }
         }
+    }
+
+    companion object {
+        fun getPendingIntent(context: Context): PendingIntent = PendingIntent.getActivity(context,
+            R.id.start_main_activity_request_code, getIntent(context),
+            FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
+        fun getIntent(context: Context): Intent = Intent(context, MainActivity::class.java)
+            .addFlags(FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NEW_TASK)
     }
 }

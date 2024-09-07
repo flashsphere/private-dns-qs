@@ -261,7 +261,7 @@ private fun MainScreen(
                 Spacer(modifier = Modifier.height(52.dp))
             }
 
-            HelpMenu(openHelpMenu)
+            HelpDialog(openHelpMenu)
         }
     }
 }
@@ -353,7 +353,7 @@ private fun TextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HelpMenu(openDialog: MutableState<Boolean>) {
+private fun HelpDialog(openDialog: MutableState<Boolean>) {
     if (openDialog.value) {
         val context = LocalContext.current
         BasicAlertDialog(onDismissRequest = { openDialog.value = false }) {
