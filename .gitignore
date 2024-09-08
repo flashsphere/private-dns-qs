@@ -38,5 +38,6 @@ fabric.properties
 
 # Other
 .DS_Store
+.kotlin
 dist
 tmp

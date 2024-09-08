@@ -5,8 +5,6 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.widget.Toast
-import androidx.annotation.StringRes
 import com.flashsphere.privatednsqs.datastore.DnsMode
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.datastore.dataStore
@@ -14,14 +12,11 @@ import com.flashsphere.privatednsqs.datastore.dnsAutoToggle
 import com.flashsphere.privatednsqs.datastore.dnsOffToggle
 import com.flashsphere.privatednsqs.datastore.dnsOnToggle
 import com.flashsphere.privatednsqs.datastore.requireUnlock
+import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
+import com.flashsphere.privatednsqs.ui.NoPermissionMessage
+import com.flashsphere.privatednsqs.ui.SnackbarMessage
 
 class PrivateDnsTileService : TileService() {
-    private var toast: Toast? = null
-
-    override fun onDestroy() {
-        toast?.cancel()
-        super.onDestroy()
-    }
 
     override fun onStartListening() {
         super.onStartListening()
@@ -57,7 +52,7 @@ class PrivateDnsTileService : TileService() {
 
         val privateDns = PrivateDns(this)
         if (!privateDns.hasPermission()) {
-            showToast(R.string.toast_no_permission)
+            showSnackbarMessage(NoPermissionMessage)
             return
         }
         when (privateDns.getDnsMode()) {
@@ -101,7 +96,7 @@ class PrivateDnsTileService : TileService() {
             privateDns.setDnsMode(DnsMode.On)
             changeTileState(tile, Tile.STATE_ACTIVE, hostname, R.drawable.ic_dnson)
         } else {
-            showToast(R.string.toast_no_dns)
+            showSnackbarMessage(NoDnsHostnameMessage)
         }
     }
 
@@ -117,19 +112,13 @@ class PrivateDnsTileService : TileService() {
         tile.updateTile()
     }
 
-    private fun showToast(@StringRes resId: Int) {
-        startMainActivity()
-        toast?.cancel()
-        toast = Toast.makeText(this, resId, Toast.LENGTH_LONG).also { it.show() }
-    }
-
     @SuppressLint("StartActivityAndCollapseDeprecated")
     @Suppress("DEPRECATION")
-    private fun startMainActivity() {
+    private fun showSnackbarMessage(snackbarMessage: SnackbarMessage) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startActivityAndCollapse(MainActivity.getPendingIntent(this))
+            startActivityAndCollapse(MainActivity.getPendingIntent(this, snackbarMessage))
         } else {
-            startActivityAndCollapse(MainActivity.getIntent(this))
+            startActivityAndCollapse(MainActivity.getIntent(this, snackbarMessage))
         }
     }
 }

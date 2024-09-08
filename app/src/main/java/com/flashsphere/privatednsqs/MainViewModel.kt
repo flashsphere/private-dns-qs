@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -67,23 +68,27 @@ class MainViewModel(
         dataStore.requireUnlock(checked)
     }
     fun showSnackbarMessage(message: SnackbarMessage) {
-        viewModelScope.launch { _snackbarMessages.emit(message) }
+        viewModelScope.launch {
+            // wait until there's at least 1 subscriber before emitting
+            _snackbarMessages.subscriptionCount.first { it > 0 }
+            _snackbarMessages.emit(message)
+        }
     }
     fun hasPermission(): Boolean {
         return privateDns.hasPermission()
     }
     fun save() {
         if (!hasPermission()) {
-            viewModelScope.launch { _snackbarMessages.emit(NoPermissionMessage) }
+            showSnackbarMessage(NoPermissionMessage)
             return
         }
         val dnsHostName = dnsHostnameTextFieldState.text.trim().toString()
         if (dnsHostName.isEmpty()) {
-            viewModelScope.launch { _snackbarMessages.emit(NoDnsHostnameMessage) }
+            showSnackbarMessage(NoDnsHostnameMessage)
             return
         }
         privateDns.setHostname(dnsHostName)
-        viewModelScope.launch { _snackbarMessages.emit(ChangesSavedMessage) }
+        showSnackbarMessage(ChangesSavedMessage)
     }
 
     companion object {
