@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -75,6 +76,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.datastore.prefs)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
@@ -87,8 +89,6 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    implementation libs.google.material
 
     androidTestImplementation composeBom
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
