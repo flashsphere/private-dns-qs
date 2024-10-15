@@ -9,12 +9,10 @@ androidxActivity = "1.9.2"
 androidxLifecycle = "2.8.6"
 androidxAnnotation = "1.8.2"
 androidxComposeBom = "2024.09.03"
-androidxCoreShortcuts = "1.1.0"
 timber = "5.0.1"
 
 [libraries]
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
-androidx-core-shortcuts = { group = "androidx.core", name = "core-google-shortcuts", version.ref = "androidxCoreShortcuts" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-datastore-prefs = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastorePrefs" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }

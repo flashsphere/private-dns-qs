@@ -75,7 +75,6 @@ composeCompiler {
 dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.core)
-    implementation(libs.androidx.core.shortcuts)
     implementation(libs.androidx.datastore.prefs)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
