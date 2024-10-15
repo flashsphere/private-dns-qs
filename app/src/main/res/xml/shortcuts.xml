@@ -1,0 +1,36 @@
+<!-- also update in src/debug/res/xml/shortcuts.xml -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_off"
+        android:shortcutId="privatedns.shortcut.off"
+        android:shortcutLongLabel="@string/off"
+        android:shortcutShortLabel="@string/dns_off">
+        <intent
+            android:action="actions.intent.OFF"
+            android:targetClass="com.flashsphere.privatednsqs.activity.ShortcutsActivity"
+            android:targetPackage="com.flashsphere.privatednsqs" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_auto"
+        android:shortcutId="privatedns.shortcut.auto"
+        android:shortcutLongLabel="@string/auto"
+        android:shortcutShortLabel="@string/dns_auto">
+        <intent
+            android:action="actions.intent.AUTO"
+            android:targetClass="com.flashsphere.privatednsqs.activity.ShortcutsActivity"
+            android:targetPackage="com.flashsphere.privatednsqs" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_on"
+        android:shortcutId="privatedns.shortcut.on"
+        android:shortcutLongLabel="@string/on"
+        android:shortcutShortLabel="@string/dns_on">
+        <intent
+            android:action="actions.intent.ON"
+            android:targetClass="com.flashsphere.privatednsqs.activity.ShortcutsActivity"
+            android:targetPackage="com.flashsphere.privatednsqs" />
+    </shortcut>
+</shortcuts>

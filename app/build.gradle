@@ -26,6 +26,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
     signingConfigs {
         release {
@@ -74,6 +75,7 @@ composeCompiler {
 dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.core)
+    implementation(libs.androidx.core.shortcuts)
     implementation(libs.androidx.datastore.prefs)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -87,6 +89,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation(libs.timber)
 
     androidTestImplementation composeBom
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

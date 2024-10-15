@@ -78,12 +78,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.flashsphere.privatednsqs.MainViewModel
 import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
 import com.flashsphere.privatednsqs.ui.theme.Monospace
+import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -246,8 +246,8 @@ private fun MainScreen(
             ) {
                 Header(stringResource(R.string.dns_modes_to_toggle))
 
-                CheckBoxWithLabel(dnsOffStateFlow, onDnsOffClick, stringResource(R.string.qt_off))
-                CheckBoxWithLabel(dnsAutoStateFlow, onDnsAutoClick, stringResource(R.string.qt_auto))
+                CheckBoxWithLabel(dnsOffStateFlow, onDnsOffClick, stringResource(R.string.dns_off))
+                CheckBoxWithLabel(dnsAutoStateFlow, onDnsAutoClick, stringResource(R.string.dns_auto))
 
                 Row(modifier = Modifier.padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     CheckBoxWithLabel(dnsOnStateFlow, onDnsOnClick, stringResource(R.string.dns_on))

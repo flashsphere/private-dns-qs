@@ -1,10 +1,12 @@
-package com.flashsphere.privatednsqs
+package com.flashsphere.privatednsqs.service
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import com.flashsphere.privatednsqs.R
+import com.flashsphere.privatednsqs.activity.MainActivity
 import com.flashsphere.privatednsqs.datastore.DnsMode
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.datastore.dataStore
@@ -25,11 +27,11 @@ class PrivateDnsTileService : TileService() {
 
         val privateDns = PrivateDns(this)
         when (privateDns.getDnsMode()) {
-            DnsMode.Off -> changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff)
-            DnsMode.Auto -> changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dnsauto)
+            DnsMode.Off -> changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dns_off)
+            DnsMode.Auto -> changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dns_auto)
             DnsMode.On -> {
                 val hostname = privateDns.getHostname()
-                changeTileState(tile, Tile.STATE_ACTIVE, hostname ?: getString(R.string.on), R.drawable.ic_dnson)
+                changeTileState(tile, Tile.STATE_ACTIVE, hostname ?: getString(R.string.on), R.drawable.ic_dns_on)
             }
         }
     }
@@ -82,19 +84,19 @@ class PrivateDnsTileService : TileService() {
 
     private fun setDnsModeOff(privateDns: PrivateDns, tile: Tile) {
         privateDns.setDnsMode(DnsMode.Off)
-        changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dnsoff)
+        changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dns_off)
     }
 
     private fun setDnsModeAuto(privateDns: PrivateDns, tile: Tile) {
         privateDns.setDnsMode(DnsMode.Auto)
-        changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dnsauto)
+        changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dns_auto)
     }
 
     private fun setDnsModeOn(privateDns: PrivateDns, tile: Tile) {
         val hostname = privateDns.getHostname()
         if (!hostname.isNullOrEmpty()) {
             privateDns.setDnsMode(DnsMode.On)
-            changeTileState(tile, Tile.STATE_ACTIVE, hostname, R.drawable.ic_dnson)
+            changeTileState(tile, Tile.STATE_ACTIVE, hostname, R.drawable.ic_dns_on)
         } else {
             showSnackbarMessage(NoDnsHostnameMessage)
         }

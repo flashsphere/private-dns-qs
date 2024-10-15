@@ -1,4 +1,4 @@
-package com.flashsphere.privatednsqs
+package com.flashsphere.privatednsqs.activity
 
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
@@ -23,11 +23,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.os.BundleCompat
 import androidx.core.os.ExecutorCompat
+import com.flashsphere.privatednsqs.R
+import com.flashsphere.privatednsqs.service.PrivateDnsTileService
 import com.flashsphere.privatednsqs.ui.MainScreen
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.ui.TileAddedMessage
 import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
 import com.flashsphere.privatednsqs.ui.TileNotAddedMessage
+import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
@@ -68,7 +71,7 @@ class MainActivity : ComponentActivity() {
         statusBarManager.requestAddTileService(
             ComponentName(this, PrivateDnsTileService::class.java),
             getString(R.string.qt_default),
-            Icon.createWithResource(this, R.drawable.ic_dnsauto),
+            Icon.createWithResource(this, R.drawable.ic_dns_auto),
             ExecutorCompat.create(Handler(Looper.getMainLooper())),
         ) { resultCode ->
             val message = when (resultCode) {
