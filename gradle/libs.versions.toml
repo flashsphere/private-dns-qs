@@ -1,19 +1,17 @@
 [versions]
 appVersionCode = "16"
 appVersionName = "1.13"
-androidGradlePlugin = "8.6.0"
-kotlin = "2.0.20"
+androidGradlePlugin = "8.7.1"
+kotlin = "2.0.21"
 androidxCore = "1.13.1"
 androidxDatastorePrefs = "1.1.1"
 androidxActivity = "1.9.2"
-androidxLifecycle = "2.8.5"
-androidxConstraintLayout = "2.1.4"
+androidxLifecycle = "2.8.6"
 androidxAnnotation = "1.8.2"
-androidxComposeBom = "2024.09.00"
+androidxComposeBom = "2024.09.03"
 
 [libraries]
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
-androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidxConstraintLayout" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-datastore-prefs = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastorePrefs" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
