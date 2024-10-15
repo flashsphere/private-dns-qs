@@ -8,11 +8,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
@@ -70,12 +78,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.flashsphere.privatednsqs.MainViewModel
 import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
 import com.flashsphere.privatednsqs.ui.theme.Monospace
+import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -158,9 +166,13 @@ private fun MainScreen(
         }
     }
 
+    val windowInsetsPadding = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+        .union(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+
     AppTheme {
         Scaffold (
-            modifier = Modifier.imePadding(),
+            contentWindowInsets = WindowInsets.ime,
+            modifier = Modifier.windowInsetsPadding(windowInsetsPadding),
             topBar = {
                 TopAppBar(
                     title = {
@@ -229,12 +241,13 @@ private fun MainScreen(
                     .fillMaxSize()
                     .padding(padding)
                     .padding(8.dp)
+                    .consumeWindowInsets(padding)
                     .verticalScroll(rememberScrollState()),
             ) {
                 Header(stringResource(R.string.dns_modes_to_toggle))
 
-                CheckBoxWithLabel(dnsOffStateFlow, onDnsOffClick, stringResource(R.string.qt_off))
-                CheckBoxWithLabel(dnsAutoStateFlow, onDnsAutoClick, stringResource(R.string.qt_auto))
+                CheckBoxWithLabel(dnsOffStateFlow, onDnsOffClick, stringResource(R.string.dns_off))
+                CheckBoxWithLabel(dnsAutoStateFlow, onDnsAutoClick, stringResource(R.string.dns_auto))
 
                 Row(modifier = Modifier.padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     CheckBoxWithLabel(dnsOnStateFlow, onDnsOnClick, stringResource(R.string.dns_on))

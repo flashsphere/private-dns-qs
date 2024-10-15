@@ -1,5 +1,12 @@
 package com.flashsphere.privatednsqs
 
 import android.app.Application
+import timber.log.Timber
 
-class PrivateDnsApplication : Application()
+class PrivateDnsApplication : Application() {
+    init {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
+    }
+}

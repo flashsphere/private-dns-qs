@@ -2,8 +2,8 @@
     <string name="app_name">Private DNS Quick Setting</string>
     <string name="qt_default">Private DNS</string>
     <string name="app_config">Private DNS Quick Setting Modes</string>
-    <string name="qt_off">DNS Off</string>
-    <string name="qt_auto">DNS Auto</string>
+    <string name="dns_off">DNS Off</string>
+    <string name="dns_auto">DNS Auto</string>
     <string name="dns_on">DNS On</string>
     <string name="off">Off</string>
     <string name="auto">Auto</string>

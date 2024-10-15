@@ -1,4 +1,4 @@
-package com.flashsphere.privatednsqs
+package com.flashsphere.privatednsqs.viewmodel
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.flashsphere.privatednsqs.PrivateDnsApplication
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.datastore.dataStore
 import com.flashsphere.privatednsqs.datastore.dnsAutoToggle

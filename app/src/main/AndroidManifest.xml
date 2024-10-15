@@ -13,11 +13,11 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
+        android:supportsRtl="false"
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
@@ -26,13 +26,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+
+        <activity
+            android:name=".activity.ShortcutsActivity"
+            android:exported="true"
+            android:launchMode="standard"
+            android:theme="@style/AppTheme.NoDisplay">
+            <intent-filter>
+                <action android:name="actions.intent.OFF" />
+                <action android:name="actions.intent.AUTO" />
+                <action android:name="actions.intent.ON" />
+            </intent-filter>
         </activity>
 
         <service
-            android:name=".PrivateDnsTileService"
+            android:name=".service.PrivateDnsTileService"
             android:enabled="true"
             android:exported="true"
-            android:icon="@drawable/ic_dnsauto"
+            android:icon="@drawable/ic_dns_auto"
             android:label="@string/qt_default"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <meta-data
