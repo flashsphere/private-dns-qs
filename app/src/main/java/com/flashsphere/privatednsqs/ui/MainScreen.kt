@@ -45,6 +45,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -77,6 +78,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
@@ -139,10 +141,9 @@ private fun MainScreen(
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        if (!hasPermission()) {
-            openHelpMenu.value = true
-        }
+    LifecycleStartEffect(Unit) {
+        openHelpMenu.value = !hasPermission()
+        onStopOrDispose {}
     }
     LaunchedEffect(Unit) {
         snackbarMessageFlow.collect {
@@ -155,7 +156,8 @@ private fun MainScreen(
                 if (it is NoPermissionMessage) {
                     val result = snackbarHostState.showSnackbar(
                         message = it.getMessage(context),
-                        actionLabel = context.getString(R.string.help))
+                        actionLabel = context.getString(R.string.help),
+                        duration = SnackbarDuration.Long)
                     if (result == SnackbarResult.ActionPerformed) {
                         openHelpMenu.value = true
                     }
