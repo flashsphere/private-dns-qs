@@ -12,7 +12,6 @@
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:theme="@style/AppTheme">
 
@@ -33,8 +32,8 @@
 
         <activity
             android:name=".activity.ShortcutsActivity"
+            android:excludeFromRecents="true"
             android:exported="true"
-            android:launchMode="standard"
             android:theme="@style/AppTheme.NoDisplay">
             <intent-filter>
                 <action android:name="actions.intent.OFF" />
@@ -43,12 +42,33 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activity.DnsOffActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_off"
+            android:label="@string/set_dns_off"
+            android:theme="@style/AppTheme.NoDisplay" />
+        <activity
+            android:name=".activity.DnsAutoActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/set_dns_auto"
+            android:theme="@style/AppTheme.NoDisplay" />
+        <activity
+            android:name=".activity.DnsOnActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_on"
+            android:label="@string/set_dns_on"
+            android:theme="@style/AppTheme.NoDisplay" />
+
         <service
             android:name=".service.PrivateDnsTileService"
-            android:enabled="true"
             android:exported="true"
             android:icon="@drawable/ic_dns_auto"
-            android:label="@string/qt_default"
+            android:label="@string/tile_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <meta-data
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"

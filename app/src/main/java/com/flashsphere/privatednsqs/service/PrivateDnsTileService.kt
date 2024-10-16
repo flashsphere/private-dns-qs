@@ -105,7 +105,7 @@ class PrivateDnsTileService : TileService() {
     private fun changeTileState(tile: Tile, state: Int, label: String, icon: Int) {
         tile.state = state
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            tile.label = getString(R.string.qt_default)
+            tile.label = getString(R.string.tile_name)
             tile.subtitle = label
         } else {
             tile.label = label
