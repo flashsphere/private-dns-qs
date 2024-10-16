@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
         val statusBarManager = getSystemService(StatusBarManager::class.java) as StatusBarManager
         statusBarManager.requestAddTileService(
             ComponentName(this, PrivateDnsTileService::class.java),
-            getString(R.string.qt_default),
+            getString(R.string.tile_name),
             Icon.createWithResource(this, R.drawable.ic_dns_auto),
             ExecutorCompat.create(Handler(Looper.getMainLooper())),
         ) { resultCode ->
@@ -102,6 +102,10 @@ class MainActivity : ComponentActivity() {
                 .putExtra(PARAM_BUNDLE, Bundle().also {
                     it.putParcelable(PARAM_MESSAGE, message)
                 })
+
+        fun startActivity(context: Context, message: SnackbarMessage) {
+            context.startActivity(getIntent(context, message))
+        }
 
         private const val PARAM_BUNDLE = "bundle"
         private const val PARAM_MESSAGE = "message"

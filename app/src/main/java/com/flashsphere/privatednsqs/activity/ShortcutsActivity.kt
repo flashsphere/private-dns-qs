@@ -3,10 +3,6 @@ package com.flashsphere.privatednsqs.activity
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.core.content.pm.ShortcutManagerCompat
-import com.flashsphere.privatednsqs.datastore.DnsMode
-import com.flashsphere.privatednsqs.datastore.PrivateDns
-import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
-import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import timber.log.Timber
 
 class ShortcutsActivity : ComponentActivity() {
@@ -19,42 +15,26 @@ class ShortcutsActivity : ComponentActivity() {
         }
         Timber.d("intent action = %s", intent.action)
 
-        val privateDns = PrivateDns(this)
-        if (!privateDns.hasPermission()) {
-            startActivity(MainActivity.getIntent(this, NoPermissionMessage))
-            finish()
-            return
-        }
-        val returnToHome = when (action) {
+        startActivity(Intent(Intent.ACTION_MAIN)
+            .addCategory(Intent.CATEGORY_HOME)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+
+        when (action) {
             ACTION_OFF -> {
-                privateDns.setDnsMode(DnsMode.Off)
                 ShortcutManagerCompat.reportShortcutUsed(applicationContext, SHORTCUT_OFF)
-                true
+                DnsOffActivity.startActivity(this)
             }
             ACTION_AUTO -> {
-                privateDns.setDnsMode(DnsMode.Auto)
                 ShortcutManagerCompat.reportShortcutUsed(applicationContext, SHORTCUT_AUTO)
-                true
+                DnsAutoActivity.startActivity(this)
             }
             ACTION_ON -> {
-                val hostname = privateDns.getHostname()
-                if (!hostname.isNullOrEmpty()) {
-                    privateDns.setDnsMode(DnsMode.On)
-                    ShortcutManagerCompat.reportShortcutUsed(applicationContext, SHORTCUT_ON)
-                    true
-                } else {
-                    startActivity(MainActivity.getIntent(this, NoDnsHostnameMessage))
-                    false
-                }
+                ShortcutManagerCompat.reportShortcutUsed(applicationContext, SHORTCUT_ON)
+                DnsOnActivity.startActivity(this)
             }
-            else -> { true }
+            else -> {}
         }
 
-        if (returnToHome) {
-            startActivity(Intent(Intent.ACTION_MAIN)
-                .addCategory(Intent.CATEGORY_HOME)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        }
         finish()
     }
 
