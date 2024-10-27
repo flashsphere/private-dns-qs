@@ -19,13 +19,18 @@ import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 
 class PrivateDnsTileService : TileService() {
+    private lateinit var privateDns: PrivateDns
+
+    override fun onCreate() {
+        super.onCreate()
+        privateDns = PrivateDns(this)
+    }
 
     override fun onStartListening() {
         super.onStartListening()
 
         val tile = this.qsTile ?: return
 
-        val privateDns = PrivateDns(this)
         when (privateDns.getDnsMode()) {
             DnsMode.Off -> changeTileState(tile, Tile.STATE_INACTIVE, getString(R.string.off), R.drawable.ic_dns_off)
             DnsMode.Auto -> changeTileState(tile, Tile.STATE_ACTIVE, getString(R.string.auto), R.drawable.ic_dns_auto)
@@ -52,7 +57,6 @@ class PrivateDnsTileService : TileService() {
     private fun toggle() {
         val tile = this.qsTile ?: return
 
-        val privateDns = PrivateDns(this)
         if (!privateDns.hasPermission()) {
             showSnackbarMessage(NoPermissionMessage)
             return

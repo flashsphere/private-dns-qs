@@ -1,6 +1,8 @@
 package com.flashsphere.privatednsqs.activity
 
+import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.annotation.CallSuper
 import com.flashsphere.privatednsqs.datastore.DnsMode
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
@@ -9,7 +11,15 @@ import com.flashsphere.privatednsqs.ui.SnackbarMessage
 abstract class DnsToggleActivity : ComponentActivity() {
     abstract val dnsMode: DnsMode
 
-    open fun executeDnsMode(privateDns: PrivateDns) {
+    protected lateinit var privateDns: PrivateDns
+
+    @CallSuper
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        privateDns = PrivateDns(this)
+    }
+
+    open fun executeDnsMode() {
         privateDns.setDnsMode(dnsMode)
     }
 
@@ -17,11 +27,11 @@ abstract class DnsToggleActivity : ComponentActivity() {
         MainActivity.startActivity(this, message)
     }
 
+    @CallSuper
     override fun onStart() {
         super.onStart()
-        val privateDns = PrivateDns(this)
         if (privateDns.hasPermission()) {
-            executeDnsMode(privateDns)
+            executeDnsMode()
         } else {
             showMessage(NoPermissionMessage)
         }
