@@ -3,6 +3,7 @@ package com.flashsphere.privatednsqs.ui
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.os.Build
+import androidx.activity.compose.ReportDrawn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,11 +29,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -45,6 +50,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
@@ -56,9 +62,12 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -82,7 +91,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
@@ -103,6 +112,10 @@ fun MainScreen(
     showAppInfo: () -> Unit,
     requestAddTile: () -> Unit,
 ) {
+    LifecycleResumeEffect(Unit) {
+        viewModel.reloadDnsHostname()
+        onPauseOrDispose {}
+    }
     MainScreen(
         hasPermission = viewModel::hasPermission,
         snackbarMessageFlow = viewModel.snackbarMessages,
@@ -148,9 +161,9 @@ private fun MainScreen(
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    LifecycleStartEffect(Unit) {
+    LifecycleResumeEffect(Unit) {
         openHelpMenu.value = !hasPermission()
-        onStopOrDispose {}
+        onPauseOrDispose {}
     }
     LaunchedEffect(Unit) {
         launch {
@@ -205,6 +218,7 @@ private fun MainScreen(
                             onDismissRequest = { openDropdownMenu.value = false }
                         ) {
                             DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Outlined.Info, stringResource(id = R.string.app_info)) },
                                 text = { Text(stringResource(id = R.string.app_info))},
                                 onClick = {
                                     showAppInfo()
@@ -213,6 +227,7 @@ private fun MainScreen(
                             )
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                 DropdownMenuItem(
+                                    leadingIcon = { Icon(Icons.Filled.Add, stringResource(id = R.string.add_tile)) },
                                     text = { Text(stringResource(id = R.string.add_tile))},
                                     onClick = {
                                         requestAddTile()
@@ -221,6 +236,7 @@ private fun MainScreen(
                                 )
                             }
                             DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, stringResource(id = R.string.help)) },
                                 text = { Text(stringResource(id = R.string.help))},
                                 onClick = {
                                     openHelpMenu.value = true
@@ -291,6 +307,7 @@ private fun MainScreen(
             HelpDialog(openHelpMenu)
         }
     }
+    ReportDrawn()
 }
 
 @Composable
@@ -400,20 +417,39 @@ private fun RevertIcon(
     }
 
     if (revertState.value) {
-        Box(modifier = Modifier.size(24.dp).padding(start = 4.dp)
-            .clickable(
-                interactionSource = null,
-                indication = ripple(bounded = false),
-                onClick = {
-                    textFieldState.edit { replace(0, length, dnsHostnameFlow.value) }
-                }
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Replay,
-                contentDescription = stringResource(R.string.revert)
-            )
+        Tooltip(stringResource(R.string.revert)) {
+            Box(modifier = Modifier.size(24.dp).padding(start = 4.dp)
+                .clickable(
+                    interactionSource = null,
+                    indication = ripple(bounded = false),
+                    onClick = {
+                        textFieldState.setTextAndPlaceCursorAtEnd(dnsHostnameFlow.value)
+                    }
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Replay,
+                    contentDescription = stringResource(R.string.revert)
+                )
+            }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun Tooltip(
+    text: String,
+    content: @Composable () -> Unit,
+) {
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip { Text(text = text, style = AppTypography.bodyMedium) }
+        },
+        state = rememberTooltipState()
+    ) {
+        content()
     }
 }
 
