@@ -50,7 +50,10 @@ class MainViewModel(
     private val _requireUnlockChecked = MutableStateFlow(dataStore.requireUnlock())
     val requireUnlockChecked = _requireUnlockChecked.asStateFlow()
 
-    val dnsHostnameTextFieldState = TextFieldState(privateDns.getHostname() ?: "")
+    private val _dnsHostname = MutableStateFlow(privateDns.getHostname() ?: "")
+    val dnsHostname = _dnsHostname.asStateFlow()
+
+    val dnsHostnameTextFieldState = TextFieldState(_dnsHostname.value)
 
     fun dnsOffChecked(checked: Boolean) {
         _dnsOffChecked.value = checked
@@ -89,6 +92,7 @@ class MainViewModel(
             return
         }
         privateDns.setHostname(dnsHostName)
+        _dnsHostname.value = dnsHostName
         showSnackbarMessage(ChangesSavedMessage)
     }
 

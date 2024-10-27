@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,10 +19,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
@@ -31,6 +32,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -57,6 +59,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -64,6 +67,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -90,6 +94,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @Composable
@@ -110,6 +115,7 @@ fun MainScreen(
         dnsHostnameTextFieldState = viewModel.dnsHostnameTextFieldState,
         requireUnlockStateFlow = viewModel.requireUnlockChecked,
         onRequireUnlockClick = viewModel::requireUnlockChecked,
+        dnsHostnameFlow = viewModel.dnsHostname,
         onSaveClick = viewModel::save,
         showAppInfo = showAppInfo,
         requestAddTile = requestAddTile,
@@ -128,6 +134,7 @@ private fun MainScreen(
     dnsOnStateFlow: StateFlow<Boolean>,
     onDnsOnClick: (checked: Boolean) -> Unit,
     dnsHostnameTextFieldState: TextFieldState,
+    dnsHostnameFlow: StateFlow<String>,
     requireUnlockStateFlow: StateFlow<Boolean>,
     onRequireUnlockClick: (checked: Boolean) -> Unit,
     onSaveClick: () -> Unit,
@@ -146,23 +153,25 @@ private fun MainScreen(
         onStopOrDispose {}
     }
     LaunchedEffect(Unit) {
-        snackbarMessageFlow.collect {
-            if (it is NoDnsHostnameMessage) {
-                focusRequester.requestFocus()
-            }
+        launch {
+            snackbarMessageFlow.collect {
+                if (it is NoDnsHostnameMessage) {
+                    focusRequester.requestFocus()
+                }
 
-            coroutineScope.launch {
-                snackbarHostState.currentSnackbarData?.dismiss()
-                if (it is NoPermissionMessage) {
-                    val result = snackbarHostState.showSnackbar(
-                        message = it.getMessage(context),
-                        actionLabel = context.getString(R.string.help),
-                        duration = SnackbarDuration.Long)
-                    if (result == SnackbarResult.ActionPerformed) {
-                        openHelpMenu.value = true
+                coroutineScope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    if (it is NoPermissionMessage) {
+                        val result = snackbarHostState.showSnackbar(
+                            message = it.getMessage(context),
+                            actionLabel = context.getString(R.string.help),
+                            duration = SnackbarDuration.Long)
+                        if (result == SnackbarResult.ActionPerformed) {
+                            openHelpMenu.value = true
+                        }
+                    } else {
+                        snackbarHostState.showSnackbar(it.getMessage(context))
                     }
-                } else {
-                    snackbarHostState.showSnackbar(it.getMessage(context))
                 }
             }
         }
@@ -253,9 +262,12 @@ private fun MainScreen(
 
                 Row(modifier = Modifier.padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     CheckBoxWithLabel(dnsOnStateFlow, onDnsOnClick, stringResource(R.string.dns_on))
-                    TextField(modifier = Modifier.focusRequester(focusRequester),
+                    TextField(
+                        modifier = Modifier.focusRequester(focusRequester),
                         textFieldState = dnsHostnameTextFieldState,
-                        label = stringResource(R.string.dns_hostname_hint))
+                        label = stringResource(R.string.dns_hostname_hint),
+                        trailingIcon = { RevertIcon(dnsHostnameFlow, dnsHostnameTextFieldState) }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -316,14 +328,13 @@ private fun TextField(
     modifier: Modifier,
     textFieldState: TextFieldState,
     label: String,
+    trailingIcon: @Composable () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
     BasicTextField(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
+        modifier = modifier.fillMaxWidth(),
         state = textFieldState,
         textStyle = AppTypography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
         inputTransformation = {
@@ -346,10 +357,9 @@ private fun TextField(
             keyboardController?.hide()
         },
         decorator = { innerTextField ->
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()) {
-                Box(contentAlignment = Alignment.CenterStart) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Box(modifier = Modifier.defaultMinSize(minHeight = 24.dp),
+                    contentAlignment = Alignment.CenterStart) {
                     if (textFieldState.text.isEmpty()) {
                         Text(
                             text = label,
@@ -357,13 +367,54 @@ private fun TextField(
                             color = LocalContentColor.current.copy(alpha = 0.5F)
                         )
                     }
-                    innerTextField()
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.weight(1F)) { innerTextField() }
+                        trailingIcon()
+                    }
 
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.primary)
             }
         }
     )
+}
+
+@Composable
+private fun RevertIcon(
+    dnsHostnameFlow: StateFlow<String>,
+    textFieldState: TextFieldState,
+) {
+    val revertState = remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        launch {
+            snapshotFlow { textFieldState.text }
+                .map { it.toString() != dnsHostnameFlow.value }
+                .collect { revertState.value = it }
+        }
+        launch {
+            dnsHostnameFlow
+                .map { it != textFieldState.text.toString() }
+                .collect { revertState.value = it }
+        }
+    }
+
+    if (revertState.value) {
+        Box(modifier = Modifier.size(24.dp).padding(start = 4.dp)
+            .clickable(
+                interactionSource = null,
+                indication = ripple(bounded = false),
+                onClick = {
+                    textFieldState.edit { replace(0, length, dnsHostnameFlow.value) }
+                }
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Replay,
+                contentDescription = stringResource(R.string.revert)
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -389,7 +440,7 @@ private fun HelpDialog(openDialog: MutableState<Boolean>) {
                     }
                     Row(modifier = Modifier.padding(top = 8.dp)) {
                         TextButton(onClick = {
-                            context.startActivity(Intent(ACTION_VIEW, HELP_URL))
+                            runCatching { context.startActivity(Intent(ACTION_VIEW, HELP_URL)) }
                         }) { Text(stringResource(R.string.more_details)) }
                         Spacer(modifier = Modifier.weight(1F))
                         TextButton(onClick = { openDialog.value = false }) { Text(stringResource(R.string.ok)) }
@@ -403,12 +454,13 @@ private fun HelpDialog(openDialog: MutableState<Boolean>) {
 @Preview
 @Composable
 private fun MainScreenPreview() {
-    val snackbarMessageFlow = MutableStateFlow(null).filterNotNull()
-    val dnsOff = MutableStateFlow(true)
-    val dnsAuto = MutableStateFlow(true)
-    val dnsOn = MutableStateFlow(true)
-    val dnsHostName = TextFieldState()
-    val requireUnlock = MutableStateFlow(false)
+    val snackbarMessageFlow = remember { MutableStateFlow(null).filterNotNull() }
+    val dnsOff = remember { MutableStateFlow(true) }
+    val dnsAuto = remember { MutableStateFlow(true) }
+    val dnsOn = remember { MutableStateFlow(true) }
+    val dnsHostnameTextFieldState = TextFieldState()
+    val requireUnlock = remember { MutableStateFlow(false) }
+    val dnsHostnameFlow = remember { MutableStateFlow("") }
 
     MainScreen(
         hasPermission = { true },
@@ -419,10 +471,11 @@ private fun MainScreenPreview() {
         onDnsAutoClick = { dnsAuto.value = it },
         dnsOnStateFlow = dnsOn,
         onDnsOnClick = { dnsOn.value = it },
-        dnsHostnameTextFieldState = dnsHostName,
+        dnsHostnameTextFieldState = dnsHostnameTextFieldState,
+        dnsHostnameFlow = dnsHostnameFlow,
         requireUnlockStateFlow = requireUnlock,
         onRequireUnlockClick = { requireUnlock.value = it },
-        onSaveClick = { ChangesSavedMessage },
+        onSaveClick = { dnsHostnameFlow.value = dnsHostnameTextFieldState.text.toString() },
         showAppInfo = {},
         requestAddTile = {},
     )

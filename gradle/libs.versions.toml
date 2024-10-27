@@ -1,6 +1,6 @@
 [versions]
-appVersionCode = "18"
-appVersionName = "1.15"
+appVersionCode = "19"
+appVersionName = "1.16"
 androidGradlePlugin = "8.7.1"
 kotlin = "2.0.21"
 androidxCore = "1.13.1"
@@ -25,6 +25,7 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 

@@ -28,5 +28,6 @@
     <string name="add_tile">Add tile</string>
     <string name="save">Save</string>
     <string name="ok">OK</string>
+    <string name="revert">Revert</string>
     <string name="help">Help</string>
 </resources>
