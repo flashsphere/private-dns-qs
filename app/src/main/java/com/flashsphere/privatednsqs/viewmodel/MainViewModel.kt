@@ -1,6 +1,7 @@
 package com.flashsphere.privatednsqs.viewmodel
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
@@ -54,6 +55,17 @@ class MainViewModel(
     val dnsHostname = _dnsHostname.asStateFlow()
 
     val dnsHostnameTextFieldState = TextFieldState(_dnsHostname.value)
+
+    fun reloadDnsHostname() {
+        val updatedHostname = privateDns.getHostname() ?: ""
+
+        dnsHostnameTextFieldState.text.trim().toString().let {
+            if (it != updatedHostname && it == _dnsHostname.value) {
+                dnsHostnameTextFieldState.setTextAndPlaceCursorAtEnd(updatedHostname)
+            }
+        }
+        _dnsHostname.value = updatedHostname
+    }
 
     fun dnsOffChecked(checked: Boolean) {
         _dnsOffChecked.value = checked

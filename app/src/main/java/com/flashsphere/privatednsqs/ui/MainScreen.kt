@@ -3,6 +3,7 @@ package com.flashsphere.privatednsqs.ui
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.os.Build
+import androidx.activity.compose.ReportDrawn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -82,7 +84,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
@@ -103,6 +105,10 @@ fun MainScreen(
     showAppInfo: () -> Unit,
     requestAddTile: () -> Unit,
 ) {
+    LifecycleResumeEffect(Unit) {
+        viewModel.reloadDnsHostname()
+        onPauseOrDispose {}
+    }
     MainScreen(
         hasPermission = viewModel::hasPermission,
         snackbarMessageFlow = viewModel.snackbarMessages,
@@ -148,9 +154,9 @@ private fun MainScreen(
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    LifecycleStartEffect(Unit) {
+    LifecycleResumeEffect(Unit) {
         openHelpMenu.value = !hasPermission()
-        onStopOrDispose {}
+        onPauseOrDispose {}
     }
     LaunchedEffect(Unit) {
         launch {
@@ -291,6 +297,7 @@ private fun MainScreen(
             HelpDialog(openHelpMenu)
         }
     }
+    ReportDrawn()
 }
 
 @Composable
@@ -405,7 +412,7 @@ private fun RevertIcon(
                 interactionSource = null,
                 indication = ripple(bounded = false),
                 onClick = {
-                    textFieldState.edit { replace(0, length, dnsHostnameFlow.value) }
+                    textFieldState.setTextAndPlaceCursorAtEnd(dnsHostnameFlow.value)
                 }
             )
         ) {
