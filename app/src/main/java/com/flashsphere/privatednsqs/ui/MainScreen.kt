@@ -47,6 +47,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
@@ -58,9 +59,12 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -407,20 +411,39 @@ private fun RevertIcon(
     }
 
     if (revertState.value) {
-        Box(modifier = Modifier.size(24.dp).padding(start = 4.dp)
-            .clickable(
-                interactionSource = null,
-                indication = ripple(bounded = false),
-                onClick = {
-                    textFieldState.setTextAndPlaceCursorAtEnd(dnsHostnameFlow.value)
-                }
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Replay,
-                contentDescription = stringResource(R.string.revert)
-            )
+        Tooltip(stringResource(R.string.revert)) {
+            Box(modifier = Modifier.size(24.dp).padding(start = 4.dp)
+                .clickable(
+                    interactionSource = null,
+                    indication = ripple(bounded = false),
+                    onClick = {
+                        textFieldState.setTextAndPlaceCursorAtEnd(dnsHostnameFlow.value)
+                    }
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Replay,
+                    contentDescription = stringResource(R.string.revert)
+                )
+            }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun Tooltip(
+    text: String,
+    content: @Composable () -> Unit,
+) {
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip { Text(text = text, style = AppTypography.bodyMedium) }
+        },
+        state = rememberTooltipState()
+    ) {
+        content()
     }
 }
 
