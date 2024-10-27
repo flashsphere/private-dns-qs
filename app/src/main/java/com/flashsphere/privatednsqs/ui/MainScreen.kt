@@ -33,8 +33,11 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -215,6 +218,7 @@ private fun MainScreen(
                             onDismissRequest = { openDropdownMenu.value = false }
                         ) {
                             DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.Outlined.Info, stringResource(id = R.string.app_info)) },
                                 text = { Text(stringResource(id = R.string.app_info))},
                                 onClick = {
                                     showAppInfo()
@@ -223,6 +227,7 @@ private fun MainScreen(
                             )
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                 DropdownMenuItem(
+                                    leadingIcon = { Icon(Icons.Filled.Add, stringResource(id = R.string.add_tile)) },
                                     text = { Text(stringResource(id = R.string.add_tile))},
                                     onClick = {
                                         requestAddTile()
@@ -231,6 +236,7 @@ private fun MainScreen(
                                 )
                             }
                             DropdownMenuItem(
+                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, stringResource(id = R.string.help)) },
                                 text = { Text(stringResource(id = R.string.help))},
                                 onClick = {
                                     openHelpMenu.value = true
