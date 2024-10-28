@@ -4,20 +4,25 @@ import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.os.Build
 import androidx.activity.compose.ReportDrawn
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -84,7 +89,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -329,17 +333,23 @@ private fun CheckBoxWithLabel(
     label: String,
 ) {
     val checked = state.collectAsStateWithLifecycle().value
+    val checkboxInteractionSource = remember { MutableInteractionSource() }
     Row(modifier = Modifier
         .padding(horizontal = 4.dp)
-        .clickable { onClick(!checked) },
+        .clickable(
+            interactionSource = checkboxInteractionSource,
+            indication = null,
+            onClick = { onClick(!checked) },
+        ),
         verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = checked, onCheckedChange = onClick)
+        Checkbox(checked = checked, onCheckedChange = onClick, interactionSource = checkboxInteractionSource)
         Text(modifier = Modifier.padding(end = 8.dp), text = label, style = AppTypography.bodyMedium)
     }
 }
 
 val spaceRegex = "\\s".toRegex()
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TextField(
     modifier: Modifier,
@@ -348,7 +358,15 @@ private fun TextField(
     trailingIcon: @Composable () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val imeVisible = WindowInsets.isImeVisible
+    val wasImeVisible = remember { mutableStateOf(imeVisible) }
+
+    LaunchedEffect(imeVisible) {
+        if (!imeVisible && wasImeVisible.value) {
+            focusManager.clearFocus()
+        }
+        wasImeVisible.value = imeVisible
+    }
 
     BasicTextField(
         modifier = modifier.fillMaxWidth(),
@@ -369,28 +387,23 @@ private fun TextField(
             autoCorrectEnabled = false,
             keyboardType = KeyboardType.Uri,
             imeAction = ImeAction.Done),
-        onKeyboardAction = {
-            focusManager.clearFocus()
-            keyboardController?.hide()
-        },
         decorator = { innerTextField ->
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.defaultMinSize(minHeight = 24.dp),
-                    contentAlignment = Alignment.CenterStart) {
-                    if (textFieldState.text.isEmpty()) {
-                        Text(
-                            text = label,
-                            style = AppTypography.bodyMedium,
-                            color = LocalContentColor.current.copy(alpha = 0.5F)
-                        )
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.weight(1F)) { innerTextField() }
-                        trailingIcon()
-                    }
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1F)) {
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        if (textFieldState.text.isEmpty()) {
+                            Text(
+                                text = label,
+                                style = AppTypography.bodyMedium,
+                                color = LocalContentColor.current.copy(alpha = 0.5F)
+                            )
+                        }
+                        innerTextField()
 
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.primary)
                 }
-                HorizontalDivider(color = MaterialTheme.colorScheme.primary)
+                trailingIcon()
             }
         }
     )
@@ -416,7 +429,11 @@ private fun RevertIcon(
         }
     }
 
-    if (revertState.value) {
+    AnimatedVisibility(
+        visible = revertState.value,
+        enter = expandIn(expandFrom = Alignment.CenterEnd),
+        exit = shrinkOut(shrinkTowards = Alignment.CenterEnd),
+    ) {
         Tooltip(stringResource(R.string.revert)) {
             Box(modifier = Modifier.size(24.dp).padding(start = 4.dp)
                 .clickable(
