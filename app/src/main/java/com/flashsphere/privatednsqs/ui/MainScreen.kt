@@ -5,6 +5,7 @@ import android.content.Intent.ACTION_VIEW
 import android.os.Build
 import androidx.activity.compose.ReportDrawn
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -329,11 +330,16 @@ private fun CheckBoxWithLabel(
     label: String,
 ) {
     val checked = state.collectAsStateWithLifecycle().value
+    val checkboxInteractionSource = remember { MutableInteractionSource() }
     Row(modifier = Modifier
         .padding(horizontal = 4.dp)
-        .clickable { onClick(!checked) },
+        .clickable(
+            interactionSource = checkboxInteractionSource,
+            indication = null,
+            onClick = { onClick(!checked) },
+        ),
         verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = checked, onCheckedChange = onClick)
+        Checkbox(checked = checked, onCheckedChange = onClick, interactionSource = checkboxInteractionSource)
         Text(modifier = Modifier.padding(end = 8.dp), text = label, style = AppTypography.bodyMedium)
     }
 }
