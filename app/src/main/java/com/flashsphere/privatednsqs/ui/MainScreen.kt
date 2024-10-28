@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -374,23 +373,22 @@ private fun TextField(
             keyboardController?.hide()
         },
         decorator = { innerTextField ->
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.defaultMinSize(minHeight = 24.dp),
-                    contentAlignment = Alignment.CenterStart) {
-                    if (textFieldState.text.isEmpty()) {
-                        Text(
-                            text = label,
-                            style = AppTypography.bodyMedium,
-                            color = LocalContentColor.current.copy(alpha = 0.5F)
-                        )
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.weight(1F)) { innerTextField() }
-                        trailingIcon()
-                    }
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1F)) {
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        if (textFieldState.text.isEmpty()) {
+                            Text(
+                                text = label,
+                                style = AppTypography.bodyMedium,
+                                color = LocalContentColor.current.copy(alpha = 0.5F)
+                            )
+                        }
+                        innerTextField()
 
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.primary)
                 }
-                HorizontalDivider(color = MaterialTheme.colorScheme.primary)
+                trailingIcon()
             }
         }
     )
