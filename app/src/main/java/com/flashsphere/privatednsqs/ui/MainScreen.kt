@@ -4,6 +4,9 @@ import android.content.Intent
 import android.content.Intent.ACTION_VIEW
 import android.os.Build
 import androidx.activity.compose.ReportDrawn
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -426,7 +429,11 @@ private fun RevertIcon(
         }
     }
 
-    if (revertState.value) {
+    AnimatedVisibility(
+        visible = revertState.value,
+        enter = expandIn(expandFrom = Alignment.CenterEnd),
+        exit = shrinkOut(shrinkTowards = Alignment.CenterEnd),
+    ) {
         Tooltip(stringResource(R.string.revert)) {
             Box(modifier = Modifier.size(24.dp).padding(start = 4.dp)
                 .clickable(
