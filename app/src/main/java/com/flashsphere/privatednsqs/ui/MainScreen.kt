@@ -7,6 +7,7 @@ import androidx.activity.compose.ReportDrawn
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -83,7 +85,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -339,6 +340,7 @@ private fun CheckBoxWithLabel(
 
 val spaceRegex = "\\s".toRegex()
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TextField(
     modifier: Modifier,
@@ -347,7 +349,15 @@ private fun TextField(
     trailingIcon: @Composable () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val imeVisible = WindowInsets.isImeVisible
+    val wasImeVisible = remember { mutableStateOf(imeVisible) }
+
+    LaunchedEffect(imeVisible) {
+        if (!imeVisible && wasImeVisible.value) {
+            focusManager.clearFocus()
+        }
+        wasImeVisible.value = imeVisible
+    }
 
     BasicTextField(
         modifier = modifier.fillMaxWidth(),
@@ -368,10 +378,6 @@ private fun TextField(
             autoCorrectEnabled = false,
             keyboardType = KeyboardType.Uri,
             imeAction = ImeAction.Done),
-        onKeyboardAction = {
-            focusManager.clearFocus()
-            keyboardController?.hide()
-        },
         decorator = { innerTextField ->
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1F)) {
