@@ -8,7 +8,7 @@ import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 
-abstract class DnsToggleActivity : ComponentActivity() {
+abstract class DnsToggleActivity : BaseActivity() {
     abstract val dnsMode: DnsMode
 
     protected lateinit var privateDns: PrivateDns

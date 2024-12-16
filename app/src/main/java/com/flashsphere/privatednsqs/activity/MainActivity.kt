@@ -32,7 +32,7 @@ import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
 import com.flashsphere.privatednsqs.ui.TileNotAddedMessage
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : BaseActivity() {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {

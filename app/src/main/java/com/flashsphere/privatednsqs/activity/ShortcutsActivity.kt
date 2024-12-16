@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.core.content.pm.ShortcutManagerCompat
 import timber.log.Timber
 
-class ShortcutsActivity : ComponentActivity() {
+class ShortcutsActivity : BaseActivity() {
     override fun onStart() {
         super.onStart()
         val action = intent?.action
