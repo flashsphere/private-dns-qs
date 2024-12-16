@@ -91,6 +91,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     implementation(libs.timber)
+    implementation(libs.process.phoenix)
 
     androidTestImplementation composeBom
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

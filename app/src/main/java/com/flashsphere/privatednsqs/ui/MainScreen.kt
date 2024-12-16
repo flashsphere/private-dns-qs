@@ -9,6 +9,7 @@ import androidx.compose.animation.expandIn
 import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -85,6 +86,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
@@ -99,6 +101,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
+import com.flashsphere.privatednsqs.ui.modifier.moveFocusOnTab
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
 import com.flashsphere.privatednsqs.ui.theme.Monospace
@@ -336,6 +339,7 @@ private fun CheckBoxWithLabel(
     val checkboxInteractionSource = remember { MutableInteractionSource() }
     Row(modifier = Modifier
         .padding(horizontal = 4.dp)
+        .focusProperties { canFocus = false }
         .clickable(
             interactionSource = checkboxInteractionSource,
             indication = null,
@@ -360,16 +364,18 @@ private fun TextField(
     val focusManager = LocalFocusManager.current
     val imeVisible = WindowInsets.isImeVisible
     val wasImeVisible = remember { mutableStateOf(imeVisible) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused = interactionSource.collectIsFocusedAsState()
 
-    LaunchedEffect(imeVisible) {
-        if (!imeVisible && wasImeVisible.value) {
+    LaunchedEffect(Unit) {
+        if (!imeVisible && wasImeVisible.value && isFocused.value) {
             focusManager.clearFocus()
         }
         wasImeVisible.value = imeVisible
     }
 
     BasicTextField(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().moveFocusOnTab(focusManager),
         state = textFieldState,
         textStyle = AppTypography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
         inputTransformation = {
@@ -382,6 +388,7 @@ private fun TextField(
                 placeCursorBeforeCharAt(cursorIndex)
             }
         },
+        interactionSource = interactionSource,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
         keyboardOptions = KeyboardOptions(
             autoCorrectEnabled = false,
