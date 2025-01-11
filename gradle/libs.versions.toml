@@ -1,7 +1,7 @@
 [versions]
 appVersionCode = "22"
 appVersionName = "1.19"
-androidGradlePlugin = "8.7.3"
+androidGradlePlugin = "8.8.0"
 kotlin = "2.1.0"
 androidxCore = "1.15.0"
 androidxDatastorePrefs = "1.1.1"
