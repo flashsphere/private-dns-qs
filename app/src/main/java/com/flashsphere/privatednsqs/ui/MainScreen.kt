@@ -380,7 +380,7 @@ private fun TextField(
         textStyle = AppTypography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
         inputTransformation = {
             val newText = asCharSequence()
-            if (originalText != newText && newText.contains(spaceRegex)) {
+            if (!originalText.contentEquals(newText) && newText.contains(spaceRegex)) {
                 val sanitized = newText.replace(spaceRegex, "")
                 var cursorIndex = originalSelection.start + sanitized.length - originalText.length
                 if (cursorIndex < 0 || cursorIndex > sanitized.length) cursorIndex = sanitized.length
