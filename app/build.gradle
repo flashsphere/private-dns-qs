@@ -6,27 +6,27 @@ plugins {
 }
 
 android {
-    namespace "com.flashsphere.privatednsqs"
-    compileSdk 35
+    namespace = "com.flashsphere.privatednsqs"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId "com.flashsphere.privatednsqs"
-        minSdkVersion 28
-        targetSdkVersion 35
-        versionCode libs.versions.appVersionCode.get().toInteger()
-        versionName libs.versions.appVersionName.get()
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        applicationId = "com.flashsphere.privatednsqs"
+        minSdk = 28
+        targetSdk = 36
+        versionCode = libs.versions.appVersionCode.get().toInteger()
+        versionName = libs.versions.appVersionName.get()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     kotlin {
         jvmToolchain(21)
     }
     compileOptions {
-        sourceCompatibility 21
-        targetCompatibility 21
+        sourceCompatibility = 21
+        targetCompatibility = 21
     }
     buildFeatures {
-        compose true
-        buildConfig true
+        compose = true
+        buildConfig = true
     }
     dependenciesInfo {
         // Disables dependency metadata when building APKs.
@@ -36,29 +36,29 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file(PRIVATE_DNS_QS_RELEASE_STORE_FILE)
-            storePassword PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD
-            keyAlias PRIVATE_DNS_QS_RELEASE_KEY_ALIAS
-            keyPassword PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD
+            storeFile = file(PRIVATE_DNS_QS_RELEASE_STORE_FILE)
+            storePassword = PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD
+            keyAlias = PRIVATE_DNS_QS_RELEASE_KEY_ALIAS
+            keyPassword = PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD
 
-            v1SigningEnabled true
-            v2SigningEnabled true
+            v1SigningEnabled = true
+            v2SigningEnabled = true
             enableV3Signing = true
             enableV4Signing = true
         }
     }
     buildTypes {
         debug {
-            applicationIdSuffix ".debug"
-            versionNameSuffix "-SNAPSHOT"
-            debuggable true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-SNAPSHOT"
+            debuggable = true
         }
         release {
-            debuggable false
-            minifyEnabled true
-            shrinkResources true
-            signingConfig signingConfigs.release
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable = false
+            minifyEnabled = true
+            shrinkResources = true
+            signingConfig = signingConfigs.release
+            proguardFiles(getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro')
         }
     }
     bundle {
@@ -86,7 +86,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     def composeBom = platform(libs.androidx.compose.bom)
-    implementation composeBom
+    implementation(composeBom)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.foundation)
@@ -99,6 +99,6 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.process.phoenix)
 
-    androidTestImplementation composeBom
+    androidTestImplementation(composeBom)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }
