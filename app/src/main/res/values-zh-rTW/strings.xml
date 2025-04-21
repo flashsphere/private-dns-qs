@@ -20,12 +20,9 @@
     <string name="toast_changes_saved">已儲存您的變更</string>
     <string name="toast_cannot_open_app_info">開啟應用程式資訊時發生錯誤：%1$s</string>
     <string name="toast_cannot_open_more_info">開啟網頁時發生錯誤：%1$s</string>
-    <string name="message_help">"應用程式需要 WRITE_SECURE_SETTINGS 才能變更私人 DNS 設定。
-這項權限僅能透過 ADB 指令取得：
-"</string>
+    <string name="message_help">應用程式需要 WRITE_SECURE_SETTINGS 才能變更私人 DNS 設定。\n這項權限僅能透過 ADB 指令取得：</string>
     <string name="tile_added">已將 DNS 方塊新增至快速設定</string>
-    <string name="tile_not_added">"無法將 DNS 方塊新增至快速設定。
-錯誤代碼：%1$d"</string>
+    <string name="tile_not_added">無法將 DNS 方塊新增至快速設定。錯誤代碼：%1$d</string>
     <string name="tile_already_added">DNS 方塊已在快速設定清單中</string>
     <string name="more_details">更多資訊</string>
     <string name="app_info">應用程式資訊</string>

@@ -24,8 +24,4 @@ class SettingsMigration(private val context: Context) : DataMigration<Preference
         mutablePrefs[PreferenceKeys.VERSION.key] = PreferenceKeys.VERSION.defaultValue
         return mutablePrefs.toPreferences()
     }
-
-    companion object {
-        private const val TAG = "SettingsMigration"
-    }
 }
