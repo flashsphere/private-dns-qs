@@ -7,22 +7,24 @@ import android.app.StatusBarManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.graphics.drawable.Icon
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import androidx.activity.ComponentActivity
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.net.toUri
 import androidx.core.os.BundleCompat
 import androidx.core.os.ExecutorCompat
+import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.service.PrivateDnsTileService
 import com.flashsphere.privatednsqs.ui.MainScreen
@@ -35,14 +37,19 @@ import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 class MainActivity : BaseActivity() {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
 
+    private var toast: Toast? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         setContent {
-            MainScreen(viewModel = viewModel,
-                showAppInfo = { showAppInfo() },
-                requestAddTile = { requestAddTile() })
+            MainScreen(
+                viewModel = viewModel,
+                showAppInfo = this::showAppInfo,
+                showMoreInfo = this::showMoreInfo,
+                requestAddTile = this::requestAddTile,
+            )
         }
 
         showMessageFromIntent(savedInstanceState, intent)
@@ -58,8 +65,33 @@ class MainActivity : BaseActivity() {
 
     private fun showAppInfo() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-        intent.data = Uri.parse("package:$packageName")
-        startActivity(intent)
+        intent.data = "package:$packageName".toUri()
+        runCatching { startActivity(intent) }
+            .onFailure {
+                cancelToast()
+                val message = getString(R.string.toast_cannot_open_app_info, it.toString())
+                Toast.makeText(this, message, Toast.LENGTH_LONG)?.apply {
+                    toast = this
+                    show()
+                }
+            }
+    }
+
+    private fun showMoreInfo() {
+        runCatching { startActivity(Intent(ACTION_VIEW, HELP_URL)) }
+            .onFailure {
+                cancelToast()
+                val message = getString(R.string.toast_cannot_open_more_info, it.toString())
+                Toast.makeText(this, message, Toast.LENGTH_LONG)?.apply {
+                    toast = this
+                    show()
+                }
+            }
+    }
+
+    private fun cancelToast() {
+        toast?.cancel()
+        toast = null
     }
 
     private fun requestAddTile() {

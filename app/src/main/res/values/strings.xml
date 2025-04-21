@@ -18,6 +18,8 @@
     <string name="dns_hostname_hint">DNS provider hostname</string>
     <string name="toast_no_dns">DNS provider not configured</string>
     <string name="toast_changes_saved">Your changes have been saved</string>
+    <string name="toast_cannot_open_app_info">Error opening app info in Android: %1$s</string>
+    <string name="toast_cannot_open_more_info">Error opening webpage: %1$s</string>
     <string name="message_help">To modify the Private DNS settings, this app requires the WRITE_SECURE_SETTINGS permission, which can only be granted by ADB:</string>
     <string name="message_help_adb" translatable="false">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="tile_added">Private DNS tile added to Quick Settings</string>

@@ -1,7 +1,5 @@
 package com.flashsphere.privatednsqs.ui
 
-import android.content.Intent
-import android.content.Intent.ACTION_VIEW
 import android.os.Build
 import androidx.activity.compose.ReportDrawn
 import androidx.compose.animation.AnimatedVisibility
@@ -99,7 +97,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.ui.modifier.moveFocusOnTab
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
@@ -117,6 +114,7 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     viewModel: MainViewModel,
     showAppInfo: () -> Unit,
+    showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
 ) {
     LifecycleResumeEffect(Unit) {
@@ -138,6 +136,7 @@ fun MainScreen(
         dnsHostnameFlow = viewModel.dnsHostname,
         onSaveClick = viewModel::save,
         showAppInfo = showAppInfo,
+        showMoreInfo = showMoreInfo,
         requestAddTile = requestAddTile,
     )
 }
@@ -159,6 +158,7 @@ private fun MainScreen(
     onRequireUnlockClick: (checked: Boolean) -> Unit,
     onSaveClick: () -> Unit,
     showAppInfo: () -> Unit,
+    showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -311,7 +311,7 @@ private fun MainScreen(
                 Spacer(modifier = Modifier.height(52.dp))
             }
 
-            HelpDialog(openHelpMenu)
+            HelpDialog(openDialog = openHelpMenu, showMoreInfo = showMoreInfo)
         }
     }
     ReportDrawn()
@@ -479,7 +479,7 @@ private fun Tooltip(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HelpDialog(openDialog: MutableState<Boolean>) {
+private fun HelpDialog(openDialog: MutableState<Boolean>, showMoreInfo: () -> Unit) {
     if (openDialog.value) {
         val context = LocalContext.current
         BasicAlertDialog(onDismissRequest = { openDialog.value = false }) {
@@ -499,9 +499,7 @@ private fun HelpDialog(openDialog: MutableState<Boolean>) {
                             modifier = Modifier.padding(top = 8.dp))
                     }
                     Row(modifier = Modifier.padding(top = 8.dp)) {
-                        TextButton(onClick = {
-                            runCatching { context.startActivity(Intent(ACTION_VIEW, HELP_URL)) }
-                        }) { Text(stringResource(R.string.more_details)) }
+                        TextButton(onClick = showMoreInfo) { Text(stringResource(R.string.more_details)) }
                         Spacer(modifier = Modifier.weight(1F))
                         TextButton(onClick = { openDialog.value = false }) { Text(stringResource(R.string.ok)) }
                     }
@@ -537,6 +535,7 @@ private fun MainScreenPreview() {
         onRequireUnlockClick = { requireUnlock.value = it },
         onSaveClick = { dnsHostnameFlow.value = dnsHostnameTextFieldState.text.toString() },
         showAppInfo = {},
+        showMoreInfo = {},
         requestAddTile = {},
     )
 }
