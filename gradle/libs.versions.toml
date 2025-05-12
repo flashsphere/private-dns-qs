@@ -11,6 +11,9 @@ androidxAnnotation = "1.9.1"
 androidxComposeBom = "2025.04.00"
 timber = "5.0.1"
 processPhoenix = "3.0.0"
+shizuku = "13.1.5"
+hiddenApiStub = "4.3.3"
+hiddenApiBypass = "6.1"
 
 [libraries]
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
@@ -30,6 +33,10 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 process-phoenix = { group = "com.jakewharton", name = "process-phoenix", version.ref = "processPhoenix" }
+shizuku-api = { group = "dev.rikka.shizuku", name = "api", version.ref = "shizuku" }
+shizuku-provider = { group = "dev.rikka.shizuku", name = "provider", version.ref = "shizuku" }
+hidden-api-stub = { group = "dev.rikka.hidden", name = "stub", version.ref = "hiddenApiStub" }
+hidden-api-bypass = { group = "org.lsposed.hiddenapibypass", name = "hiddenapibypass", version.ref = "hiddenApiBypass" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
