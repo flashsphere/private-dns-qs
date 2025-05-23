@@ -3,6 +3,8 @@ name: build
 on:
   push:
     branches: ["master"]
+  pull_request:
+    branches: ["develop"]
   workflow_dispatch:
 
 jobs:
@@ -33,7 +35,8 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew clean assembleRelease bundleRelease --no-daemon
-      - uses: actions/upload-artifact@v4
+      - name: Upload apk/aab
+        uses: actions/upload-artifact@v4
         with:
           path: |
             app/build/outputs/apk/release/app-release.apk
