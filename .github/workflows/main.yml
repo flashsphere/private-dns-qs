@@ -19,6 +19,8 @@ jobs:
           distribution: 'zulu'
           cache: gradle
       - uses: android-actions/setup-android@v3
+        with:
+          log-accepted-android-sdk-licenses: false
       - name: Prepare release keystore
         run: |
           echo "${{ secrets.RELEASE_STORE_FILE_BASE64 }}" > keystore.jks.asc
