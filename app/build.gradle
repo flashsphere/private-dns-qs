@@ -102,7 +102,7 @@ dependencies {
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
 
-    implementation(libs.hidden.api.stub)
+    compileOnly(libs.hidden.api.stub)
     implementation(libs.hidden.api.bypass)
 
     androidTestImplementation(composeBom)
