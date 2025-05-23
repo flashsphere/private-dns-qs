@@ -99,6 +99,12 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.process.phoenix)
 
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
+
+    implementation(libs.hidden.api.stub)
+    implementation(libs.hidden.api.bypass)
+
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 }

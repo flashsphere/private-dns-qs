@@ -11,6 +11,7 @@ import android.content.Intent.ACTION_VIEW
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
 import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.content.pm.PackageManager
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
@@ -27,14 +28,18 @@ import androidx.core.os.ExecutorCompat
 import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.service.PrivateDnsTileService
+import com.flashsphere.privatednsqs.shizuku.ShizukuUtils.grantWriteSecureSettingsPermission
+import com.flashsphere.privatednsqs.shizuku.ShizukuUtils.isShizukuAvailable
 import com.flashsphere.privatednsqs.ui.MainScreen
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.ui.TileAddedMessage
 import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
 import com.flashsphere.privatednsqs.ui.TileNotAddedMessage
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
+import rikka.shizuku.Shizuku
+import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
 
     private var toast: Toast? = null
@@ -42,6 +47,7 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        Shizuku.addRequestPermissionResultListener(this)
 
         setContent {
             MainScreen(
@@ -53,6 +59,20 @@ class MainActivity : BaseActivity() {
         }
 
         showMessageFromIntent(savedInstanceState, intent)
+    }
+
+    override fun onDestroy() {
+        Shizuku.removeRequestPermissionResultListener(this)
+        super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (!viewModel.hasPermission() && isShizukuAvailable() &&
+            checkPermission(R.id.shizuku_request_code)) {
+            grantWriteSecureSettingsPermission(this)
+        }
     }
 
     private fun showMessageFromIntent(savedInstanceState: Bundle?, intent: Intent?) {
@@ -121,6 +141,27 @@ class MainActivity : BaseActivity() {
                 viewModel.showSnackbarMessage(message)
             }
         }
+    }
+
+    override fun onRequestPermissionResult(requestCode: Int, grantResult: Int) {
+        if (requestCode != R.id.shizuku_request_code ||
+            grantResult != PackageManager.PERMISSION_GRANTED) return
+
+        grantWriteSecureSettingsPermission(this)
+    }
+
+    private fun checkPermission(code: Int): Boolean {
+        if (Shizuku.isPreV11()) {
+            return false
+        }
+        if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+            return true
+        }
+        if (Shizuku.shouldShowRequestPermissionRationale()) {
+            return false
+        }
+        Shizuku.requestPermission(code)
+        return false
     }
 
     companion object {

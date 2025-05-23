@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="start_main_activity_request_code" type="id" />
+    <item name="shizuku_request_code" type="id" />
 </resources>
