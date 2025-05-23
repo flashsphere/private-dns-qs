@@ -69,6 +69,14 @@ android {
             enableSplit = false
         }
     }
+    packagingOptions {
+        resources {
+            excludes += ['META-INF', 'META-INF/NOTICE']
+        }
+        dex {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 composeCompiler {
