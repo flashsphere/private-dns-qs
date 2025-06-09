@@ -6,6 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.parcelize) apply false
 }
 
-tasks.register('clean', Delete) {
-    delete = rootProject.layout.buildDirectory
+tasks.register("clean") {
+    delete(rootProject.layout.buildDirectory)
 }
