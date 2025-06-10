@@ -7,8 +7,8 @@
         android:shortcutLongLabel="@string/off"
         android:shortcutShortLabel="@string/dns_off">
         <intent
-            android:action="actions.intent.OFF"
-            android:targetClass="com.flashsphere.privatednsqs.activity.ShortcutsActivity"
+            android:action="privatedns.shortcut.off"
+            android:targetClass="com.flashsphere.privatednsqs.activity.DnsOffActivity"
             android:targetPackage="com.flashsphere.privatednsqs.debug" />
     </shortcut>
     <shortcut
@@ -18,8 +18,8 @@
         android:shortcutLongLabel="@string/auto"
         android:shortcutShortLabel="@string/dns_auto">
         <intent
-            android:action="actions.intent.AUTO"
-            android:targetClass="com.flashsphere.privatednsqs.activity.ShortcutsActivity"
+            android:action="privatedns.shortcut.auto"
+            android:targetClass="com.flashsphere.privatednsqs.activity.DnsAutoActivity"
             android:targetPackage="com.flashsphere.privatednsqs.debug" />
     </shortcut>
     <shortcut
@@ -29,8 +29,8 @@
         android:shortcutLongLabel="@string/on"
         android:shortcutShortLabel="@string/dns_on">
         <intent
-            android:action="actions.intent.ON"
-            android:targetClass="com.flashsphere.privatednsqs.activity.ShortcutsActivity"
+            android:action="privatedns.shortcut.on"
+            android:targetClass="com.flashsphere.privatednsqs.activity.DnsOnActivity"
             android:targetPackage="com.flashsphere.privatednsqs.debug" />
     </shortcut>
 </shortcuts>

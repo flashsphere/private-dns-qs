@@ -4,6 +4,7 @@ import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
+import androidx.core.content.ContextCompat
 import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_MODE
 import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
 
@@ -13,7 +14,7 @@ class PrivateDns(
     private val contentResolver = context.contentResolver
 
     fun hasPermission(): Boolean {
-        return context.checkCallingOrSelfPermission(WRITE_SECURE_SETTINGS) != PackageManager.PERMISSION_DENIED
+        return ContextCompat.checkSelfPermission(context, WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED
     }
 
     fun getDnsMode(): DnsMode {
