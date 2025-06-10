@@ -26,18 +26,21 @@ jobs:
         run: |
           echo "${{ secrets.RELEASE_STORE_FILE_BASE64 }}" > keystore.jks.asc
           gpg -d --passphrase "${{ secrets.RELEASE_STORE_FILE_PASSPHRASE }}" --batch keystore.jks.asc > app/keystore.jks
-      - name: Write secrets to gradle.properties
+      - name: Write gradle config to gradle.properties
         run: |
           echo "" >> gradle.properties
-          echo "PRIVATE_DNS_QS_RELEASE_STORE_FILE=keystore.jks" >> gradle.properties
-          echo "PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD }}" >> gradle.properties
-          echo "PRIVATE_DNS_QS_RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS }}" >> gradle.properties
-          echo "PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD }}" >> gradle.properties
+          echo "org.gradle.daemon=false" >> gradle.properties
           echo "" >> gradle.properties
+      - name: Write secrets to environment
+        run: |
+          echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_STORE_FILE=keystore.jks" >> "$GITHUB_ENV"
+          echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD=${{ secrets.RELEASE_STORE_PASSWORD }}" >> "$GITHUB_ENV"
+          echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS }}" >> "$GITHUB_ENV"
+          echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD }}" >> "$GITHUB_ENV"
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew clean assembleRelease bundleRelease --no-daemon
+        run: ./gradlew clean assembleRelease bundleRelease
       - name: Upload apk/aab
         uses: actions/upload-artifact@v4
         with:
