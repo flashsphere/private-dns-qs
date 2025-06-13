@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.IPackageManager
 import android.os.Build
-import android.os.UserHandle
 import android.permission.IPermissionManager
 import androidx.annotation.RequiresApi
 import org.lsposed.hiddenapibypass.HiddenApiBypass
@@ -29,11 +28,7 @@ object ShizukuUtils {
     private fun grantPermission(context: Context, permissionName: String): Boolean {
         val packageName = context.packageName
 
-        val userId = runCatching {
-            UserHandle::class.java.getMethod("myUserId").invoke(null) as? Int ?: 0
-        }.onFailure {
-            Timber.e(it, "Failed to get user id")
-        }.getOrDefault(0)
+        val userId = UserHandleCompat.myUserId()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             HiddenApiBypass.addHiddenApiExemptions("Landroid/permission")
