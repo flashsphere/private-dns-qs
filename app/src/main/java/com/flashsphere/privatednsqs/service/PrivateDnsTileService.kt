@@ -1,10 +1,12 @@
 package com.flashsphere.privatednsqs.service
 
-import android.annotation.SuppressLint
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import androidx.core.service.quicksettings.PendingIntentActivityWrapper
+import androidx.core.service.quicksettings.TileServiceCompat
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.activity.MainActivity
 import com.flashsphere.privatednsqs.datastore.DnsMode
@@ -118,13 +120,10 @@ class PrivateDnsTileService : TileService() {
         tile.updateTile()
     }
 
-    @SuppressLint("StartActivityAndCollapseDeprecated")
-    @Suppress("DEPRECATION")
     private fun showSnackbarMessage(snackbarMessage: SnackbarMessage) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startActivityAndCollapse(MainActivity.getPendingIntent(this, snackbarMessage))
-        } else {
-            startActivityAndCollapse(MainActivity.getIntent(this, snackbarMessage))
-        }
+        val intent = MainActivity.getIntent(this, snackbarMessage)
+        val pendingIntent = PendingIntentActivityWrapper(this, R.id.start_main_activity_request_code,
+            intent, FLAG_UPDATE_CURRENT, false)
+        TileServiceCompat.startActivityAndCollapse(this, pendingIntent)
     }
 }
