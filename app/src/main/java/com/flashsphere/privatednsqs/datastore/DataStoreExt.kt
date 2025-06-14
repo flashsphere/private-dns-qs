@@ -8,9 +8,14 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.onEmpty
+import kotlinx.coroutines.flow.stateIn
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = "settings",
@@ -25,42 +30,44 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     }
 )
 
-fun <T> DataStore<Preferences>.getBlocking(pref: PreferenceKey<T>): T {
-    return runBlocking {
-        data.map { it[pref.key] ?: pref.defaultValue }.first()
-    }
+suspend fun <T> DataStore<Preferences>.update(pref: PreferenceKey<T>, value: T) {
+    edit { it[pref.key] = value }
+}
+suspend fun <T> DataStore<Preferences>.get(pref: PreferenceKey<T>): T {
+    return getFlow(pref).first()
+}
+fun <T> DataStore<Preferences>.getFlow(pref: PreferenceKey<T>): Flow<T> {
+    return data.map { it[pref.key] ?: pref.defaultValue }.onEmpty { emit(pref.defaultValue) }
+}
+fun <T> DataStore<Preferences>.getStateFlow(scope: CoroutineScope, pref: PreferenceKey<T>): StateFlow<T> {
+    return getFlow(pref).stateIn(
+        scope = scope,
+        started = SharingStarted.Lazily,
+        initialValue = pref.defaultValue,
+    )
+}
+suspend fun DataStore<Preferences>.dnsOffToggle(): Boolean {
+    return get(PreferenceKeys.DNS_OFF_TOGGLE)
+}
+suspend fun DataStore<Preferences>.dnsOffToggle(value: Boolean) {
+    return update(PreferenceKeys.DNS_OFF_TOGGLE, value)
 }
 
-fun <T> DataStore<Preferences>.updateBlocking(pref: PreferenceKey<T>, value: T) {
-    runBlocking {
-        edit { it[pref.key] = value }
-    }
+suspend fun DataStore<Preferences>.dnsAutoToggle(): Boolean {
+    return get(PreferenceKeys.DNS_AUTO_TOGGLE)
 }
-
-fun DataStore<Preferences>.dnsOffToggle(): Boolean {
-    return getBlocking(PreferenceKeys.DNS_OFF_TOGGLE)
+suspend fun DataStore<Preferences>.dnsAutoToggle(value: Boolean) {
+    return update(PreferenceKeys.DNS_AUTO_TOGGLE, value)
 }
-fun DataStore<Preferences>.dnsOffToggle(value: Boolean) {
-    return updateBlocking(PreferenceKeys.DNS_OFF_TOGGLE, value)
+suspend fun DataStore<Preferences>.dnsOnToggle(): Boolean {
+    return get(PreferenceKeys.DNS_ON_TOGGLE)
 }
-
-fun DataStore<Preferences>.dnsAutoToggle(): Boolean {
-    return getBlocking(PreferenceKeys.DNS_AUTO_TOGGLE)
+suspend fun DataStore<Preferences>.dnsOnToggle(value: Boolean) {
+    return update(PreferenceKeys.DNS_ON_TOGGLE, value)
 }
-fun DataStore<Preferences>.dnsAutoToggle(value: Boolean) {
-    return updateBlocking(PreferenceKeys.DNS_AUTO_TOGGLE, value)
+suspend fun DataStore<Preferences>.requireUnlock(): Boolean {
+    return get(PreferenceKeys.REQUIRE_UNLOCK)
 }
-
-fun DataStore<Preferences>.dnsOnToggle(): Boolean {
-    return getBlocking(PreferenceKeys.DNS_ON_TOGGLE)
-}
-fun DataStore<Preferences>.dnsOnToggle(value: Boolean) {
-    return updateBlocking(PreferenceKeys.DNS_ON_TOGGLE, value)
-}
-
-fun DataStore<Preferences>.requireUnlock(): Boolean {
-    return getBlocking(PreferenceKeys.REQUIRE_UNLOCK)
-}
-fun DataStore<Preferences>.requireUnlock(value: Boolean) {
-    return updateBlocking(PreferenceKeys.REQUIRE_UNLOCK, value)
+suspend fun DataStore<Preferences>.requireUnlock(value: Boolean) {
+    return update(PreferenceKeys.REQUIRE_UNLOCK, value)
 }

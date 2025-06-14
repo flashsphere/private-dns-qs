@@ -8,11 +8,13 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.flashsphere.privatednsqs.PrivateDnsApplication
+import com.flashsphere.privatednsqs.datastore.PreferenceKeys
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.datastore.dataStore
 import com.flashsphere.privatednsqs.datastore.dnsAutoToggle
 import com.flashsphere.privatednsqs.datastore.dnsOffToggle
 import com.flashsphere.privatednsqs.datastore.dnsOnToggle
+import com.flashsphere.privatednsqs.datastore.getStateFlow
 import com.flashsphere.privatednsqs.datastore.requireUnlock
 import com.flashsphere.privatednsqs.ui.ChangesSavedMessage
 import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
@@ -39,17 +41,10 @@ class MainViewModel(
     )
     val snackbarMessages = _snackbarMessages.asSharedFlow()
 
-    private val _dnsOffChecked = MutableStateFlow(dataStore.dnsOffToggle())
-    val dnsOffChecked = _dnsOffChecked.asStateFlow()
-
-    private val _dnsAutoChecked = MutableStateFlow(dataStore.dnsAutoToggle())
-    val dnsAutoChecked = _dnsAutoChecked.asStateFlow()
-
-    private val _dnsOnChecked = MutableStateFlow(dataStore.dnsOnToggle())
-    val dnsOnChecked = _dnsOnChecked.asStateFlow()
-
-    private val _requireUnlockChecked = MutableStateFlow(dataStore.requireUnlock())
-    val requireUnlockChecked = _requireUnlockChecked.asStateFlow()
+    val dnsOffChecked = dataStore.getStateFlow(viewModelScope, PreferenceKeys.DNS_OFF_TOGGLE)
+    val dnsAutoChecked = dataStore.getStateFlow(viewModelScope, PreferenceKeys.DNS_AUTO_TOGGLE)
+    val dnsOnChecked = dataStore.getStateFlow(viewModelScope, PreferenceKeys.DNS_ON_TOGGLE)
+    val requireUnlockChecked = dataStore.getStateFlow(viewModelScope, PreferenceKeys.REQUIRE_UNLOCK)
 
     private val _dnsHostname = MutableStateFlow(privateDns.getHostname() ?: "")
     val dnsHostname = _dnsHostname.asStateFlow()
@@ -68,20 +63,16 @@ class MainViewModel(
     }
 
     fun dnsOffChecked(checked: Boolean) {
-        _dnsOffChecked.value = checked
-        dataStore.dnsOffToggle(checked)
+        viewModelScope.launch { dataStore.dnsOffToggle(checked) }
     }
     fun dnsAutoChecked(checked: Boolean) {
-        _dnsAutoChecked.value = checked
-        dataStore.dnsAutoToggle(checked)
+        viewModelScope.launch { dataStore.dnsAutoToggle(checked) }
     }
     fun dnsOnChecked(checked: Boolean) {
-        _dnsOnChecked.value = checked
-        dataStore.dnsOnToggle(checked)
+        viewModelScope.launch { dataStore.dnsOnToggle(checked) }
     }
     fun requireUnlockChecked(checked: Boolean) {
-        _requireUnlockChecked.value = checked
-        dataStore.requireUnlock(checked)
+        viewModelScope.launch { dataStore.requireUnlock(checked) }
     }
     fun showSnackbarMessage(message: SnackbarMessage) {
         viewModelScope.launch {
@@ -111,8 +102,7 @@ class MainViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras
-            ): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val application = checkNotNull(extras[APPLICATION_KEY]) as PrivateDnsApplication
                 return MainViewModel(application) as T
             }

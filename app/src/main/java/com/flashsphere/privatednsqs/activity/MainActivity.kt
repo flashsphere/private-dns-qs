@@ -1,8 +1,5 @@
 package com.flashsphere.privatednsqs.activity
 
-import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.StatusBarManager
 import android.content.ComponentName
 import android.content.Context
@@ -165,10 +162,6 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
     }
 
     companion object {
-        fun getPendingIntent(context: Context, message: SnackbarMessage): PendingIntent =
-            PendingIntent.getActivity(context, R.id.start_main_activity_request_code,
-                getIntent(context, message), FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT)
-
         fun getIntent(context: Context, message: SnackbarMessage): Intent =
             Intent(context, MainActivity::class.java)
                 .addFlags(FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NEW_TASK)

@@ -1,10 +1,12 @@
 package com.flashsphere.privatednsqs.service
 
-import android.annotation.SuppressLint
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import androidx.core.service.quicksettings.PendingIntentActivityWrapper
+import androidx.core.service.quicksettings.TileServiceCompat
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.activity.MainActivity
 import com.flashsphere.privatednsqs.datastore.DnsMode
@@ -17,13 +19,24 @@ import com.flashsphere.privatednsqs.datastore.requireUnlock
 import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class PrivateDnsTileService : TileService() {
+    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private lateinit var privateDns: PrivateDns
 
     override fun onCreate() {
         super.onCreate()
         privateDns = PrivateDns(this)
+    }
+
+    override fun onDestroy() {
+        coroutineScope.cancel()
+        super.onDestroy()
     }
 
     override fun onStartListening() {
@@ -43,18 +56,23 @@ class PrivateDnsTileService : TileService() {
 
     override fun onClick() {
         val isLocked = this.isSecure && this.isLocked
-        val requireUnlock = dataStore.requireUnlock()
 
-        if (!isLocked || !requireUnlock) {
-            toggle()
-        } else {
-            unlockAndRun {
+        coroutineScope.launch {
+            val requireUnlock = dataStore.requireUnlock()
+
+            if (!isLocked || !requireUnlock) {
                 toggle()
+            } else {
+                unlockAndRun {
+                    coroutineScope.launch {
+                        toggle()
+                    }
+                }
             }
         }
     }
 
-    private fun toggle() {
+    private suspend fun toggle() {
         val tile = this.qsTile ?: return
 
         if (!privateDns.hasPermission()) {
@@ -118,13 +136,10 @@ class PrivateDnsTileService : TileService() {
         tile.updateTile()
     }
 
-    @SuppressLint("StartActivityAndCollapseDeprecated")
-    @Suppress("DEPRECATION")
     private fun showSnackbarMessage(snackbarMessage: SnackbarMessage) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startActivityAndCollapse(MainActivity.getPendingIntent(this, snackbarMessage))
-        } else {
-            startActivityAndCollapse(MainActivity.getIntent(this, snackbarMessage))
-        }
+        val intent = MainActivity.getIntent(this, snackbarMessage)
+        val pendingIntent = PendingIntentActivityWrapper(this, R.id.start_main_activity_request_code,
+            intent, FLAG_UPDATE_CURRENT, false)
+        TileServiceCompat.startActivityAndCollapse(this, pendingIntent)
     }
 }

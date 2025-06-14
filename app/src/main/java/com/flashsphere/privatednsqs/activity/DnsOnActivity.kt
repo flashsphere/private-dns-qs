@@ -1,7 +1,5 @@
 package com.flashsphere.privatednsqs.activity
 
-import android.content.Context
-import android.content.Intent
 import com.flashsphere.privatednsqs.datastore.DnsMode
 import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
 
@@ -14,12 +12,6 @@ class DnsOnActivity : DnsToggleActivity() {
             privateDns.setDnsMode(dnsMode)
         } else {
             showMessage(NoDnsHostnameMessage)
-        }
-    }
-
-    companion object {
-        fun startActivity(context: Context) {
-            context.startActivity(Intent(context, DnsOnActivity::class.java))
         }
     }
 }
