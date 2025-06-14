@@ -8,6 +8,7 @@ plugins {
 android {
     namespace = "com.flashsphere.privatednsqs"
     compileSdk = 36
+    flavorDimensions += listOf("type")
 
     defaultConfig {
         applicationId = "com.flashsphere.privatednsqs"
@@ -59,6 +60,16 @@ android {
             isShrinkResources = true
             signingConfig = signingConfigs["release"]
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+    productFlavors {
+        create("launcher") {
+            dimension = "type"
+            isDefault = true
+        }
+        create("nolauncher") {
+            dimension = "type"
+            versionCode = Int.MAX_VALUE // To prevent app store updates
         }
     }
     bundle {
