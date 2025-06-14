@@ -17,6 +17,8 @@ android {
         versionCode = libs.versions.appVersionCode.get().toInt()
         versionName = libs.versions.appVersionName.get()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        base.archivesName = "PrivateDnsQS-v${versionName}"
     }
     kotlinOptions {
         jvmTarget = "21"
