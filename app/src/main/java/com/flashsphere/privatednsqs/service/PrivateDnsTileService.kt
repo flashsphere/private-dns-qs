@@ -19,13 +19,24 @@ import com.flashsphere.privatednsqs.datastore.requireUnlock
 import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class PrivateDnsTileService : TileService() {
+    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private lateinit var privateDns: PrivateDns
 
     override fun onCreate() {
         super.onCreate()
         privateDns = PrivateDns(this)
+    }
+
+    override fun onDestroy() {
+        coroutineScope.cancel()
+        super.onDestroy()
     }
 
     override fun onStartListening() {
@@ -45,18 +56,23 @@ class PrivateDnsTileService : TileService() {
 
     override fun onClick() {
         val isLocked = this.isSecure && this.isLocked
-        val requireUnlock = dataStore.requireUnlock()
 
-        if (!isLocked || !requireUnlock) {
-            toggle()
-        } else {
-            unlockAndRun {
+        coroutineScope.launch {
+            val requireUnlock = dataStore.requireUnlock()
+
+            if (!isLocked || !requireUnlock) {
                 toggle()
+            } else {
+                unlockAndRun {
+                    coroutineScope.launch {
+                        toggle()
+                    }
+                }
             }
         }
     }
 
-    private fun toggle() {
+    private suspend fun toggle() {
         val tile = this.qsTile ?: return
 
         if (!privateDns.hasPermission()) {
