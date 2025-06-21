@@ -32,5 +32,5 @@ Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the p
     <img alt="Get it on F-Droid" height="80" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" /></a>
 
 <a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank">
-    <img alt="Get it on GitHub" height="80" src="https://github.com/flashsphere/private-dns-qs/blob/develop/static/get-it-on-github.png?raw=true" /></a>
+    <img alt="Get it on GitHub" height="80" src="https://raw.githubusercontent.com/flocke/andOTP/master/assets/badges/get-it-on-github.svg?raw=true" /></a>
 </div>
