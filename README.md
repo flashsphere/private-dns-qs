@@ -1,3 +1,6 @@
+# THE REPOSITORY IS NO LONGER NEEDED AS THE DEVELOPER ITSELF ADDED `NO LAUNCHER` BUILD IN RELEASES ON MY CALL.
+
+
 # Private DNS Quick Setting
  
 Toggle and configure your Private DNS settings on Android 9+ from the comfort of your quick settings panel.
@@ -18,10 +21,17 @@ installed and [started](https://shizuku.rikka.app/guide/setup/#start-shizuku).
 ### 2. ADB
 The permission can be granted in an ADB shell with the command:
 ```
-adb shell pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS
+pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS
 ```
 
 Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the permission.
+
+## About this Fork
+This fork introduces a small but useful enhancement: the ability to hide the launcher activity, effectively removing the app icon from the app drawer. This is helpful for users who prefer a cleaner app list or consider the app icon unnecessary once the tile has been added to Quick Settings.
+
+🔒 **Hide Launcher Activity**: Removes the app icon from the launcher to reduce clutter. The functionality of the Quick Settings tile remains unaffected.
+
+✅ All core features from the original repository are preserved.
 
 ## Download
 <div>
@@ -30,7 +40,4 @@ Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the p
 
 <a href="https://apt.izzysoft.de/fdroid/index/apk/com.flashsphere.privatednsqs" target="_blank">
     <img alt="Get it on F-Droid" height="80" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" /></a>
-
-<a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank">
-    <img alt="Get it on GitHub" height="80" src="https://github.com/flashsphere/private-dns-qs/blob/develop/static/get-it-on-github.png?raw=true" /></a>
 </div>
