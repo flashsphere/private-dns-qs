@@ -26,11 +26,6 @@ jobs:
         run: |
           echo "${{ secrets.RELEASE_STORE_FILE_BASE64 }}" > keystore.jks.asc
           gpg -d --passphrase "${{ secrets.RELEASE_STORE_FILE_PASSPHRASE }}" --batch keystore.jks.asc > app/keystore.jks
-      - name: Write gradle config to gradle.properties
-        run: |
-          echo "" >> gradle.properties
-          echo "org.gradle.daemon=false" >> gradle.properties
-          echo "" >> gradle.properties
       - name: Write secrets to environment
         run: |
           echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_STORE_FILE=keystore.jks" >> "$GITHUB_ENV"
