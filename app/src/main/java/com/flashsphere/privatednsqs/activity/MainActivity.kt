@@ -76,6 +76,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
         if (savedInstanceState != null) return
         if (intent == null) return
         val bundle = intent.getBundleExtra(PARAM_BUNDLE) ?: return
+        bundle.classLoader = SnackbarMessage::class.java.classLoader
         val message = BundleCompat.getParcelable(bundle, PARAM_MESSAGE, SnackbarMessage::class.java) ?: return
         viewModel.showSnackbarMessage(message)
     }
