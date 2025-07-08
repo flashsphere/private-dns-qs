@@ -52,7 +52,6 @@ suspend fun DataStore<Preferences>.dnsOffToggle(): Boolean {
 suspend fun DataStore<Preferences>.dnsOffToggle(value: Boolean) {
     return update(PreferenceKeys.DNS_OFF_TOGGLE, value)
 }
-
 suspend fun DataStore<Preferences>.dnsAutoToggle(): Boolean {
     return get(PreferenceKeys.DNS_AUTO_TOGGLE)
 }

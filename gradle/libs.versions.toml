@@ -1,18 +1,18 @@
 [versions]
 appVersionCode = "28"
 appVersionName = "1.25"
-androidGradlePlugin = "8.10.1"
-kotlin = "2.1.21"
+androidGradlePlugin = "8.11.0"
+kotlin = "2.2.0"
 androidxCore = "1.16.0"
 androidxDatastorePrefs = "1.1.7"
 androidxActivity = "1.10.1"
 androidxLifecycle = "2.9.1"
 androidxAnnotation = "1.9.1"
-androidxComposeBom = "2025.06.00"
+androidxComposeBom = "2025.06.01"
 timber = "5.0.1"
 processPhoenix = "3.0.0"
 shizuku = "13.1.5"
-rikkaHiddenApi = "4.3.3"
+rikkaHiddenApi = "4.4.0"
 hiddenApiBypass = "6.1"
 
 [libraries]
