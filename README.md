@@ -16,9 +16,9 @@ As of v1.23, the permission can be granted automatically if you have [Shizuku](h
 installed and [started](https://shizuku.rikka.app/guide/setup/#start-shizuku).
 
 ### 2. ADB
-The permission can be granted in an ADB shell with the command:
+The permission can be granted using ADB with the command:
 ```
-pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS
+adb shell pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS
 ```
 
 Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the permission.
