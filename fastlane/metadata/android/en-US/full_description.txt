@@ -1,1 +1,15 @@
-<p>Configure your preferred DNS modes to toggle in app and toggle your Private DNS mode from your quick settings panel.</p><p>In order to change the Private DNS setting, this app requires the ’WRITE_SECURE_SETTINGS’ permission.</p><p>This permission can only be granted in an ADB shell with the command:<br><code>pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS</code><br>Check out <a href='https://private-dns-qs.web.app/help' target='_blank' rel='nofollow noopener'>private-dns-qs.web.app/help</a> on the steps to use adb to grant the permission.</p>
+Configure your preferred DNS modes to toggle in app and toggle your Private DNS mode from your quick settings panel.
+
+In order to change the Private DNS setting, this app requires the `WRITE_SECURE_SETTINGS` permission.
+
+This permission can only be granted either by Shizuku or in an ADB shell.
+
+- [Shizuku](https://shizuku.rikka.app/download/)
+
+    [Start Shizuku](https://shizuku.rikka.app/guide/setup/#start-shizuku), then open this app, and the permission should be granted automatically.
+
+- ADB
+
+    Use the command: `adb shell pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS`
+
+    Check out [private-dns-qs.web.app/help](https://private-dns-qs.web.app/help) on the steps to use adb to grant the permission.

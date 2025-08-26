@@ -1,1 +1,1 @@
-Toggle Private DNS from Quick Settings
+Toggle Private DNS from Quick Settings (needs Shizuku or ADB for initial setup)
