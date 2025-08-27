@@ -38,7 +38,7 @@ object ShizukuUtils {
                 permissionManager.grantRuntimePermission(packageName, permissionName, userId)
                 return true
             }.onFailure {
-                Timber.e(it, "Grant permission using Android 11 API failed")
+                Timber.w(it, "Grant permission using Android 11 API failed")
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -52,7 +52,7 @@ object ShizukuUtils {
                     )
                     return true
                 }.onFailure {
-                    Timber.e(it, "Grant permission using Android 14 r29 API failed")
+                    Timber.w(it, "Grant permission using Android 14 r29 API failed")
                 }.recoverCatching {
                     // Android 14 r50
                     permissionManager.grantRuntimePermission(
@@ -63,7 +63,7 @@ object ShizukuUtils {
                     )
                     return true
                 }.onFailure {
-                    Timber.e(it, "Grant permission using Android 14 r50 API failed")
+                    Timber.w(it, "Grant permission using Android 14 r50 API failed")
                 }
             }
         } else {

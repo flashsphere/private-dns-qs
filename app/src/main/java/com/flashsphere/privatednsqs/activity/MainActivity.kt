@@ -35,6 +35,7 @@ import com.flashsphere.privatednsqs.ui.TileNotAddedMessage
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
+import timber.log.Timber
 
 class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
@@ -66,8 +67,11 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
     override fun onResume() {
         super.onResume()
 
-        if (!viewModel.hasPermission() && isShizukuAvailable() &&
-            checkPermission(R.id.shizuku_request_code)) {
+        if (
+            !viewModel.hasPermission() &&
+            isShizukuAvailable() &&
+            checkPermission(R.id.shizuku_request_code)
+        ) {
             grantWriteSecureSettingsPermission(this)
         }
     }
@@ -149,16 +153,20 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
     }
 
     private fun checkPermission(code: Int): Boolean {
-        if (Shizuku.isPreV11()) {
-            return false
+        runCatching {
+            if (Shizuku.isPreV11()) {
+                return false
+            }
+            if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
+                return true
+            }
+            if (Shizuku.shouldShowRequestPermissionRationale()) {
+                return false
+            }
+            Shizuku.requestPermission(code)
+        }.onFailure {
+            Timber.w(it)
         }
-        if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
-            return true
-        }
-        if (Shizuku.shouldShowRequestPermissionRationale()) {
-            return false
-        }
-        Shizuku.requestPermission(code)
         return false
     }
 
