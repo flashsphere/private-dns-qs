@@ -12,7 +12,7 @@ In order to change the Private DNS settings, this app requires the
 `WRITE_SECURE_SETTINGS` permission. It can be granted either by Shizuku or ADB.
 
 ### 1. Shizuku
-As of v1.23, the permission can be granted automatically if you have [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) 
+As of v1.23, the permission can be granted automatically if you have [Shizuku](https://shizuku.rikka.app/download/) 
 installed and [started](https://shizuku.rikka.app/guide/setup/#start-shizuku).
 
 ### 2. ADB
