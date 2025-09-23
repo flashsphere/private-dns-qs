@@ -7,6 +7,7 @@ import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_MODE
 import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
+import com.flashsphere.privatednsqs.R
 
 class PrivateDns(
     private val context: Context
@@ -32,6 +33,39 @@ class PrivateDns(
         return DnsMode.Auto
     }
 
+    suspend fun getNextDnsMode(): DnsMode {
+        val dataStore = context.dataStore
+        return when (getDnsMode()) {
+            DnsMode.Off -> {
+                if (dataStore.dnsAutoToggle()) {
+                    DnsMode.Auto
+                } else if (dataStore.dnsOnToggle()) {
+                    DnsMode.On
+                } else {
+                    DnsMode.Off
+                }
+            }
+            DnsMode.Auto -> {
+                if (dataStore.dnsOnToggle()) {
+                    DnsMode.On
+                } else if (dataStore.dnsOffToggle()) {
+                    DnsMode.Off
+                } else {
+                    DnsMode.Auto
+                }
+            }
+            DnsMode.On -> {
+                if (dataStore.dnsOffToggle()) {
+                    DnsMode.Off
+                } else if (dataStore.dnsAutoToggle()) {
+                    DnsMode.Auto
+                } else {
+                    DnsMode.On
+                }
+            }
+        }
+    }
+
     fun setDnsMode(dnsMode: DnsMode) {
         Settings.Global.putString(contentResolver, PRIVATE_DNS_MODE, dnsMode.value)
     }
@@ -45,6 +79,8 @@ class PrivateDns(
     }
 }
 
-enum class DnsMode(val value: String) {
-    Off("off"), Auto("opportunistic"), On("hostname")
+enum class DnsMode(val value: String, val iconResId: Int, val labelResId: Int) {
+    Off("off", R.drawable.ic_dns_off, R.string.off),
+    Auto("opportunistic", R.drawable.ic_dns_auto, R.string.auto),
+    On("hostname", R.drawable.ic_dns_on, R.string.on);
 }

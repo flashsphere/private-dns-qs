@@ -5,12 +5,15 @@
     <string name="dns_off">停用 DNS</string>
     <string name="dns_auto">自動 DNS</string>
     <string name="dns_on">啟用 DNS</string>
+    <string name="dns_toggle">DNS 切換</string>
     <string name="off">停用</string>
     <string name="auto">自動</string>
     <string name="on">啟用</string>
+    <string name="toggle">切換</string>
     <string name="set_dns_off">將私人 DNS 設為關閉</string>
     <string name="set_dns_auto">將私人 DNS 設為自動</string>
     <string name="set_dns_on">將私人 DNS 設為開啟</string>
+    <string name="toggle_dns">切換私人 DNS</string>
     <string name="require_unlock">必須解鎖裝置才能切換方塊</string>
     <string name="dns_modes_to_toggle">DNS 切換方式</string>
     <string name="other_settings">其他設定</string>

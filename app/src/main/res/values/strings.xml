@@ -5,12 +5,15 @@
     <string name="dns_off">DNS Off</string>
     <string name="dns_auto">DNS Auto</string>
     <string name="dns_on">DNS On</string>
+    <string name="dns_toggle">DNS Toggle</string>
     <string name="off">Off</string>
     <string name="auto">Auto</string>
     <string name="on">On</string>
+    <string name="toggle">Toggle</string>
     <string name="set_dns_off">Set Private DNS to Off</string>
     <string name="set_dns_auto">Set Private DNS to Auto</string>
     <string name="set_dns_on">Set Private DNS to On</string>
+    <string name="toggle_dns">Toggle Private DNS</string>
     <string name="require_unlock">Require device to be unlocked to toggle tile</string>
     <string name="dns_modes_to_toggle">DNS modes to toggle</string>
     <string name="other_settings">Other settings</string>

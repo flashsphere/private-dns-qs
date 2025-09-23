@@ -35,6 +35,14 @@
         </activity>
 
         <activity
+            android:name=".activity.DnsToggleActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_toggle"
+            android:label="@string/toggle_dns"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.NoDisplay" />
+        <activity
             android:name=".activity.DnsOffActivity"
             android:excludeFromRecents="true"
             android:exported="true"

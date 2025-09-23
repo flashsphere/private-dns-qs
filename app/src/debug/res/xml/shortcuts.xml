@@ -2,6 +2,17 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:enabled="true"
+        android:icon="@drawable/ic_shortcut_toggle"
+        android:shortcutId="privatedns.shortcut.toggle"
+        android:shortcutLongLabel="@string/toggle"
+        android:shortcutShortLabel="@string/dns_toggle">
+        <intent
+            android:action="privatedns.shortcut.toggle"
+            android:targetClass="com.flashsphere.privatednsqs.activity.DnsToggleActivity"
+            android:targetPackage="com.flashsphere.privatednsqs.debug" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
         android:icon="@drawable/ic_shortcut_off"
         android:shortcutId="privatedns.shortcut.off"
         android:shortcutLongLabel="@string/off"

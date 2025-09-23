@@ -3,7 +3,7 @@ package com.flashsphere.privatednsqs.activity
 import com.flashsphere.privatednsqs.datastore.DnsMode
 import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
 
-class DnsOnActivity : DnsToggleActivity() {
+class DnsOnActivity : DnsModeActivity() {
     override val dnsMode = DnsMode.On
 
     override fun executeDnsMode() {
