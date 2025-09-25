@@ -32,6 +32,7 @@ import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.ui.TileAddedMessage
 import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
 import com.flashsphere.privatednsqs.ui.TileNotAddedMessage
+import com.flashsphere.privatednsqs.ui.WriteSecureSettingPermissionGrantedUsingShizuku
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
@@ -64,15 +65,11 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
         super.onDestroy()
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
 
-        if (
-            !viewModel.hasPermission() &&
-            isShizukuAvailable() &&
-            checkPermission(R.id.shizuku_request_code)
-        ) {
-            grantWriteSecureSettingsPermission(this)
+        if (!viewModel.hasPermission() && isShizukuAvailable() && checkShizukuPermission(R.id.shizuku_request_code)) {
+            grantWriteSecureSettingsPermission()
         }
     }
 
@@ -149,10 +146,17 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
         if (requestCode != R.id.shizuku_request_code ||
             grantResult != PackageManager.PERMISSION_GRANTED) return
 
-        grantWriteSecureSettingsPermission(this)
+        grantWriteSecureSettingsPermission()
     }
 
-    private fun checkPermission(code: Int): Boolean {
+    private fun grantWriteSecureSettingsPermission() {
+        if (grantWriteSecureSettingsPermission(this)) {
+            viewModel.openHelpDialog(false)
+            viewModel.showSnackbarMessage(WriteSecureSettingPermissionGrantedUsingShizuku)
+        }
+    }
+
+    private fun checkShizukuPermission(code: Int): Boolean {
         runCatching {
             if (Shizuku.isPreV11()) {
                 return false

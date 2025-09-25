@@ -50,3 +50,10 @@ class TileNotAddedMessage(private val resultCode: Int) : SnackbarMessage {
         return context.getString(R.string.tile_not_added, resultCode)
     }
 }
+
+@Parcelize
+object WriteSecureSettingPermissionGrantedUsingShizuku : SnackbarMessage {
+    override fun getMessage(context: Context): String {
+        return context.getString(R.string.permission_granted_using_shizuku)
+    }
+}

@@ -75,7 +75,6 @@ import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -122,7 +121,8 @@ fun MainScreen(
         onPauseOrDispose {}
     }
     MainScreen(
-        hasPermission = viewModel::hasPermission,
+        openHelpDialogFlow = viewModel.openHelpDialogFlow,
+        openHelpDialog = viewModel::openHelpDialog,
         snackbarMessageFlow = viewModel.snackbarMessages,
         dnsOffStateFlow = viewModel.dnsOffChecked,
         onDnsOffClick = viewModel::dnsOffChecked,
@@ -144,7 +144,8 @@ fun MainScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreen(
-    hasPermission: () -> Boolean,
+    openHelpDialogFlow: StateFlow<Boolean>,
+    openHelpDialog: (Boolean) -> Unit,
     snackbarMessageFlow: Flow<SnackbarMessage>,
     dnsOffStateFlow: StateFlow<Boolean>,
     onDnsOffClick: (checked: Boolean) -> Unit,
@@ -162,16 +163,11 @@ private fun MainScreen(
     requestAddTile: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val openHelpMenu = rememberSaveable { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    LifecycleResumeEffect(Unit) {
-        openHelpMenu.value = !hasPermission()
-        onPauseOrDispose {}
-    }
     LaunchedEffect(Unit) {
         launch {
             snackbarMessageFlow.collect {
@@ -187,7 +183,7 @@ private fun MainScreen(
                             actionLabel = context.getString(R.string.help),
                             duration = SnackbarDuration.Long)
                         if (result == SnackbarResult.ActionPerformed) {
-                            openHelpMenu.value = true
+                            openHelpDialog(true)
                         }
                     } else {
                         snackbarHostState.showSnackbar(it.getMessage(context))
@@ -246,7 +242,7 @@ private fun MainScreen(
                                 leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, stringResource(id = R.string.help)) },
                                 text = { Text(stringResource(id = R.string.help))},
                                 onClick = {
-                                    openHelpMenu.value = true
+                                    openHelpDialog(true)
                                     openDropdownMenu.value = false
                                 }
                             )
@@ -311,7 +307,11 @@ private fun MainScreen(
                 Spacer(modifier = Modifier.height(52.dp))
             }
 
-            HelpDialog(openDialog = openHelpMenu, showMoreInfo = showMoreInfo)
+            HelpDialog(
+                openHelpDialogFlow = openHelpDialogFlow,
+                openHelpDialog = openHelpDialog,
+                showMoreInfo = showMoreInfo,
+            )
         }
     }
     ReportDrawn()
@@ -479,10 +479,11 @@ private fun Tooltip(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HelpDialog(openDialog: MutableState<Boolean>, showMoreInfo: () -> Unit) {
-    if (openDialog.value) {
+private fun HelpDialog(openHelpDialogFlow: StateFlow<Boolean>, openHelpDialog: (Boolean) -> Unit, showMoreInfo: () -> Unit) {
+    val openDialogState = openHelpDialogFlow.collectAsStateWithLifecycle().value
+    if (openDialogState) {
         val context = LocalContext.current
-        BasicAlertDialog(onDismissRequest = { openDialog.value = false }) {
+        BasicAlertDialog(onDismissRequest = { openHelpDialog(false) }) {
             Surface(
                 modifier = Modifier.wrapContentSize(),
                 shape = MaterialTheme.shapes.extraLarge,
@@ -501,7 +502,7 @@ private fun HelpDialog(openDialog: MutableState<Boolean>, showMoreInfo: () -> Un
                     Row(modifier = Modifier.padding(top = 8.dp)) {
                         TextButton(onClick = showMoreInfo) { Text(stringResource(R.string.more_details)) }
                         Spacer(modifier = Modifier.weight(1F))
-                        TextButton(onClick = { openDialog.value = false }) { Text(stringResource(R.string.ok)) }
+                        TextButton(onClick = { openHelpDialog(false) }) { Text(stringResource(R.string.ok)) }
                     }
                 }
             }
@@ -512,6 +513,7 @@ private fun HelpDialog(openDialog: MutableState<Boolean>, showMoreInfo: () -> Un
 @Preview
 @Composable
 private fun MainScreenPreview() {
+    val openHelpDialogFlow = remember { MutableStateFlow(false) }
     val snackbarMessageFlow = remember { MutableStateFlow(null).filterNotNull() }
     val dnsOff = remember { MutableStateFlow(true) }
     val dnsAuto = remember { MutableStateFlow(true) }
@@ -521,7 +523,8 @@ private fun MainScreenPreview() {
     val dnsHostnameFlow = remember { MutableStateFlow("") }
 
     MainScreen(
-        hasPermission = { true },
+        openHelpDialogFlow = openHelpDialogFlow,
+        openHelpDialog = { openHelpDialogFlow.value = it },
         snackbarMessageFlow = snackbarMessageFlow,
         dnsOffStateFlow = dnsOff,
         onDnsOffClick = { dnsOff.value = it },

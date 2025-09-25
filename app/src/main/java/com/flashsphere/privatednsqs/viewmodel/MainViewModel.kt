@@ -2,9 +2,11 @@ package com.flashsphere.privatednsqs.viewmodel
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.flashsphere.privatednsqs.PrivateDnsApplication
@@ -30,6 +32,7 @@ import kotlinx.coroutines.launch
 
 class MainViewModel(
     application: PrivateDnsApplication,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val dataStore = application.dataStore
     private val privateDns = PrivateDns(application)
@@ -41,6 +44,9 @@ class MainViewModel(
     )
     val snackbarMessages = _snackbarMessages.asSharedFlow()
 
+    private val _openHelpDialogFlow = savedStateHandle.getMutableStateFlow("open_help_menu", false)
+    val openHelpDialogFlow = _openHelpDialogFlow.asStateFlow()
+
     val dnsOffChecked = dataStore.getStateFlow(viewModelScope, PreferenceKeys.DNS_OFF_TOGGLE)
     val dnsAutoChecked = dataStore.getStateFlow(viewModelScope, PreferenceKeys.DNS_AUTO_TOGGLE)
     val dnsOnChecked = dataStore.getStateFlow(viewModelScope, PreferenceKeys.DNS_ON_TOGGLE)
@@ -50,6 +56,14 @@ class MainViewModel(
     val dnsHostname = _dnsHostname.asStateFlow()
 
     val dnsHostnameTextFieldState = TextFieldState(_dnsHostname.value)
+
+    init {
+        _openHelpDialogFlow.value = !hasPermission()
+    }
+
+    fun openHelpDialog(open: Boolean) {
+        _openHelpDialogFlow.value = open
+    }
 
     fun reloadDnsHostname() {
         val updatedHostname = privateDns.getHostname() ?: ""
@@ -104,7 +118,8 @@ class MainViewModel(
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
                 val application = checkNotNull(extras[APPLICATION_KEY]) as PrivateDnsApplication
-                return MainViewModel(application) as T
+                val savedStateHandle = extras.createSavedStateHandle()
+                return MainViewModel(application, savedStateHandle) as T
             }
         }
     }

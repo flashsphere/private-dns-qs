@@ -25,6 +25,7 @@
     <string name="toast_cannot_open_more_info">Error opening webpage: %1$s</string>
     <string name="message_help">To modify the Private DNS settings, this app requires the WRITE_SECURE_SETTINGS permission, which can only be granted by ADB:</string>
     <string name="message_help_adb" translatable="false">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_granted_using_shizuku">WRITE_SECURE_SETTINGS permission granted using Shizuku</string>
     <string name="tile_added">Private DNS tile added to Quick Settings</string>
     <string name="tile_not_added">Private DNS tile not added to Quick Settings. Error code = %1$d</string>
     <string name="tile_already_added">Private DNS tile already added to Quick Settings</string>
