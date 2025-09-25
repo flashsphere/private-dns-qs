@@ -66,8 +66,9 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TooltipDefaults.rememberTooltipPositionProvider
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
@@ -250,21 +251,24 @@ private fun MainScreen(
                     }
                 )
             },
-            snackbarHost = { SnackbarHost(snackbarHostState) {
-                val state = rememberSwipeToDismissBoxState(
-                    confirmValueChange = { state ->
-                        if (state != SwipeToDismissBoxValue.Settled) {
-                            snackbarHostState.currentSnackbarData?.dismiss()
-                            true
-                        } else {
-                            false
+            snackbarHost = {
+                SnackbarHost(snackbarHostState) {
+                    SwipeToDismissBox(
+                        state = rememberSwipeToDismissBoxState(),
+                        backgroundContent = {},
+                        onDismiss = { state ->
+                            if (state != SwipeToDismissBoxValue.Settled) {
+                                snackbarHostState.currentSnackbarData?.dismiss()
+                                true
+                            } else {
+                                false
+                            }
                         }
+                    ) {
+                        Snackbar(it)
                     }
-                )
-                SwipeToDismissBox(state = state, backgroundContent = {}) {
-                    Snackbar(it)
                 }
-            } }
+            }
         ) { padding ->
             Column(
                 modifier = Modifier
@@ -467,7 +471,7 @@ private fun Tooltip(
     content: @Composable () -> Unit,
 ) {
     TooltipBox(
-        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        positionProvider = rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
         tooltip = {
             PlainTooltip { Text(text = text, style = AppTypography.bodyMedium) }
         },
