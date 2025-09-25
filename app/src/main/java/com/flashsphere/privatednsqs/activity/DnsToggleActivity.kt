@@ -5,6 +5,7 @@ import com.flashsphere.privatednsqs.PrivateDnsApplication
 import com.flashsphere.privatednsqs.datastore.DnsMode
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
+import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import kotlinx.coroutines.runBlocking
 
 class DnsToggleActivity : DnsShortcutActivity() {
@@ -19,6 +20,12 @@ class DnsToggleActivity : DnsShortcutActivity() {
 
     private fun executeDnsMode() {
         val privateDns = PrivateDns(this)
+
+        if (!privateDns.hasPermission()) {
+            showMessage(NoPermissionMessage)
+            return
+        }
+
         val nextDnsMode = runBlocking { privateDns.getNextDnsMode() }
 
         when (nextDnsMode) {
