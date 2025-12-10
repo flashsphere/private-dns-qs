@@ -63,7 +63,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipAnchorPosition
@@ -89,6 +88,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -167,7 +167,7 @@ private fun MainScreen(
     val focusRequester = remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
+    val resources = LocalResources.current
 
     LaunchedEffect(Unit) {
         launch {
@@ -180,14 +180,14 @@ private fun MainScreen(
                     snackbarHostState.currentSnackbarData?.dismiss()
                     if (it is NoPermissionMessage) {
                         val result = snackbarHostState.showSnackbar(
-                            message = it.getMessage(context),
-                            actionLabel = context.getString(R.string.help),
+                            message = it.getMessage(resources),
+                            actionLabel = resources.getString(R.string.help),
                             duration = SnackbarDuration.Long)
                         if (result == SnackbarResult.ActionPerformed) {
                             openHelpDialog(true)
                         }
                     } else {
-                        snackbarHostState.showSnackbar(it.getMessage(context))
+                        snackbarHostState.showSnackbar(it.getMessage(resources))
                     }
                 }
             }
@@ -256,14 +256,7 @@ private fun MainScreen(
                     SwipeToDismissBox(
                         state = rememberSwipeToDismissBoxState(),
                         backgroundContent = {},
-                        onDismiss = { state ->
-                            if (state != SwipeToDismissBoxValue.Settled) {
-                                snackbarHostState.currentSnackbarData?.dismiss()
-                                true
-                            } else {
-                                false
-                            }
-                        }
+                        onDismiss = { snackbarHostState.currentSnackbarData?.dismiss() }
                     ) {
                         Snackbar(it)
                     }

@@ -41,8 +41,7 @@ class PrivateDnsTileService : TileService() {
 
         val tile = this.qsTile ?: return
 
-        val dnsMode = privateDns.getDnsMode()
-        when (dnsMode) {
+        when (val dnsMode = privateDns.getDnsMode()) {
             DnsMode.Off -> changeTileState(tile, Tile.STATE_INACTIVE, getString(dnsMode.labelResId), dnsMode.iconResId)
             DnsMode.Auto -> changeTileState(tile, Tile.STATE_ACTIVE, getString(dnsMode.labelResId), dnsMode.iconResId)
             DnsMode.On -> {
@@ -78,8 +77,7 @@ class PrivateDnsTileService : TileService() {
             return
         }
 
-        val nextDnsMode = privateDns.getNextDnsMode()
-        when (nextDnsMode) {
+        when (val nextDnsMode = privateDns.getNextDnsMode()) {
             DnsMode.Off -> {
                 privateDns.setDnsMode(nextDnsMode)
                 changeTileState(tile, Tile.STATE_INACTIVE, getString(nextDnsMode.labelResId), nextDnsMode.iconResId)

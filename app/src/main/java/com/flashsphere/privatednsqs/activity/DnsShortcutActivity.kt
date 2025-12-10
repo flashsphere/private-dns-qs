@@ -10,8 +10,7 @@ abstract class DnsShortcutActivity : BaseActivity() {
     }
 
     protected fun reportShortcutUsed() {
-        val shortcutId = intent?.action
-        when (shortcutId) {
+        when (val shortcutId = intent?.action) {
             "privatedns.shortcut.toggle",
             "privatedns.shortcut.off",
             "privatedns.shortcut.auto",
