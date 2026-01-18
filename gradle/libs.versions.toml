@@ -1,14 +1,14 @@
 [versions]
 appVersionCode = "32"
 appVersionName = "1.29"
-androidGradlePlugin = "8.13.1"
-kotlin = "2.2.21"
+androidGradlePlugin = "9.0.0"
+kotlin = "2.3.0"
 androidxCore = "1.17.0"
 androidxDatastorePrefs = "1.2.0"
-androidxActivity = "1.12.1"
+androidxActivity = "1.12.2"
 androidxLifecycle = "2.10.0"
 androidxAnnotation = "1.9.1"
-androidxComposeBom = "2025.12.00"
+androidxComposeBom = "2026.01.00"
 timber = "5.0.1"
 processPhoenix = "3.0.0"
 shizuku = "13.1.5"
@@ -16,6 +16,7 @@ rikkaHiddenApi = "4.4.0"
 hiddenApiBypass = "6.1"
 
 [libraries]
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-datastore-prefs = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastorePrefs" }
@@ -40,6 +41,5 @@ hidden-api-bypass = { group = "org.lsposed.hiddenapibypass", name = "hiddenapiby
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }

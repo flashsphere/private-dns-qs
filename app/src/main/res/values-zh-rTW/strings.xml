@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">DNS 快速設定</string>
     <string name="tile_name">DNS 切換</string>
-    <string name="app_config">DNS 設定切換方式</string>
     <string name="dns_off">停用 DNS</string>
     <string name="dns_auto">自動 DNS</string>
     <string name="dns_on">啟用 DNS</string>
