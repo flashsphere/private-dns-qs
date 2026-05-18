@@ -14,13 +14,13 @@ kotlin {
 
 android {
     namespace = "com.flashsphere.privatednsqs"
-    compileSdk = 36
+    compileSdk = 37
     flavorDimensions += listOf("type")
 
     defaultConfig {
         applicationId = "com.flashsphere.privatednsqs"
         minSdk = 28
-        targetSdk = 36
+        targetSdk = 37
         versionCode = libs.versions.appVersionCode.get().toInt()
         versionName = libs.versions.appVersionName.get()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
