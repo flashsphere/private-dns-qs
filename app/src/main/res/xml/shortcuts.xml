@@ -2,7 +2,7 @@
 <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_shortcut_toggle"
+        android:icon="@mipmap/ic_launcher_toggle"
         android:shortcutId="privatedns.shortcut.toggle"
         android:shortcutLongLabel="@string/toggle"
         android:shortcutShortLabel="@string/dns_toggle">
@@ -13,7 +13,7 @@
     </shortcut>
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_shortcut_off"
+        android:icon="@mipmap/ic_launcher_off"
         android:shortcutId="privatedns.shortcut.off"
         android:shortcutLongLabel="@string/off"
         android:shortcutShortLabel="@string/dns_off">
@@ -24,7 +24,7 @@
     </shortcut>
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_shortcut_auto"
+        android:icon="@mipmap/ic_launcher"
         android:shortcutId="privatedns.shortcut.auto"
         android:shortcutLongLabel="@string/auto"
         android:shortcutShortLabel="@string/dns_auto">
@@ -35,7 +35,7 @@
     </shortcut>
     <shortcut
         android:enabled="true"
-        android:icon="@drawable/ic_shortcut_on"
+        android:icon="@mipmap/ic_launcher_on"
         android:shortcutId="privatedns.shortcut.on"
         android:shortcutLongLabel="@string/on"
         android:shortcutShortLabel="@string/dns_on">
