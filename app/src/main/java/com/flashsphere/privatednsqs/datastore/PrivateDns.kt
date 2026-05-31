@@ -4,6 +4,7 @@ import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
+import android.service.quicksettings.Tile
 import androidx.core.content.ContextCompat
 import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_MODE
 import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
@@ -79,8 +80,13 @@ class PrivateDns(
     }
 }
 
-enum class DnsMode(val value: String, val iconResId: Int, val labelResId: Int) {
-    Off("off", R.drawable.ic_dns_off, R.string.off),
-    Auto("opportunistic", R.drawable.ic_dns_auto, R.string.auto),
-    On("hostname", R.drawable.ic_dns_on, R.string.on);
+enum class DnsMode(
+    val value: String,
+    val iconResId: Int,
+    val labelResId: Int,
+    val tileState: Int,
+) {
+    Off("off", R.drawable.ic_dns_off, R.string.off,Tile.STATE_INACTIVE),
+    Auto("opportunistic", R.drawable.ic_dns_auto, R.string.auto, Tile.STATE_ACTIVE),
+    On("hostname", R.drawable.ic_dns_on, R.string.on, Tile.STATE_ACTIVE);
 }

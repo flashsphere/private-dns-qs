@@ -1,7 +1,6 @@
 package com.flashsphere.privatednsqs.service
 
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
-import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -23,16 +22,22 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 class PrivateDnsTileService : TileService() {
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+    private val mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private lateinit var privateDns: PrivateDns
+    private lateinit var tileInfoUpdater: TileInfoUpdater
 
     override fun onCreate() {
         super.onCreate()
+        tileInfoUpdater = if (!Build.MANUFACTURER.equals("samsung", ignoreCase = true)) {
+            DefaultTileInfoUpdater(this)
+        } else {
+            SamsungTileInfoUpdater(this, mainScope)
+        }
         privateDns = PrivateDns(this)
     }
 
     override fun onDestroy() {
-        coroutineScope.cancel()
+        mainScope.cancel()
         super.onDestroy()
     }
 
@@ -42,26 +47,23 @@ class PrivateDnsTileService : TileService() {
         val tile = this.qsTile ?: return
 
         when (val dnsMode = privateDns.getDnsMode()) {
-            DnsMode.Off -> changeTileState(tile, Tile.STATE_INACTIVE, getString(dnsMode.labelResId), dnsMode.iconResId)
-            DnsMode.Auto -> changeTileState(tile, Tile.STATE_ACTIVE, getString(dnsMode.labelResId), dnsMode.iconResId)
-            DnsMode.On -> {
-                val hostname = privateDns.getHostname()
-                changeTileState(tile, Tile.STATE_ACTIVE, hostname ?: getString(dnsMode.labelResId), dnsMode.iconResId)
-            }
+            DnsMode.Off -> changeTileState(tile, dnsMode)
+            DnsMode.Auto -> changeTileState(tile, dnsMode)
+            DnsMode.On -> changeTileState(tile, dnsMode, privateDns.getHostname())
         }
     }
 
     override fun onClick() {
         val isLocked = this.isSecure && this.isLocked
 
-        coroutineScope.launch {
+        mainScope.launch {
             val requireUnlock = dataStore.requireUnlock()
 
             if (!isLocked || !requireUnlock) {
                 toggle()
             } else {
                 unlockAndRun {
-                    coroutineScope.launch {
+                    mainScope.launch {
                         toggle()
                     }
                 }
@@ -80,17 +82,17 @@ class PrivateDnsTileService : TileService() {
         when (val nextDnsMode = privateDns.getNextDnsMode()) {
             DnsMode.Off -> {
                 privateDns.setDnsMode(nextDnsMode)
-                changeTileState(tile, Tile.STATE_INACTIVE, getString(nextDnsMode.labelResId), nextDnsMode.iconResId)
+                changeTileState(tile, nextDnsMode)
             }
             DnsMode.Auto -> {
                 privateDns.setDnsMode(nextDnsMode)
-                changeTileState(tile, Tile.STATE_ACTIVE, getString(nextDnsMode.labelResId), nextDnsMode.iconResId)
+                changeTileState(tile, nextDnsMode)
             }
             DnsMode.On -> {
                 val hostname = privateDns.getHostname()
                 if (!hostname.isNullOrEmpty()) {
                     privateDns.setDnsMode(nextDnsMode)
-                    changeTileState(tile, Tile.STATE_ACTIVE, hostname, nextDnsMode.iconResId)
+                    changeTileState(tile, nextDnsMode, hostname)
                 } else {
                     showSnackbarMessage(NoDnsHostnameMessage)
                 }
@@ -98,16 +100,8 @@ class PrivateDnsTileService : TileService() {
         }
     }
 
-    private fun changeTileState(tile: Tile, state: Int, label: String, icon: Int) {
-        tile.state = state
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            tile.label = getString(R.string.tile_name)
-            tile.subtitle = label
-        } else {
-            tile.label = label
-        }
-        tile.icon = Icon.createWithResource(this, icon)
-        tile.updateTile()
+    private fun changeTileState(tile: Tile, dnsMode: DnsMode, hostname: String? = null) {
+        tileInfoUpdater.updateTile(tile, dnsMode, hostname)
     }
 
     private fun showSnackbarMessage(snackbarMessage: SnackbarMessage) {
