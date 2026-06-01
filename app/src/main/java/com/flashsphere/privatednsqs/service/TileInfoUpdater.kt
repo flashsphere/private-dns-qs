@@ -24,6 +24,9 @@ class DefaultTileInfoUpdater(
         val label = customLabel ?: context.getString(dnsMode.labelResId)
 
         tile.state = dnsMode.tileState
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            tile.stateDescription = context.getString(dnsMode.tileStateDescription)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.label = context.getString(R.string.tile_name)
             tile.subtitle = label
@@ -31,6 +34,7 @@ class DefaultTileInfoUpdater(
             tile.label = label
         }
         tile.icon = Icon.createWithResource(context, dnsMode.iconResId)
+        tile.contentDescription = context.getString(R.string.tile_name)
         tile.updateTile()
     }
 }

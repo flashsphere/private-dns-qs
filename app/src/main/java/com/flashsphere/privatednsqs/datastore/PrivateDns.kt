@@ -85,8 +85,27 @@ enum class DnsMode(
     val iconResId: Int,
     val labelResId: Int,
     val tileState: Int,
+    val tileStateDescription: Int,
 ) {
-    Off("off", R.drawable.ic_dns_off, R.string.off,Tile.STATE_INACTIVE),
-    Auto("opportunistic", R.drawable.ic_dns_auto, R.string.auto, Tile.STATE_ACTIVE),
-    On("hostname", R.drawable.ic_dns_on, R.string.on, Tile.STATE_ACTIVE);
+    Off(
+        value = "off",
+        iconResId = R.drawable.ic_dns_off,
+        labelResId = R.string.off,
+        tileState = Tile.STATE_INACTIVE,
+        tileStateDescription = R.string.off,
+    ),
+    Auto(
+        value = "opportunistic",
+        iconResId = R.drawable.ic_dns_auto,
+        labelResId = R.string.auto,
+        tileState = Tile.STATE_ACTIVE,
+        tileStateDescription = R.string.auto,
+    ),
+    On(
+        value = "hostname",
+        iconResId = R.drawable.ic_dns_on,
+        labelResId = R.string.on,
+        tileState = Tile.STATE_ACTIVE,
+        tileStateDescription = R.string.on,
+    );
 }
