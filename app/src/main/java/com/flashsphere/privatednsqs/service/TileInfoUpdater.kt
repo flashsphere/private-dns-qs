@@ -63,7 +63,7 @@ class SamsungTileInfoUpdater(
             tile.updateTile()
         }
         mainScope.launch {
-            delay(10.milliseconds)
+            delay(100.milliseconds)
             defaultTileInfoUpdater.updateTile(tile, dnsConfiguration)
         }
     }
