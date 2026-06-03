@@ -127,7 +127,7 @@ private fun DnsProviderDialog(
 
             ExposedDropdownMenuBox(
                 expanded = expandSuggestions,
-                onExpandedChange = { expandSuggestions = false }
+                onExpandedChange = { expandSuggestions = it }
             ) {
                 OutlinedTextField(
                     state = textFieldState,
