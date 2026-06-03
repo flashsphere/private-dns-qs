@@ -82,8 +82,6 @@ class PrivateDnsTileService : TileService() {
     }
 
     private suspend fun toggle() {
-        val tile = this.qsTile ?: return
-
         if (!privateDns.hasPermission()) {
             showSnackbarMessage(NoPermissionMessage)
             return
@@ -92,6 +90,8 @@ class PrivateDnsTileService : TileService() {
         val nextConfig = privateDns.getNextDnsConfig(dnsConfigsFlow.first()) ?: return
 
         privateDns.setDnsConfig(nextConfig)
+
+        val tile = this.qsTile ?: return
         changeTileState(tile, nextConfig)
     }
 

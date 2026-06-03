@@ -4,6 +4,10 @@
         <item name="android:colorBackground">#F8F9FF</item>
     </style>
 
+    <style name="AppTheme.Dialog" parent="android:Theme.Material.Light.Dialog.NoActionBar">
+        <item name="android:colorBackground">#F8F9FF</item>
+    </style>
+
     <style name="AppTheme.NoDisplay" parent="AppTheme">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>

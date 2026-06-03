@@ -175,14 +175,19 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
     }
 
     companion object {
-        fun getIntent(context: Context, message: SnackbarMessage): Intent =
+        fun getIntent(context: Context, message: SnackbarMessage? = null): Intent =
             Intent(context, MainActivity::class.java)
                 .addFlags(FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NEW_TASK)
-                .putExtra(PARAM_BUNDLE, Bundle().also {
-                    it.putParcelable(PARAM_MESSAGE, message)
-                })
+                .also { intent ->
+                    if (message != null) {
+                        val bundle = Bundle().also {
+                            it.putParcelable(PARAM_MESSAGE, message)
+                        }
+                        intent.putExtra(PARAM_BUNDLE, bundle)
+                    }
+                }
 
-        fun startActivity(context: Context, message: SnackbarMessage) {
+        fun startActivity(context: Context, message: SnackbarMessage? = null) {
             context.startActivity(getIntent(context, message))
         }
 
