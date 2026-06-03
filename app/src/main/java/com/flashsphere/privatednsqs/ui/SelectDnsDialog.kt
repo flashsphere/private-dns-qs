@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +38,7 @@ import com.flashsphere.privatednsqs.ui.theme.AppTypography
 @Composable
 fun SelectDnsDialog(
     configs: List<DnsConfiguration>,
+    currentConfig: DnsConfiguration,
     onSelect: (config: DnsConfiguration) -> Unit,
     openApp: () -> Unit,
     onDismiss: () -> Unit,
@@ -52,6 +54,7 @@ fun SelectDnsDialog(
                 ) {
                     SelectDnsDialogContent(
                         configs = configs,
+                        currentConfig = currentConfig,
                         onSelect = onSelect,
                         openApp = openApp,
                         onDismiss = onDismiss,
@@ -64,10 +67,14 @@ fun SelectDnsDialog(
 @Composable
 fun SelectDnsDialogContent(
     configs: List<DnsConfiguration>,
+    currentConfig: DnsConfiguration,
     onSelect: (config: DnsConfiguration) -> Unit,
     openApp: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val selectedIndex = remember(configs, currentConfig) {
+        configs.indexOf(currentConfig)
+    }
     Column(modifier = Modifier
         .heightIn(max = 380.dp)
         .widthIn(max = 380.dp)
@@ -87,17 +94,26 @@ fun SelectDnsDialogContent(
                 itemsIndexed(
                     items = configs,
                     key = { index, _ -> index },
-                ) { _, item ->
+                ) { index, item ->
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(MaterialTheme.shapes.medium)
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .background(if (selectedIndex == index) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            })
                             .clickable(
                                 onClick = { onSelect(item) }
                             )
                             .padding(horizontal = 16.dp)
                             .padding(vertical = 12.dp),
+                        color = if (selectedIndex == index) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                         text = if (item is DnsConfiguration.On) {
                             item.hostname
                         } else {
@@ -134,6 +150,7 @@ private fun SelectDnsDialogPreview() {
                 DnsConfiguration.On("three"),
                 DnsConfiguration.On("four"),
             ),
+            currentConfig = DnsConfiguration.On("one"),
             onSelect = {},
             openApp = {},
             onDismiss = {},

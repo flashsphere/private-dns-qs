@@ -28,6 +28,7 @@ class SelectDnsActivity : BaseActivity() {
         setContent {
             SelectDnsDialog(
                 configs = viewModel.dnsConfigs,
+                currentConfig = viewModel.getCurrentDnsConfig(),
                 onSelect = this::selectDns,
                 openApp = this::openApp,
                 onDismiss = this::finish,

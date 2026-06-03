@@ -35,6 +35,10 @@ class SelectDnsViewModel(
         return privateDns.hasPermission()
     }
 
+    fun getCurrentDnsConfig(): DnsConfiguration {
+        return privateDns.getCurrentDnsConfig()
+    }
+
     fun selectDns(dnsConfig: DnsConfiguration) {
         privateDns.setDnsConfig(dnsConfig)
     }
