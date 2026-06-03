@@ -1,17 +1,20 @@
 package com.flashsphere.privatednsqs.activity
 
-import com.flashsphere.privatednsqs.datastore.DnsMode
-import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
+import com.flashsphere.privatednsqs.datastore.DnsConfiguration
+import com.flashsphere.privatednsqs.datastore.dataStore
+import com.flashsphere.privatednsqs.datastore.enabledDnsProvidersFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
-class DnsOnActivity : DnsModeActivity() {
-    override val dnsMode = DnsMode.On
+class DnsOnActivity : DnsShortcutActivity() {
+    override val showToastAfterSet: Boolean = true
 
-    override fun executeDnsMode() {
-        val hostname = privateDns.getHostname()
-        if (!hostname.isNullOrEmpty()) {
-            privateDns.setDnsMode(dnsMode)
-        } else {
-            showMessage(NoDnsHostnameMessage)
+    override fun getDnsConfig(): DnsConfiguration? {
+        val configs = runBlocking {
+            dataStore.enabledDnsProvidersFlow().first()
+                .map { DnsConfiguration.On(it.hostname) }
+                .toList()
         }
+        return privateDns.getNextDnsConfig(configs)
     }
 }

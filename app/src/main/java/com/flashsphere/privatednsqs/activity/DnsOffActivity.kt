@@ -1,7 +1,9 @@
 package com.flashsphere.privatednsqs.activity
 
-import com.flashsphere.privatednsqs.datastore.DnsMode
+import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 
-class DnsOffActivity : DnsModeActivity() {
-    override val dnsMode = DnsMode.Off
+class DnsOffActivity : DnsShortcutActivity() {
+    override fun getDnsConfig(): DnsConfiguration {
+        return DnsConfiguration.Off
+    }
 }

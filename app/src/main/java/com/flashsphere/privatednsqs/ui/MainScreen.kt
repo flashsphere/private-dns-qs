@@ -1,60 +1,29 @@
 package com.flashsphere.privatednsqs.ui
 
-import android.os.Build
 import androidx.activity.compose.ReportDrawn
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.shrinkOut
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
@@ -64,51 +33,34 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults.rememberTooltipPositionProvider
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
-import androidx.compose.material3.rememberTooltipState
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flashsphere.privatednsqs.R
-import com.flashsphere.privatednsqs.ui.modifier.moveFocusOnTab
+import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
-import com.flashsphere.privatednsqs.ui.theme.Monospace
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
 fun MainScreen(
@@ -117,10 +69,6 @@ fun MainScreen(
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
 ) {
-    LifecycleResumeEffect(Unit) {
-        viewModel.reloadDnsHostname()
-        onPauseOrDispose {}
-    }
     MainScreen(
         openHelpDialogFlow = viewModel.openHelpDialogFlow,
         openHelpDialog = viewModel::openHelpDialog,
@@ -129,13 +77,16 @@ fun MainScreen(
         onDnsOffClick = viewModel::dnsOffChecked,
         dnsAutoStateFlow = viewModel.dnsAutoChecked,
         onDnsAutoClick = viewModel::dnsAutoChecked,
-        dnsOnStateFlow = viewModel.dnsOnChecked,
-        onDnsOnClick = viewModel::dnsOnChecked,
-        dnsHostnameTextFieldState = viewModel.dnsHostnameTextFieldState,
+        dnsProviders = viewModel.dnsProviders,
+        validateDnsProvider = viewModel::validateDnsProvider,
+        addDnsProvider = viewModel::addDnsProvider,
+        updateDnsProvider = viewModel::updateDnsProvider,
+        toggleDnsProvider = viewModel::toggleDnsProvider,
+        deleteDnsProvider = viewModel::deleteDnsProvider,
+        reorderDnsProvider = viewModel::reorderDnsProvider,
+        reorderDnsProviders = viewModel::reorderDnsProviders,
         requireUnlockStateFlow = viewModel.requireUnlockChecked,
         onRequireUnlockClick = viewModel::requireUnlockChecked,
-        dnsHostnameFlow = viewModel.dnsHostname,
-        onSaveClick = viewModel::save,
         showAppInfo = showAppInfo,
         showMoreInfo = showMoreInfo,
         requestAddTile = requestAddTile,
@@ -152,44 +103,40 @@ private fun MainScreen(
     onDnsOffClick: (checked: Boolean) -> Unit,
     dnsAutoStateFlow: StateFlow<Boolean>,
     onDnsAutoClick: (checked: Boolean) -> Unit,
-    dnsOnStateFlow: StateFlow<Boolean>,
-    onDnsOnClick: (checked: Boolean) -> Unit,
-    dnsHostnameTextFieldState: TextFieldState,
-    dnsHostnameFlow: StateFlow<String>,
+    dnsProviders: SnapshotStateList<DnsProvider>,
+    validateDnsProvider: (hostname: String) -> Boolean,
+    addDnsProvider: (hostname: String) -> Unit,
+    updateDnsProvider: (index: Int, hostname: String) -> Unit,
+    toggleDnsProvider: (index: Int, enabled: Boolean) -> Unit,
+    deleteDnsProvider: (index: Int) -> Unit,
+    reorderDnsProvider: (fromIndex: Int, toIndex: Int) -> Unit,
+    reorderDnsProviders: () -> Unit,
     requireUnlockStateFlow: StateFlow<Boolean>,
     onRequireUnlockClick: (checked: Boolean) -> Unit,
-    onSaveClick: () -> Unit,
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val focusRequester = remember { FocusRequester() }
-    val coroutineScope = rememberCoroutineScope()
-    val focusManager = LocalFocusManager.current
     val resources = LocalResources.current
+    val showAddDnsDialog = rememberSaveable { mutableStateOf(false) }
+    val showEditDnsDialog = rememberSaveable(stateSaver = indexedValueSaver()) {
+        mutableStateOf<IndexedValue<DnsProvider>?>(null)
+    }
 
     LaunchedEffect(Unit) {
-        launch {
-            snackbarMessageFlow.collect {
-                if (it is NoDnsHostnameMessage) {
-                    focusRequester.requestFocus()
+        snackbarMessageFlow.collect {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            if (it is NoPermissionMessage) {
+                val result = snackbarHostState.showSnackbar(
+                    message = it.getMessage(resources),
+                    actionLabel = resources.getString(R.string.help),
+                    duration = SnackbarDuration.Long)
+                if (result == SnackbarResult.ActionPerformed) {
+                    openHelpDialog(true)
                 }
-
-                coroutineScope.launch {
-                    snackbarHostState.currentSnackbarData?.dismiss()
-                    if (it is NoPermissionMessage) {
-                        val result = snackbarHostState.showSnackbar(
-                            message = it.getMessage(resources),
-                            actionLabel = resources.getString(R.string.help),
-                            duration = SnackbarDuration.Long)
-                        if (result == SnackbarResult.ActionPerformed) {
-                            openHelpDialog(true)
-                        }
-                    } else {
-                        snackbarHostState.showSnackbar(it.getMessage(resources))
-                    }
-                }
+            } else {
+                snackbarHostState.showSnackbar(it.getMessage(resources))
             }
         }
     }
@@ -202,53 +149,10 @@ private fun MainScreen(
             contentWindowInsets = WindowInsets.ime,
             modifier = Modifier.windowInsetsPadding(windowInsetsPadding),
             topBar = {
-                TopAppBar(
-                    title = {
-                        Text(text = stringResource(R.string.app_name))
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                        actionIconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    ),
-                    actions = {
-                        val openDropdownMenu = rememberSaveable { mutableStateOf(false) }
-                        IconButton(onClick = { openDropdownMenu.value = true }) {
-                            Icon(Icons.Filled.MoreVert, null)
-                        }
-                        DropdownMenu(
-                            expanded = openDropdownMenu.value,
-                            onDismissRequest = { openDropdownMenu.value = false }
-                        ) {
-                            DropdownMenuItem(
-                                leadingIcon = { Icon(Icons.Outlined.Info, stringResource(id = R.string.app_info)) },
-                                text = { Text(stringResource(id = R.string.app_info))},
-                                onClick = {
-                                    showAppInfo()
-                                    openDropdownMenu.value = false
-                                }
-                            )
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                DropdownMenuItem(
-                                    leadingIcon = { Icon(Icons.Filled.Add, stringResource(id = R.string.add_tile)) },
-                                    text = { Text(stringResource(id = R.string.add_tile))},
-                                    onClick = {
-                                        requestAddTile()
-                                        openDropdownMenu.value = false
-                                    }
-                                )
-                            }
-                            DropdownMenuItem(
-                                leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, stringResource(id = R.string.help)) },
-                                text = { Text(stringResource(id = R.string.help))},
-                                onClick = {
-                                    openHelpDialog(true)
-                                    openDropdownMenu.value = false
-                                }
-                            )
-                        }
-                    }
+                TopBar(
+                    showAppInfo = showAppInfo,
+                    openHelpDialog = openHelpDialog,
+                    requestAddTile = requestAddTile,
                 )
             },
             snackbarHost = {
@@ -263,47 +167,79 @@ private fun MainScreen(
                 }
             }
         ) { padding ->
-            Column(
+            val hapticFeedback = LocalHapticFeedback.current
+            val lazyListState = rememberLazyListState()
+            val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.SegmentTick)
+                // minus 1 because we have one "fixed" item before the actual list
+                reorderDnsProvider(from.index - 1, to.index - 1)
+            }
+
+            LazyColumn(
+                state = lazyListState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
                     .padding(8.dp)
-                    .consumeWindowInsets(padding)
-                    .verticalScroll(rememberScrollState()),
+                    .consumeWindowInsets(padding),
+                contentPadding = PaddingValues(bottom = 52.dp)
             ) {
-                Header(stringResource(R.string.dns_modes_to_toggle))
-
-                CheckBoxWithLabel(dnsOffStateFlow, onDnsOffClick, stringResource(R.string.dns_off))
-                CheckBoxWithLabel(dnsAutoStateFlow, onDnsAutoClick, stringResource(R.string.dns_auto))
-
-                Row(modifier = Modifier.padding(end = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    CheckBoxWithLabel(dnsOnStateFlow, onDnsOnClick, stringResource(R.string.dns_on))
-                    TextField(
-                        modifier = Modifier.focusRequester(focusRequester),
-                        textFieldState = dnsHostnameTextFieldState,
-                        label = stringResource(R.string.dns_hostname_hint),
-                        trailingIcon = { RevertIcon(dnsHostnameFlow, dnsHostnameTextFieldState) }
-                    )
+                item(key = "header_modes", contentType = "header_modes") {
+                    Column(Modifier.animateItem()) {
+                        Header(stringResource(R.string.dns_modes_to_toggle))
+                        DnsModeItem(dnsOffStateFlow, onDnsOffClick, stringResource(R.string.dns_off))
+                        DnsModeItem(dnsAutoStateFlow, onDnsAutoClick, stringResource(R.string.dns_auto))
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Header(stringResource(R.string.other_settings))
-
-                CheckBoxWithLabel(requireUnlockStateFlow, onRequireUnlockClick, stringResource(R.string.require_unlock))
-
-                Button(
-                    onClick = {
-                        focusManager.clearFocus()
-                        onSaveClick()
-                    },
-                    modifier = Modifier.padding(top = 16.dp).align(Alignment.CenterHorizontally)) {
-                    Text(text = stringResource(R.string.save))
+                itemsIndexed(
+                    items = dnsProviders,
+                    key = { _, item -> item.id },
+                    contentType = { _, _ -> "dns_provider" }
+                ) { index, item ->
+                    ReorderableItem(reorderableLazyListState, key = item.id) { isDragging ->
+                        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+                        Surface(shadowElevation = elevation) {
+                            DnsProviderItem(
+                                dnsProvider = item,
+                                index = index,
+                                scope = this,
+                                onToggle = { toggleDnsProvider(index, !item.enabled) },
+                                canReorder = dnsProviders.size > 1,
+                                onReorder = reorderDnsProviders,
+                                onEdit = { showEditDnsDialog.value = IndexedValue(index, item) },
+                                onDelete = deleteDnsProvider,
+                            )
+                        }
+                    }
                 }
+                item(key = "dns_mode_add", contentType = "dns_mode_add") {
+                    FilledTonalButton(
+                        modifier = Modifier.animateItem().padding(horizontal = 4.dp),
+                        onClick = { showAddDnsDialog.value = true },
+                    ) {
+                        Text(stringResource(R.string.add_dns_provider))
+                    }
+                }
+                item(key = "other_settings", contentType = "other_settings") {
+                    Column(Modifier.animateItem()) {
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(52.dp))
+                        Header(stringResource(R.string.other_settings))
+                        DnsModeItem(requireUnlockStateFlow, onRequireUnlockClick,
+                            stringResource(R.string.require_unlock))
+                    }
+                }
             }
-
+            AddDnsDialog(
+                openDialog = showAddDnsDialog,
+                validate = validateDnsProvider,
+                addDns = addDnsProvider,
+            )
+            EditDnsDialog(
+                openDialog = showEditDnsDialog,
+                validate = validateDnsProvider,
+                updateDns = updateDnsProvider,
+            )
             HelpDialog(
                 openHelpDialogFlow = openHelpDialogFlow,
                 openHelpDialog = openHelpDialog,
@@ -326,198 +262,15 @@ private fun Header(text: String) {
         color = MaterialTheme.colorScheme.outline.copy(alpha = .5F))
 }
 
-@Composable
-private fun CheckBoxWithLabel(
-    state: StateFlow<Boolean>,
-    onClick: (checked: Boolean) -> Unit,
-    label: String,
-) {
-    val checked = state.collectAsStateWithLifecycle().value
-    val checkboxInteractionSource = remember { MutableInteractionSource() }
-    Row(modifier = Modifier
-        .padding(horizontal = 4.dp)
-        .focusProperties { canFocus = false }
-        .clickable(
-            interactionSource = checkboxInteractionSource,
-            indication = null,
-            onClick = { onClick(!checked) },
-        ),
-        verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = checked, onCheckedChange = onClick, interactionSource = checkboxInteractionSource)
-        Text(modifier = Modifier.padding(end = 8.dp), text = label, style = AppTypography.bodyMedium)
-    }
-}
-
-val spaceRegex = "\\s".toRegex()
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun TextField(
-    modifier: Modifier,
-    textFieldState: TextFieldState,
-    label: String,
-    trailingIcon: @Composable () -> Unit,
-) {
-    val focusManager = LocalFocusManager.current
-    val imeVisible = WindowInsets.isImeVisible
-    val wasImeVisible = remember { mutableStateOf(imeVisible) }
-    val interactionSource = remember { MutableInteractionSource() }
-    val isFocused = interactionSource.collectIsFocusedAsState()
-
-    LaunchedEffect(Unit) {
-        if (!imeVisible && wasImeVisible.value && isFocused.value) {
-            focusManager.clearFocus()
-        }
-        wasImeVisible.value = imeVisible
-    }
-
-    BasicTextField(
-        modifier = modifier.fillMaxWidth().moveFocusOnTab(focusManager),
-        state = textFieldState,
-        textStyle = AppTypography.bodyMedium.copy(color = MaterialTheme.colorScheme.onBackground),
-        inputTransformation = {
-            val newText = asCharSequence()
-            if (!originalText.contentEquals(newText) && newText.contains(spaceRegex)) {
-                val sanitized = newText.replace(spaceRegex, "")
-                var cursorIndex = originalSelection.start + sanitized.length - originalText.length
-                if (cursorIndex < 0 || cursorIndex > sanitized.length) cursorIndex = sanitized.length
-                replace(0, length, sanitized)
-                placeCursorBeforeCharAt(cursorIndex)
-            }
-        },
-        interactionSource = interactionSource,
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-        keyboardOptions = KeyboardOptions(
-            autoCorrectEnabled = false,
-            keyboardType = KeyboardType.Uri,
-            imeAction = ImeAction.Done),
-        decorator = { innerTextField ->
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1F)) {
-                    Box(contentAlignment = Alignment.CenterStart) {
-                        if (textFieldState.text.isEmpty()) {
-                            Text(
-                                text = label,
-                                style = AppTypography.bodyMedium,
-                                color = LocalContentColor.current.copy(alpha = 0.5F)
-                            )
-                        }
-                        innerTextField()
-
-                    }
-                    HorizontalDivider(color = MaterialTheme.colorScheme.primary)
-                }
-                trailingIcon()
-            }
-        }
-    )
-}
-
-@Composable
-private fun RevertIcon(
-    dnsHostnameFlow: StateFlow<String>,
-    textFieldState: TextFieldState,
-) {
-    val revertState = remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        launch {
-            snapshotFlow { textFieldState.text }
-                .map { it.toString() != dnsHostnameFlow.value }
-                .collect { revertState.value = it }
-        }
-        launch {
-            dnsHostnameFlow
-                .map { it != textFieldState.text.toString() }
-                .collect { revertState.value = it }
-        }
-    }
-
-    AnimatedVisibility(
-        visible = revertState.value,
-        enter = expandIn(expandFrom = Alignment.CenterEnd),
-        exit = shrinkOut(shrinkTowards = Alignment.CenterEnd),
-    ) {
-        Tooltip(stringResource(R.string.revert)) {
-            Box(modifier = Modifier.size(24.dp).padding(start = 4.dp)
-                .clickable(
-                    interactionSource = null,
-                    indication = ripple(bounded = false),
-                    onClick = {
-                        textFieldState.setTextAndPlaceCursorAtEnd(dnsHostnameFlow.value)
-                    }
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Replay,
-                    contentDescription = stringResource(R.string.revert)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun Tooltip(
-    text: String,
-    content: @Composable () -> Unit,
-) {
-    TooltipBox(
-        positionProvider = rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-        tooltip = {
-            PlainTooltip { Text(text = text, style = AppTypography.bodyMedium) }
-        },
-        state = rememberTooltipState()
-    ) {
-        content()
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun HelpDialog(openHelpDialogFlow: StateFlow<Boolean>, openHelpDialog: (Boolean) -> Unit, showMoreInfo: () -> Unit) {
-    val openDialogState = openHelpDialogFlow.collectAsStateWithLifecycle().value
-    if (openDialogState) {
-        val context = LocalContext.current
-        BasicAlertDialog(onDismissRequest = { openHelpDialog(false) }) {
-            Surface(
-                modifier = Modifier.wrapContentSize(),
-                shape = MaterialTheme.shapes.extraLarge,
-                color = AlertDialogDefaults.containerColor,
-                tonalElevation = AlertDialogDefaults.TonalElevation,
-            ) {
-                Column(modifier = Modifier.padding(24.dp)) {
-                    Text(text = stringResource(R.string.message_help),
-                        style = AppTypography.bodyMedium)
-                    SelectionContainer {
-                        Text(text = stringResource(R.string.message_help_adb, context.packageName),
-                            fontFamily = Monospace,
-                            style = AppTypography.bodyMedium,
-                            modifier = Modifier.padding(top = 8.dp))
-                    }
-                    Row(modifier = Modifier.padding(top = 8.dp)) {
-                        TextButton(onClick = showMoreInfo) { Text(stringResource(R.string.more_details)) }
-                        Spacer(modifier = Modifier.weight(1F))
-                        TextButton(onClick = { openHelpDialog(false) }) { Text(stringResource(R.string.ok)) }
-                    }
-                }
-            }
-        }
-    }
-}
-
 @Preview
 @Composable
 private fun MainScreenPreview() {
     val openHelpDialogFlow = remember { MutableStateFlow(false) }
     val snackbarMessageFlow = remember { MutableStateFlow(null).filterNotNull() }
+    val dnsProviders = remember { mutableStateListOf(DnsProvider(id = 0, hostname = "one.one.one.one")) }
     val dnsOff = remember { MutableStateFlow(true) }
     val dnsAuto = remember { MutableStateFlow(true) }
-    val dnsOn = remember { MutableStateFlow(true) }
-    val dnsHostnameTextFieldState = TextFieldState()
     val requireUnlock = remember { MutableStateFlow(false) }
-    val dnsHostnameFlow = remember { MutableStateFlow("") }
 
     MainScreen(
         openHelpDialogFlow = openHelpDialogFlow,
@@ -527,13 +280,16 @@ private fun MainScreenPreview() {
         onDnsOffClick = { dnsOff.value = it },
         dnsAutoStateFlow = dnsAuto,
         onDnsAutoClick = { dnsAuto.value = it },
-        dnsOnStateFlow = dnsOn,
-        onDnsOnClick = { dnsOn.value = it },
-        dnsHostnameTextFieldState = dnsHostnameTextFieldState,
-        dnsHostnameFlow = dnsHostnameFlow,
+        dnsProviders = dnsProviders,
+        validateDnsProvider = { true },
+        addDnsProvider = {},
+        updateDnsProvider = { _, _ -> },
+        toggleDnsProvider = { _, _ -> },
+        deleteDnsProvider = {},
+        reorderDnsProvider = { _, _ -> },
+        reorderDnsProviders = {},
         requireUnlockStateFlow = requireUnlock,
         onRequireUnlockClick = { requireUnlock.value = it },
-        onSaveClick = { dnsHostnameFlow.value = dnsHostnameTextFieldState.text.toString() },
         showAppInfo = {},
         showMoreInfo = {},
         requestAddTile = {},

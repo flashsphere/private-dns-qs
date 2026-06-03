@@ -31,8 +31,12 @@
     <string name="more_details">More info</string>
     <string name="app_info">App info</string>
     <string name="add_tile">Add tile</string>
+    <string name="add_dns_provider">Add DNS provider</string>
+    <string name="dns_provider_already_exists">DNS provider already exists</string>
+    <string name="drag_to_reorder">Drag to reorder</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="ok">OK</string>
-    <string name="revert">Revert</string>
     <string name="help">Help</string>
 </resources>

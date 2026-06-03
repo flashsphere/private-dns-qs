@@ -21,6 +21,22 @@ class SettingsMigration(private val context: Context) : DataMigration<Preference
             mutablePrefs.remove(PreferenceKeys.FIRST_RUN)
         }
 
+        if (!mutablePrefs.contains(PreferenceKeys.DNS_PROVIDERS.key)) {
+            PrivateDns(context).getHostname()?.let { hostname ->
+                if (hostname.isNotBlank()) {
+                    val dnsProvider = DnsProvider(
+                        id = IdGenerator.getNextId(mutablePrefs),
+                        hostname = hostname,
+                    )
+                    mutablePrefs[PreferenceKeys.DNS_PROVIDERS.key] =
+                        context.json.encodeToString(listOf(dnsProvider))
+                }
+            }
+        }
+        if (mutablePrefs.contains(PreferenceKeys.DNS_ON_TOGGLE)) {
+            mutablePrefs.remove(PreferenceKeys.DNS_ON_TOGGLE)
+        }
+
         mutablePrefs[PreferenceKeys.VERSION.key] = PreferenceKeys.VERSION.defaultValue
         return mutablePrefs.toPreferences()
     }

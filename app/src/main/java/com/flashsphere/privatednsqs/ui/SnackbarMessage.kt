@@ -17,20 +17,6 @@ object NoPermissionMessage : SnackbarMessage {
 }
 
 @Parcelize
-object NoDnsHostnameMessage : SnackbarMessage {
-    override fun getMessage(resources: Resources): String {
-        return resources.getString(R.string.toast_no_dns)
-    }
-}
-
-@Parcelize
-object ChangesSavedMessage : SnackbarMessage {
-    override fun getMessage(resources: Resources): String {
-        return resources.getString(R.string.toast_changes_saved)
-    }
-}
-
-@Parcelize
 object TileAddedMessage : SnackbarMessage {
     override fun getMessage(resources: Resources): String {
         return resources.getString(R.string.tile_added)

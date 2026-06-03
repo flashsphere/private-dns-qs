@@ -12,7 +12,7 @@ abstract class BaseActivity : ComponentActivity() {
         // check if app is launched in restricted mode (due to auto backup) and restart the process
         // https://issuetracker.google.com/issues/160946170#comment8
         if (application !is PrivateDnsApplication) {
-            ProcessPhoenix.triggerRebirth(this)
+            ProcessPhoenix.triggerRebirth(this, javaClass)
             return
         }
         super.onCreate(savedInstanceState)

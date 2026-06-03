@@ -30,8 +30,12 @@
     <string name="more_details">更多資訊</string>
     <string name="app_info">應用程式資訊</string>
     <string name="add_tile">建立方塊</string>
+    <string name="add_dns_provider">新增 DNS 主機</string>
+    <string name="dns_provider_already_exists">此 DNS 主機已存在</string>
+    <string name="drag_to_reorder">移動</string>
+    <string name="delete">刪除</string>
+    <string name="cancel">取消</string>
     <string name="save">儲存</string>
     <string name="ok">確定</string>
-    <string name="revert">復原</string>
     <string name="help">說明</string>
 </resources>

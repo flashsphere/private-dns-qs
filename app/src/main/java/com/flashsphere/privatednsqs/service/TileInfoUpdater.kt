@@ -5,7 +5,7 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import com.flashsphere.privatednsqs.R
-import com.flashsphere.privatednsqs.datastore.DnsMode
+import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -13,15 +13,21 @@ import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
 
 interface TileInfoUpdater {
-    fun updateTile(tile: Tile, dnsMode: DnsMode, customLabel: String? = null)
+    fun updateTile(tile: Tile, dnsConfiguration: DnsConfiguration)
 }
 
 class DefaultTileInfoUpdater(
     private val context: Context,
 ) : TileInfoUpdater {
-    override fun updateTile(tile: Tile, dnsMode: DnsMode, customLabel: String?) {
+    override fun updateTile(tile: Tile, dnsConfiguration: DnsConfiguration) {
         Timber.d("Updating tile")
-        val label = customLabel ?: context.getString(dnsMode.labelResId)
+
+        val dnsMode = dnsConfiguration.mode
+        val label = if (dnsConfiguration is DnsConfiguration.On && dnsConfiguration.hostname.isNotBlank()) {
+            dnsConfiguration.hostname
+        } else {
+            context.getString(dnsMode.labelResId)
+        }
 
         tile.state = dnsMode.tileState
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -47,9 +53,10 @@ class SamsungTileInfoUpdater(
     context: Context,
     private val mainScope: CoroutineScope,
 ) : TileInfoUpdater {
-    private val defaultTileStateChanger = DefaultTileInfoUpdater(context)
+    private val defaultTileInfoUpdater = DefaultTileInfoUpdater(context)
 
-    override fun updateTile(tile: Tile, dnsMode: DnsMode, customLabel: String?) {
+    override fun updateTile(tile: Tile, dnsConfiguration: DnsConfiguration) {
+        val dnsMode = dnsConfiguration.mode
         if (tile.state == dnsMode.tileState) {
             Timber.d("Inverting tile state")
             tile.state = invertState(dnsMode.tileState)
@@ -57,7 +64,7 @@ class SamsungTileInfoUpdater(
         }
         mainScope.launch {
             delay(10.milliseconds)
-            defaultTileStateChanger.updateTile(tile, dnsMode, customLabel)
+            defaultTileInfoUpdater.updateTile(tile, dnsConfiguration)
         }
     }
 

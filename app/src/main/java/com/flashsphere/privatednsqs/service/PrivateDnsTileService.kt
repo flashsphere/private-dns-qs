@@ -8,26 +8,40 @@ import androidx.core.service.quicksettings.PendingIntentActivityWrapper
 import androidx.core.service.quicksettings.TileServiceCompat
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.activity.MainActivity
-import com.flashsphere.privatednsqs.datastore.DnsMode
+import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.datastore.dataStore
+import com.flashsphere.privatednsqs.datastore.dnsConfigurationsFlow
 import com.flashsphere.privatednsqs.datastore.requireUnlock
-import com.flashsphere.privatednsqs.ui.NoDnsHostnameMessage
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 class PrivateDnsTileService : TileService() {
     private val mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private lateinit var privateDns: PrivateDns
     private lateinit var tileInfoUpdater: TileInfoUpdater
+    private lateinit var dnsConfigsFlow: Flow<List<DnsConfiguration>>
 
     override fun onCreate() {
         super.onCreate()
+
+        dnsConfigsFlow = dataStore.dnsConfigurationsFlow()
+            .buffer(0)
+            .shareIn(
+                scope = mainScope,
+                started = SharingStarted.Eagerly,
+                replay = 1,
+            )
         tileInfoUpdater = if (!Build.MANUFACTURER.equals("samsung", ignoreCase = true)) {
             DefaultTileInfoUpdater(this)
         } else {
@@ -46,11 +60,7 @@ class PrivateDnsTileService : TileService() {
 
         val tile = this.qsTile ?: return
 
-        when (val dnsMode = privateDns.getDnsMode()) {
-            DnsMode.Off -> changeTileState(tile, dnsMode)
-            DnsMode.Auto -> changeTileState(tile, dnsMode)
-            DnsMode.On -> changeTileState(tile, dnsMode, privateDns.getHostname())
-        }
+        changeTileState(tile, privateDns.getCurrentDnsConfig())
     }
 
     override fun onClick() {
@@ -79,29 +89,14 @@ class PrivateDnsTileService : TileService() {
             return
         }
 
-        when (val nextDnsMode = privateDns.getNextDnsMode()) {
-            DnsMode.Off -> {
-                privateDns.setDnsMode(nextDnsMode)
-                changeTileState(tile, nextDnsMode)
-            }
-            DnsMode.Auto -> {
-                privateDns.setDnsMode(nextDnsMode)
-                changeTileState(tile, nextDnsMode)
-            }
-            DnsMode.On -> {
-                val hostname = privateDns.getHostname()
-                if (!hostname.isNullOrEmpty()) {
-                    privateDns.setDnsMode(nextDnsMode)
-                    changeTileState(tile, nextDnsMode, hostname)
-                } else {
-                    showSnackbarMessage(NoDnsHostnameMessage)
-                }
-            }
-        }
+        val nextConfig = privateDns.getNextDnsConfig(dnsConfigsFlow.first()) ?: return
+
+        privateDns.setDnsConfig(nextConfig)
+        changeTileState(tile, nextConfig)
     }
 
-    private fun changeTileState(tile: Tile, dnsMode: DnsMode, hostname: String? = null) {
-        tileInfoUpdater.updateTile(tile, dnsMode, hostname)
+    private fun changeTileState(tile: Tile, dnsConfiguration: DnsConfiguration) {
+        tileInfoUpdater.updateTile(tile, dnsConfiguration)
     }
 
     private fun showSnackbarMessage(snackbarMessage: SnackbarMessage) {
