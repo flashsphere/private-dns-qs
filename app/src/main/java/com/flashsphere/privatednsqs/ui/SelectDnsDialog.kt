@@ -2,6 +2,7 @@ package com.flashsphere.privatednsqs.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,6 +76,11 @@ fun SelectDnsDialogContent(
     val selectedIndex = remember(configs, currentConfig) {
         configs.indexOf(currentConfig)
     }
+    val backgroundColor = if (isSystemInDarkTheme()) {
+        MaterialTheme.colorScheme.surfaceBright
+    } else {
+        MaterialTheme.colorScheme.surfaceDim
+    }
     Column(modifier = Modifier
         .heightIn(max = 380.dp)
         .widthIn(max = 380.dp)
@@ -100,9 +106,9 @@ fun SelectDnsDialogContent(
                             .fillMaxWidth()
                             .clip(MaterialTheme.shapes.medium)
                             .background(if (selectedIndex == index) {
-                                MaterialTheme.colorScheme.primary
+                                MaterialTheme.colorScheme.primaryContainer
                             } else {
-                                MaterialTheme.colorScheme.surfaceVariant
+                                backgroundColor
                             })
                             .clickable(
                                 onClick = { onSelect(item) }
@@ -110,7 +116,7 @@ fun SelectDnsDialogContent(
                             .padding(horizontal = 16.dp)
                             .padding(vertical = 12.dp),
                         color = if (selectedIndex == index) {
-                            MaterialTheme.colorScheme.onPrimary
+                            MaterialTheme.colorScheme.onPrimaryContainer
                         } else {
                             MaterialTheme.colorScheme.onSurface
                         },
