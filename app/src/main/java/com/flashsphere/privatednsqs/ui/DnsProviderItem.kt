@@ -44,9 +44,8 @@ fun DnsProviderItem(
     val hapticFeedback = LocalHapticFeedback.current
     val coroutineScope = rememberCoroutineScope()
 
-    val dismissState = rememberNoFlingSwipeToDismissBoxState(
-        positionalThreshold = { it * .2F }
-    )
+    val dismissState = rememberNoFlingSwipeToDismissBoxState()
+
     SwipeToDismissBox(
         state = dismissState,
         backgroundContent = { SwipeToDismissBackground(dismissState) },
