@@ -2,7 +2,7 @@
 appVersionCode = "37"
 appVersionName = "1.34"
 androidGradlePlugin = "9.2.1"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 androidxCore = "1.18.0"
 androidxDatastorePrefs = "1.2.1"
 androidxActivity = "1.13.0"
