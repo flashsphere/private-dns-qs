@@ -87,6 +87,9 @@ android {
             enableSplit = false
         }
     }
+    androidResources {
+        generateLocaleConfig = true
+    }
     packaging {
         resources {
             excludes += listOf("META-INF", "META-INF/NOTICE")
