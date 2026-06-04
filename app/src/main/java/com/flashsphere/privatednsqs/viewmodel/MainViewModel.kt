@@ -186,6 +186,10 @@ class MainViewModel(
         viewModelScope.launch { dataStore.dnsProviders(dnsProviders.toList()) }
     }
 
+    fun getSuggestions(): Set<String> {
+        return suggestions - dnsProviders.map { it.hostname.lowercase() }.toSet()
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -195,5 +199,18 @@ class MainViewModel(
                 return MainViewModel(application, savedStateHandle) as T
             }
         }
+
+        private val suggestions = setOf(
+            "one.one.one.one",
+            "family.cloudflare-dns.com",
+            "security.cloudflare-dns.com",
+            "dns.google",
+            "dns.quad9.net",
+            "dns.nextdns.io",
+            "dns.adguard-dns.com",
+            "family.adguard-dns.com",
+            "dns.opendns.com",
+            "familyshield.opendns.com",
+        )
     }
 }

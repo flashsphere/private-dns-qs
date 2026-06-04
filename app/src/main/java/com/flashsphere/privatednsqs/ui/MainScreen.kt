@@ -80,6 +80,7 @@ fun MainScreen(
         dnsAutoStateFlow = viewModel.dnsAutoChecked,
         onDnsAutoClick = viewModel::dnsAutoChecked,
         dnsProviders = viewModel.dnsProviders,
+        getDnsSuggestions = viewModel::getSuggestions,
         validateDnsProvider = viewModel::validateDnsProvider,
         addDnsProvider = viewModel::addDnsProvider,
         updateDnsProvider = viewModel::updateDnsProvider,
@@ -107,6 +108,7 @@ private fun MainScreen(
     dnsAutoStateFlow: StateFlow<Boolean>,
     onDnsAutoClick: (checked: Boolean) -> Unit,
     dnsProviders: SnapshotStateList<DnsProvider>,
+    getDnsSuggestions: () -> Set<String>,
     validateDnsProvider: (hostname: String) -> Boolean,
     addDnsProvider: (hostname: String) -> Unit,
     updateDnsProvider: (index: Int, hostname: String) -> Unit,
@@ -252,11 +254,13 @@ private fun MainScreen(
             }
             AddDnsDialog(
                 openDialog = showAddDnsDialog,
+                getSuggestions = getDnsSuggestions,
                 validate = validateDnsProvider,
                 addDns = addDnsProvider,
             )
             EditDnsDialog(
                 openDialog = showEditDnsDialog,
+                getSuggestions = getDnsSuggestions,
                 validate = validateDnsProvider,
                 updateDns = updateDnsProvider,
             )
@@ -302,6 +306,7 @@ private fun MainScreenPreview() {
         dnsAutoStateFlow = dnsAuto,
         onDnsAutoClick = { dnsAuto.value = it },
         dnsProviders = dnsProviders,
+        getDnsSuggestions = { emptySet() },
         validateDnsProvider = { true },
         addDnsProvider = {},
         updateDnsProvider = { _, _ -> },

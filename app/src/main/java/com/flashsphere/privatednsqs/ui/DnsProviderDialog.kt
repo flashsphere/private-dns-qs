@@ -3,6 +3,7 @@ package com.flashsphere.privatednsqs.ui
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -39,17 +40,20 @@ import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddDnsDialog(
     openDialog: MutableState<Boolean>,
+    getSuggestions: () -> Set<String>,
     validate: (hostname: String) -> Boolean,
     addDns: (hostname: String) -> Unit,
 ) {
     if (openDialog.value) {
         DnsProviderDialog(
             initialHostname = "",
+            getSuggestions = getSuggestions,
             validate = validate,
             onDismiss = { openDialog.value = false },
             onConfirm = { newHostname ->
@@ -64,6 +68,7 @@ fun AddDnsDialog(
 @Composable
 fun EditDnsDialog(
     openDialog: MutableState<IndexedValue<DnsProvider>?>,
+    getSuggestions: () -> Set<String>,
     validate: (hostname: String) -> Boolean,
     updateDns: (index: Int, hostname: String) -> Unit,
 ) {
@@ -71,6 +76,7 @@ fun EditDnsDialog(
         val (index, dnsProvider) = it
         DnsProviderDialog(
             initialHostname = dnsProvider.hostname,
+            getSuggestions = getSuggestions,
             validate = { hostname ->
                 val trimmedHostname = hostname.trim()
                 dnsProvider.hostname.equals(trimmedHostname, true) ||
@@ -89,6 +95,7 @@ fun EditDnsDialog(
 @Composable
 private fun DnsProviderDialog(
     initialHostname: String = "",
+    getSuggestions: () -> Set<String>,
     validate: (hostname: String) -> Boolean,
     onDismiss: () -> Unit,
     onConfirm: (hostname: String) -> Unit,
@@ -100,11 +107,12 @@ private fun DnsProviderDialog(
     val errorMessage = remember { mutableStateOf<String?>(null) }
 
     var expandSuggestions by remember { mutableStateOf(false) }
+    val suggestions = getSuggestions()
 
     @OptIn(FlowPreview::class)
     LaunchedEffect(textFieldState) {
         snapshotFlow { textFieldState.text }
-            .debounce(300)
+            .debounce(300.milliseconds)
             .collect { hostname ->
                 if (!validate(hostname.toString())) {
                     errorMessage.value = resources.getString(R.string.dns_provider_already_exists)
@@ -170,7 +178,9 @@ private fun DnsProviderDialog(
                 ) {
                     suggestions.forEach { host ->
                         DropdownMenuItem(
-                            text = { Text(host) },
+                            text = {
+                                Text(modifier = Modifier.padding(vertical = 4.dp), text = host)
+                            },
                             onClick = {
                                 textFieldState.setTextAndPlaceCursorAtEnd(host)
                                 expandSuggestions = false
@@ -197,18 +207,6 @@ private fun DnsProviderDialog(
     )
 }
 
-private val suggestions = listOf(
-    "one.one.one.one",
-    "family.cloudflare-dns.com",
-    "security.cloudflare-dns.com",
-    "dns.google",
-    "dns.quad9.net",
-    "dns.nextdns.io",
-    "dns.adguard-dns.com",
-    "family.adguard-dns.com",
-    "dns.opendns.com",
-    "familyshield.opendns.com",
-)
 private val spaceRegex = "\\s".toRegex()
 
 @Preview
@@ -217,6 +215,14 @@ private fun DnsProviderDialogPreview() {
     Surface(Modifier.fillMaxSize()) {
         DnsProviderDialog(
             initialHostname = "",
+            getSuggestions = {
+                setOf(
+                    "one.one.one.one",
+                    "two two two two two two two two two two two two two two two two two two " +
+                            "two two two two two two two two two",
+                    "three three three three three three three three three three three three"
+                )
+            },
             validate = { it.isBlank() || it == "test" },
             onDismiss = {},
             onConfirm = {},
