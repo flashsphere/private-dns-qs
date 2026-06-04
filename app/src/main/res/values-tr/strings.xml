@@ -23,7 +23,6 @@
     <string name="toast_cannot_open_app_info">Android\'de uygulama bilgisi açılırken hata oluştu: %1$s</string>
     <string name="toast_cannot_open_more_info">Web sayfası açılırken hata oluştu: %1$s</string>
     <string name="message_help">Özel DNS ayarlarını değiştirmek için uygulamanın WRITE_SECURE_SETTINGS iznine ihtiyacı var. Bu izin yalnızca ADB üzerinden verilebilir:</string>
-    <string name="message_help_adb" translatable="false">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
     <string name="permission_granted_using_shizuku">WRITE_SECURE_SETTINGS izni Shizuku kullanılarak verildi</string>
     <string name="tile_added">Özel DNS tuşu Hızlı Ayarlar\'a eklendi</string>
     <string name="tile_not_added">Özel DNS tuşu Hızlı Ayarlar\'a eklenemedi. Hata kodu = %1$d</string>

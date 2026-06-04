@@ -45,6 +45,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -252,9 +253,10 @@ private fun MainScreen(
 
 @Composable
 private fun Header(text: String) {
+    val locale = LocalLocale.current
     Text(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp),
-        text = text.uppercase(),
+        text = text.uppercase(locale.platformLocale),
         style = AppTypography.bodyMedium,
         fontWeight = FontWeight.Bold,
     )
