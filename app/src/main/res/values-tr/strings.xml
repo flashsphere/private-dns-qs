@@ -34,6 +34,8 @@
     <string name="dns_provider_already_exists">Bu DNS sağlayıcısı zaten ekli</string>
     <string name="drag_to_reorder">Sıralamak için sürükle</string>
     <string name="delete">Sil</string>
+    <string name="undo">Geri al</string>
+    <string name="dns_provider_deleted">Silindi: %1$s</string>
     <string name="cancel">İptal</string>
     <string name="close">Kapat</string>
     <string name="settings">Ayarlar</string>

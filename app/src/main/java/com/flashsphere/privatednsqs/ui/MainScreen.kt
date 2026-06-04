@@ -84,6 +84,7 @@ fun MainScreen(
         updateDnsProvider = viewModel::updateDnsProvider,
         toggleDnsProvider = viewModel::toggleDnsProvider,
         deleteDnsProvider = viewModel::deleteDnsProvider,
+        restoreDnsProvider = viewModel::restoreDnsProvider,
         reorderDnsProvider = viewModel::reorderDnsProvider,
         reorderDnsProviders = viewModel::reorderDnsProviders,
         requireUnlockStateFlow = viewModel.requireUnlockChecked,
@@ -110,6 +111,7 @@ private fun MainScreen(
     updateDnsProvider: (index: Int, hostname: String) -> Unit,
     toggleDnsProvider: (index: Int, enabled: Boolean) -> Unit,
     deleteDnsProvider: (index: Int) -> Unit,
+    restoreDnsProvider: (index: Int, deleted: DnsProvider) -> Unit,
     reorderDnsProvider: (fromIndex: Int, toIndex: Int) -> Unit,
     reorderDnsProviders: () -> Unit,
     requireUnlockStateFlow: StateFlow<Boolean>,
@@ -126,18 +128,30 @@ private fun MainScreen(
     }
 
     LaunchedEffect(Unit) {
-        snackbarMessageFlow.collect {
+        snackbarMessageFlow.collect { message ->
             snackbarHostState.currentSnackbarData?.dismiss()
-            if (it is NoPermissionMessage) {
-                val result = snackbarHostState.showSnackbar(
-                    message = it.getMessage(resources),
-                    actionLabel = resources.getString(R.string.help),
-                    duration = SnackbarDuration.Long)
-                if (result == SnackbarResult.ActionPerformed) {
-                    openHelpDialog(true)
+            when (message) {
+                is NoPermissionMessage -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = message.getMessage(resources),
+                        actionLabel = resources.getString(R.string.help),
+                        duration = SnackbarDuration.Long)
+                    if (result == SnackbarResult.ActionPerformed) {
+                        openHelpDialog(true)
+                    }
                 }
-            } else {
-                snackbarHostState.showSnackbar(it.getMessage(resources))
+                is DnsProviderDeleted -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = message.getMessage(resources),
+                        actionLabel = resources.getString(R.string.undo),
+                        duration = SnackbarDuration.Long)
+                    if (result == SnackbarResult.ActionPerformed) {
+                        restoreDnsProvider(message.index, message.dnsProvider)
+                    }
+                }
+                else -> {
+                    snackbarHostState.showSnackbar(message.getMessage(resources))
+                }
             }
         }
     }
@@ -288,6 +302,7 @@ private fun MainScreenPreview() {
         updateDnsProvider = { _, _ -> },
         toggleDnsProvider = { _, _ -> },
         deleteDnsProvider = {},
+        restoreDnsProvider = { _, _ -> },
         reorderDnsProvider = { _, _ -> },
         reorderDnsProviders = {},
         requireUnlockStateFlow = requireUnlock,

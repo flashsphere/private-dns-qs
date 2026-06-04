@@ -35,6 +35,8 @@
     <string name="dns_provider_already_exists">DNS provider already exists</string>
     <string name="drag_to_reorder">Drag to reorder</string>
     <string name="delete">Delete</string>
+    <string name="undo">Undo</string>
+    <string name="dns_provider_deleted">Deleted: %1$s</string>
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
     <string name="settings">Settings</string>

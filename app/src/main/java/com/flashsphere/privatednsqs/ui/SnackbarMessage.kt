@@ -3,6 +3,7 @@ package com.flashsphere.privatednsqs.ui
 import android.content.res.Resources
 import android.os.Parcelable
 import com.flashsphere.privatednsqs.R
+import com.flashsphere.privatednsqs.datastore.DnsProvider
 import kotlinx.parcelize.Parcelize
 
 interface SnackbarMessage : Parcelable {
@@ -41,5 +42,15 @@ class TileNotAddedMessage(private val resultCode: Int) : SnackbarMessage {
 object WriteSecureSettingPermissionGrantedUsingShizuku : SnackbarMessage {
     override fun getMessage(resources: Resources): String {
         return resources.getString(R.string.permission_granted_using_shizuku)
+    }
+}
+
+@Parcelize
+data class DnsProviderDeleted(
+    val index: Int,
+    val dnsProvider: DnsProvider,
+) : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.dns_provider_deleted, dnsProvider.hostname)
     }
 }

@@ -20,6 +20,7 @@ import com.flashsphere.privatednsqs.datastore.dnsProviders
 import com.flashsphere.privatednsqs.datastore.dnsProvidersFlow
 import com.flashsphere.privatednsqs.datastore.getStateFlow
 import com.flashsphere.privatednsqs.datastore.requireUnlock
+import com.flashsphere.privatednsqs.ui.DnsProviderDeleted
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -121,7 +122,7 @@ class MainViewModel(
 
         val provider = providers[index]
         providers[index] = provider.copy(hostname = trimmedHost)
-        Timber.d("Updating '%s' to '%s", provider.hostname, trimmedHost)
+        Timber.d("Updating '%s' to '%s", provider, trimmedHost)
 
         viewModelScope.launch {
             dataStore.dnsProviders(providers)
@@ -133,9 +134,29 @@ class MainViewModel(
         if (index >= providers.size) return
 
         val provider = providers.removeAt(index)
-        Timber.d("Deleting '%s'", provider.hostname)
+        Timber.d("Deleting '%s'", provider)
 
         viewModelScope.launch {
+            dataStore.dnsProviders(providers)
+            _snackbarMessages.emit(DnsProviderDeleted(index, provider))
+        }
+    }
+
+    fun restoreDnsProvider(index: Int, deleted: DnsProvider) {
+        val providers = dnsProviders.toMutableList()
+        viewModelScope.launch {
+            val provider = DnsProvider(
+                id = IdGenerator.getNextId(dataStore),
+                hostname = deleted.hostname,
+                enabled = deleted.enabled,
+            )
+            if (index >= providers.size) {
+                providers.add(provider)
+            } else {
+                providers.add(index, provider)
+            }
+            Timber.d("Restoring '%s' with a new id", deleted)
+
             dataStore.dnsProviders(providers)
         }
     }
@@ -146,7 +167,7 @@ class MainViewModel(
 
         val provider = providers[index]
         providers[index] = provider.copy(enabled = enabled)
-        Timber.d("Toggling '%s' to %s", provider.hostname, enabled)
+        Timber.d("Toggling '%s' to %s", provider, enabled)
 
         viewModelScope.launch {
             dataStore.dnsProviders(providers)

@@ -12,6 +12,7 @@ import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.viewmodel.SelectDnsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class SelectDnsActivity : BaseActivity() {
     private val viewModel: SelectDnsViewModel by viewModels { SelectDnsViewModel.Factory }
@@ -39,7 +40,7 @@ class SelectDnsActivity : BaseActivity() {
     private fun selectDns(dnsConfig: DnsConfiguration) {
         viewModel.selectDns(dnsConfig)
         lifecycleScope.launch {
-            delay(100)
+            delay(100.milliseconds)
             finish()
         }
     }
