@@ -60,6 +60,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -130,27 +131,31 @@ private fun MainScreen(
     LaunchedEffect(Unit) {
         snackbarMessageFlow.collect { message ->
             snackbarHostState.currentSnackbarData?.dismiss()
-            when (message) {
-                is NoPermissionMessage -> {
-                    val result = snackbarHostState.showSnackbar(
-                        message = message.getMessage(resources),
-                        actionLabel = resources.getString(R.string.help),
-                        duration = SnackbarDuration.Long)
-                    if (result == SnackbarResult.ActionPerformed) {
-                        openHelpDialog(true)
+            // launch is needed so that the current snackbar can be dismissed while it is being shown,
+            // since showSnackbar() suspends the coroutine
+            launch {
+                when (message) {
+                    is NoPermissionMessage -> {
+                        val result = snackbarHostState.showSnackbar(
+                            message = message.getMessage(resources),
+                            actionLabel = resources.getString(R.string.help),
+                            duration = SnackbarDuration.Long)
+                        if (result == SnackbarResult.ActionPerformed) {
+                            openHelpDialog(true)
+                        }
                     }
-                }
-                is DnsProviderDeleted -> {
-                    val result = snackbarHostState.showSnackbar(
-                        message = message.getMessage(resources),
-                        actionLabel = resources.getString(R.string.undo),
-                        duration = SnackbarDuration.Long)
-                    if (result == SnackbarResult.ActionPerformed) {
-                        restoreDnsProvider(message.index, message.dnsProvider)
+                    is DnsProviderDeleted -> {
+                        val result = snackbarHostState.showSnackbar(
+                            message = message.getMessage(resources),
+                            actionLabel = resources.getString(R.string.undo),
+                            duration = SnackbarDuration.Long)
+                        if (result == SnackbarResult.ActionPerformed) {
+                            restoreDnsProvider(message.index, message.dnsProvider)
+                        }
                     }
-                }
-                else -> {
-                    snackbarHostState.showSnackbar(message.getMessage(resources))
+                    else -> {
+                        snackbarHostState.showSnackbar(message.getMessage(resources))
+                    }
                 }
             }
         }

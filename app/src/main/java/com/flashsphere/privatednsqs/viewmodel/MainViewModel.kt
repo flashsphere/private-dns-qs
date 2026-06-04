@@ -143,6 +143,8 @@ class MainViewModel(
     }
 
     fun restoreDnsProvider(index: Int, deleted: DnsProvider) {
+        if (!validateDnsProvider(deleted.hostname)) return
+
         val providers = dnsProviders.toMutableList()
         viewModelScope.launch {
             val provider = DnsProvider(
