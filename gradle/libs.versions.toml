@@ -1,6 +1,6 @@
 [versions]
-appVersionCode = "37"
-appVersionName = "1.34"
+appVersionCode = "38"
+appVersionName = "1.35"
 androidGradlePlugin = "9.2.1"
 kotlin = "2.4.0"
 androidxCore = "1.18.0"
