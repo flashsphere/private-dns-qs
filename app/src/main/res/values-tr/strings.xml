@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">Özel DNS Hızlı Ayar</string>
+    <string name="tile_name">Özel DNS</string>
+    <string name="dns_off">DNS Kapalı</string>
+    <string name="dns_auto">DNS Otomatik</string>
+    <string name="dns_on">DNS Açık</string>
+    <string name="dns_toggle">DNS Aç/Kapat</string>
+    <string name="off">Kapalı</string>
+    <string name="auto">Otomatik</string>
+    <string name="on">Açık</string>
+    <string name="toggle">Aç/Kapat</string>
+    <string name="set_dns_off">Özel DNS\'i Kapat</string>
+    <string name="set_dns_auto">Özel DNS\'i Otomatiğe Al</string>
+    <string name="set_dns_on">Özel DNS\'i Aç</string>
+    <string name="toggle_dns">Özel DNS\'i Aç/Kapat</string>
+    <string name="require_unlock">Tuşu kullanmak için cihaz kilidinin açılmasını iste</string>
+    <string name="dns_modes_to_toggle">Geçiş yapılacak DNS modları</string>
+    <string name="other_settings">Diğer ayarlar</string>
+    <string name="toast_no_permission">WRITE_SECURE_SETTINGS izni verilmedi</string>
+    <string name="dns_hostname_hint">DNS sağlayıcı sunucu adı</string>
+    <string name="toast_no_dns">DNS sağlayıcısı yapılandırılmadı</string>
+    <string name="toast_changes_saved">Değişikliklerin başarıyla kaydedildi</string>
+    <string name="toast_cannot_open_app_info">Android\'de uygulama bilgisi açılırken hata oluştu: %1$s</string>
+    <string name="toast_cannot_open_more_info">Web sayfası açılırken hata oluştu: %1$s</string>
+    <string name="message_help">Özel DNS ayarlarını değiştirmek için uygulamanın WRITE_SECURE_SETTINGS iznine ihtiyacı var. Bu izin yalnızca ADB üzerinden verilebilir:</string>
+    <string name="message_help_adb" translatable="false">adb shell pm grant %1$s android.permission.WRITE_SECURE_SETTINGS</string>
+    <string name="permission_granted_using_shizuku">WRITE_SECURE_SETTINGS izni Shizuku kullanılarak verildi</string>
+    <string name="tile_added">Özel DNS tuşu Hızlı Ayarlar\'a eklendi</string>
+    <string name="tile_not_added">Özel DNS tuşu Hızlı Ayarlar\'a eklenemedi. Hata kodu = %1$d</string>
+    <string name="tile_already_added">Özel DNS tuşu Hızlı Ayarlar\'da zaten var</string>
+    <string name="more_details">Daha fazla bilgi</string>
+    <string name="app_info">Uygulama bilgileri</string>
+    <string name="add_tile">Tuş ekle</string>
+    <string name="add_dns_provider">DNS sağlayıcı ekle</string>
+    <string name="dns_provider_already_exists">Bu DNS sağlayıcısı zaten ekli</string>
+    <string name="drag_to_reorder">Sıralamak için sürükle</string>
+    <string name="delete">Sil</string>
+    <string name="cancel">İptal</string>
+    <string name="close">Kapat</string>
+    <string name="settings">Ayarlar</string>
+    <string name="save">Kaydet</string>
+    <string name="ok">Tamam</string>
+    <string name="help">Yardım</string>
+</resources>
