@@ -118,7 +118,7 @@ fun SelectDnsDialogContent(
                         color = if (selectedIndex == index) {
                             MaterialTheme.colorScheme.onPrimaryContainer
                         } else {
-                            MaterialTheme.colorScheme.onSurface
+                            MaterialTheme.colorScheme.onBackground
                         },
                         text = if (item is DnsConfiguration.On) {
                             item.hostname
