@@ -119,7 +119,7 @@ private fun DnsProviderDialog(
                 } else {
                     errorMessage.value = null
                 }
-                expandSuggestions = hostname.isBlank()
+                expandSuggestions = suggestions.isNotEmpty() && hostname.isBlank()
             }
     }
 
@@ -135,7 +135,7 @@ private fun DnsProviderDialog(
 
             ExposedDropdownMenuBox(
                 expanded = expandSuggestions,
-                onExpandedChange = { expandSuggestions = it }
+                onExpandedChange = { expandSuggestions = it && suggestions.isNotEmpty() }
             ) {
                 OutlinedTextField(
                     state = textFieldState,
