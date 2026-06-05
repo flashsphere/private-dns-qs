@@ -1,16 +1,8 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_21
-    }
 }
 
 android {

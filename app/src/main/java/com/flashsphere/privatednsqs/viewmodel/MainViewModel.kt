@@ -36,6 +36,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -56,12 +57,12 @@ class MainViewModel(
     private val json = application.json
     private val privateDns = PrivateDns(application)
 
-    private val _snackbarMessages = MutableSharedFlow<SnackbarMessage>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        BufferOverflow.SUSPEND
-    )
-    val snackbarMessages = _snackbarMessages.asSharedFlow()
+    val snackbarMessages: SharedFlow<SnackbarMessage>
+        field = MutableSharedFlow<SnackbarMessage>(
+            replay = 0,
+            extraBufferCapacity = 1,
+            BufferOverflow.SUSPEND
+        )
 
     private val _openHelpDialogFlow = savedStateHandle.getMutableStateFlow("open_help_menu", false)
     val openHelpDialogFlow = _openHelpDialogFlow.asStateFlow()
@@ -102,8 +103,8 @@ class MainViewModel(
     fun showSnackbarMessage(message: SnackbarMessage) {
         viewModelScope.launch {
             // wait until there's at least 1 subscriber before emitting
-            _snackbarMessages.subscriptionCount.first { it > 0 }
-            _snackbarMessages.emit(message)
+            snackbarMessages.subscriptionCount.first { it > 0 }
+            snackbarMessages.emit(message)
         }
     }
 
@@ -155,7 +156,7 @@ class MainViewModel(
 
         viewModelScope.launch {
             dataStore.dnsProviders(providers)
-            _snackbarMessages.emit(DnsProviderDeleted(index, provider))
+            snackbarMessages.emit(DnsProviderDeleted(index, provider))
         }
     }
 
@@ -224,11 +225,11 @@ class MainViewModel(
                     }
                 }
             }.onSuccess {
-                _snackbarMessages.emit(BackupCompleted)
+                snackbarMessages.emit(BackupCompleted)
             }.onFailure { t ->
                 if (t is CancellationException) throw t
                 Timber.e(t, "Backup to '%s' failed", dest.toString())
-                _snackbarMessages.emit(BackupFailed)
+                snackbarMessages.emit(BackupFailed)
             }
         }
     }
@@ -255,11 +256,11 @@ class MainViewModel(
                             .map { it.toDnsProvider(IdGenerator.getNextId(dataStore)) })
                     }
                 }
-                _snackbarMessages.emit(RestoreCompleted)
+                snackbarMessages.emit(RestoreCompleted)
             }.onFailure { t ->
                 if (t is CancellationException) throw t
                 Timber.e(t, "Restore from backup '%s' failed", input.toString())
-                _snackbarMessages.emit(RestoreFailed)
+                snackbarMessages.emit(RestoreFailed)
             }
         }
     }
