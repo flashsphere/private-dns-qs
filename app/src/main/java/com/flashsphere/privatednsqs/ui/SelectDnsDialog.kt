@@ -22,7 +22,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +40,7 @@ import com.flashsphere.privatednsqs.ui.theme.AppTypography
 
 @Composable
 fun SelectDnsDialog(
-    configs: List<DnsConfiguration>,
+    configs: SnapshotStateList<DnsConfiguration>,
     currentConfig: DnsConfiguration,
     onSelect: (config: DnsConfiguration) -> Unit,
     openApp: () -> Unit,
@@ -66,16 +68,14 @@ fun SelectDnsDialog(
     }
 }
 @Composable
-fun SelectDnsDialogContent(
-    configs: List<DnsConfiguration>,
+private fun SelectDnsDialogContent(
+    configs: SnapshotStateList<DnsConfiguration>,
     currentConfig: DnsConfiguration,
     onSelect: (config: DnsConfiguration) -> Unit,
     openApp: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val selectedIndex = remember(configs, currentConfig) {
-        configs.indexOf(currentConfig)
-    }
+    val selectedIndex = configs.indexOf(currentConfig)
     val backgroundColor = if (isSystemInDarkTheme()) {
         MaterialTheme.colorScheme.surfaceBright
     } else {
@@ -145,17 +145,20 @@ fun SelectDnsDialogContent(
 @Preview
 @Composable
 private fun SelectDnsDialogPreview() {
+    val configs = remember {
+        mutableStateListOf(
+            DnsConfiguration.Off,
+            DnsConfiguration.Auto,
+            DnsConfiguration.On("one"),
+            DnsConfiguration.On("two two two two two two two two two two two two " +
+                    "two two two two two two two two two two two two two two two"),
+            DnsConfiguration.On("three"),
+            DnsConfiguration.On("four"),
+        )
+    }
     Surface(Modifier.fillMaxSize()) {
         SelectDnsDialog(
-            configs = listOf(
-                DnsConfiguration.Off,
-                DnsConfiguration.Auto,
-                DnsConfiguration.On("one"),
-                DnsConfiguration.On("two two two two two two two two two two two two " +
-                        "two two two two two two two two two two two two two two two"),
-                DnsConfiguration.On("three"),
-                DnsConfiguration.On("four"),
-            ),
+            configs = configs,
             currentConfig = DnsConfiguration.On("one"),
             onSelect = {},
             openApp = {},
