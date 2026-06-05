@@ -42,5 +42,11 @@
     <string name="settings">Settings</string>
     <string name="save">Save</string>
     <string name="ok">OK</string>
+    <string name="backup">Backup</string>
+    <string name="backup_completed">Backup completed</string>
+    <string name="backup_failed">Backup failed</string>
+    <string name="restore">Restore</string>
+    <string name="restore_completed">Restore completed</string>
+    <string name="restore_failed">Restore failed</string>
     <string name="help">Help</string>
 </resources>

@@ -41,5 +41,11 @@
     <string name="settings">Ayarlar</string>
     <string name="save">Kaydet</string>
     <string name="ok">Tamam</string>
+    <string name="backup">Yedekle</string>
+    <string name="backup_completed">Yedekleme tamamlandı</string>
+    <string name="backup_failed">Yedekleme başarısız</string>
+    <string name="restore">Geri yükle</string>
+    <string name="restore_completed">Geri yükleme tamamlandı</string>
+    <string name="restore_failed">Geri yükleme başarısız</string>
     <string name="help">Yardım</string>
 </resources>

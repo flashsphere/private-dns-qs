@@ -70,6 +70,8 @@ fun MainScreen(
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
+    backupConfig: () -> Unit,
+    restoreConfig: () -> Unit,
 ) {
     MainScreen(
         openHelpDialogFlow = viewModel.openHelpDialogFlow,
@@ -94,6 +96,8 @@ fun MainScreen(
         showAppInfo = showAppInfo,
         showMoreInfo = showMoreInfo,
         requestAddTile = requestAddTile,
+        backupConfig = backupConfig,
+        restoreConfig = restoreConfig,
     )
 }
 
@@ -122,6 +126,8 @@ private fun MainScreen(
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
+    backupConfig: () -> Unit,
+    restoreConfig: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -175,6 +181,8 @@ private fun MainScreen(
                     showAppInfo = showAppInfo,
                     openHelpDialog = openHelpDialog,
                     requestAddTile = requestAddTile,
+                    backupConfig = backupConfig,
+                    restoreConfig = restoreConfig,
                 )
             },
             snackbarHost = {
@@ -320,5 +328,7 @@ private fun MainScreenPreview() {
         showAppInfo = {},
         showMoreInfo = {},
         requestAddTile = {},
+        backupConfig = {},
+        restoreConfig = {},
     )
 }

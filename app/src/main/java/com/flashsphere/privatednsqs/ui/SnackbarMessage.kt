@@ -54,3 +54,31 @@ data class DnsProviderDeleted(
         return resources.getString(R.string.dns_provider_deleted, dnsProvider.hostname)
     }
 }
+
+@Parcelize
+object BackupCompleted : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.backup_completed)
+    }
+}
+
+@Parcelize
+object BackupFailed : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.backup_failed)
+    }
+}
+
+@Parcelize
+object RestoreCompleted : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.restore_completed)
+    }
+}
+
+@Parcelize
+object RestoreFailed : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return resources.getString(R.string.restore_failed)
+    }
+}

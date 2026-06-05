@@ -41,5 +41,11 @@
     <string name="settings">設定</string>
     <string name="save">儲存</string>
     <string name="ok">確定</string>
+    <string name="backup">備份</string>
+    <string name="backup_completed">備份完成</string>
+    <string name="backup_failed">備份失敗</string>
+    <string name="restore">還原</string>
+    <string name="restore_completed">還原完成</string>
+    <string name="restore_failed">還原失敗</string>
     <string name="help">說明</string>
 </resources>

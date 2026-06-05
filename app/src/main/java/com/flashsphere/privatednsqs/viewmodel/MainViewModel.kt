@@ -1,5 +1,7 @@
 package com.flashsphere.privatednsqs.viewmodel
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -9,6 +11,9 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.flashsphere.privatednsqs.PrivateDnsApplication
+import com.flashsphere.privatednsqs.backup.DnsProviderSnapshot
+import com.flashsphere.privatednsqs.backup.SettingsSnapshot
+import com.flashsphere.privatednsqs.backup.SettingsSnapshotV1
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.datastore.IdGenerator
 import com.flashsphere.privatednsqs.datastore.PreferenceKeys
@@ -19,9 +24,16 @@ import com.flashsphere.privatednsqs.datastore.dnsOffToggle
 import com.flashsphere.privatednsqs.datastore.dnsProviders
 import com.flashsphere.privatednsqs.datastore.dnsProvidersFlow
 import com.flashsphere.privatednsqs.datastore.getStateFlow
+import com.flashsphere.privatednsqs.datastore.json
 import com.flashsphere.privatednsqs.datastore.requireUnlock
+import com.flashsphere.privatednsqs.ui.BackupCompleted
+import com.flashsphere.privatednsqs.ui.BackupFailed
 import com.flashsphere.privatednsqs.ui.DnsProviderDeleted
+import com.flashsphere.privatednsqs.ui.RestoreCompleted
+import com.flashsphere.privatednsqs.ui.RestoreFailed
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -30,6 +42,10 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import timber.log.Timber
 
 class MainViewModel(
@@ -37,6 +53,7 @@ class MainViewModel(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val dataStore = application.dataStore
+    private val json = application.json
     private val privateDns = PrivateDns(application)
 
     private val _snackbarMessages = MutableSharedFlow<SnackbarMessage>(
@@ -188,6 +205,63 @@ class MainViewModel(
 
     fun getSuggestions(): Set<String> {
         return suggestions - dnsProviders.map { it.hostname.lowercase() }.toSet()
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    fun backup(contentResolver: ContentResolver, dest: Uri) {
+        Timber.d("Writing to %s", dest.toString())
+        viewModelScope.launch {
+            runCatching {
+                val snapshot = SettingsSnapshotV1(
+                    dnsOffToggle = dnsOffChecked.value,
+                    dnsAutoToggle = dnsAutoChecked.value,
+                    requireUnlock = requireUnlockChecked.value,
+                    dnsProviders = dnsProviders.map { DnsProviderSnapshot(it) },
+                )
+                withContext(Dispatchers.IO) {
+                    contentResolver.openOutputStream(dest, "wt")?.use { stream ->
+                        json.encodeToStream<SettingsSnapshot>(snapshot, stream)
+                    }
+                }
+            }.onSuccess {
+                _snackbarMessages.emit(BackupCompleted)
+            }.onFailure { t ->
+                if (t is CancellationException) throw t
+                Timber.e(t, "Backup to '%s' failed", dest.toString())
+                _snackbarMessages.emit(BackupFailed)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    fun restore(contentResolver: ContentResolver, input: Uri) {
+        Timber.d("Restoring from %s", input.toString())
+        viewModelScope.launch {
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    contentResolver.openInputStream(input)?.use { stream ->
+                        json.decodeFromStream<SettingsSnapshot>(stream)
+                    }
+                }
+            }.map { snapshot ->
+                requireNotNull(snapshot) { "Invalid file format" }
+            }.onSuccess { snapshot ->
+                when (snapshot) {
+                    is SettingsSnapshotV1 -> {
+                        dataStore.dnsOffToggle(snapshot.dnsOffToggle)
+                        dataStore.dnsAutoToggle(snapshot.dnsAutoToggle)
+                        dataStore.requireUnlock(snapshot.requireUnlock)
+                        dataStore.dnsProviders(snapshot.dnsProviders
+                            .map { it.toDnsProvider(IdGenerator.getNextId(dataStore)) })
+                    }
+                }
+                _snackbarMessages.emit(RestoreCompleted)
+            }.onFailure { t ->
+                if (t is CancellationException) throw t
+                Timber.e(t, "Restore from backup '%s' failed", input.toString())
+                _snackbarMessages.emit(RestoreFailed)
+            }
+        }
     }
 
     companion object {

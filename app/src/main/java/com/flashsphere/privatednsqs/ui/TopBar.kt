@@ -5,7 +5,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Backup
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +29,8 @@ fun TopBar(
     showAppInfo: () -> Unit,
     openHelpDialog: (Boolean) -> Unit,
     requestAddTile: () -> Unit,
+    backupConfig: () -> Unit,
+    restoreConfig: () -> Unit,
 ) {
     TopAppBar(
         title = {
@@ -65,6 +69,22 @@ fun TopBar(
                         }
                     )
                 }
+                DropdownMenuItem(
+                    leadingIcon = { Icon(Icons.Outlined.Backup, stringResource(id = R.string.backup)) },
+                    text = { Text(stringResource(id = R.string.backup))},
+                    onClick = {
+                        backupConfig()
+                        openDropdownMenu.value = false
+                    },
+                )
+                DropdownMenuItem(
+                    leadingIcon = { Icon(Icons.Outlined.Restore, stringResource(id = R.string.restore)) },
+                    text = { Text(stringResource(id = R.string.restore))},
+                    onClick = {
+                        restoreConfig()
+                        openDropdownMenu.value = false
+                    }
+                )
                 DropdownMenuItem(
                     leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, stringResource(id = R.string.help)) },
                     text = { Text(stringResource(id = R.string.help))},
