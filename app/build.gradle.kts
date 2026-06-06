@@ -68,7 +68,7 @@ android {
         }
         create("nolauncher") {
             dimension = "type"
-            versionCode = Int.MAX_VALUE // To prevent app store updates
+            applicationIdSuffix = ".nolauncher"
         }
     }
     bundle {
