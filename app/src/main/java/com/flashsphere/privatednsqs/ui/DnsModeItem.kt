@@ -3,6 +3,7 @@ package com.flashsphere.privatednsqs.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
@@ -25,16 +26,17 @@ fun DnsModeItem(
     val checked = state.collectAsStateWithLifecycle().value
     val checkboxInteractionSource = remember { MutableInteractionSource() }
     Row(modifier = Modifier
-        .padding(horizontal = 4.dp)
         .focusProperties { canFocus = false }
         .clickable(
             interactionSource = checkboxInteractionSource,
             indication = null,
             onClick = { onClick(!checked) },
-        ),
+        )
+        .fillMaxWidth()
+        .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(checked = checked, onCheckedChange = onClick, interactionSource = checkboxInteractionSource)
-        Text(modifier = Modifier.padding(end = 8.dp), text = label, style = AppTypography.bodyMedium)
+        Text(modifier = Modifier.weight(1F), text = label, style = AppTypography.bodyMedium)
     }
 }
