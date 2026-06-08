@@ -19,8 +19,15 @@ installed and [started](https://shizuku.rikka.app/guide/setup/#start-shizuku).
 
 ### 2. ADB
 The permission can be granted using ADB with the command:
+
+**If you're using the launcher (Play Store) version:**
 ```
 adb shell pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS
+```
+
+**If you're using the no-launcher version:**
+```
+adb shell pm grant com.flashsphere.privatednsqs.nolauncher android.permission.WRITE_SECURE_SETTINGS
 ```
 
 Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the permission.
