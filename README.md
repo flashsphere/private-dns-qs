@@ -33,11 +33,22 @@ adb shell pm grant com.flashsphere.privatednsqs.nolauncher android.permission.WR
 Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the permission.
 
 ## Download
+
+### Launcher (Play Store) version
 <div>
 <a href="https://play.google.com/store/apps/details?id=com.flashsphere.privatednsqs" target="_blank">
     <img alt="Get it on Google Play" height="80" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" /></a>
 
 <a href="https://apt.izzysoft.de/fdroid/index/apk/com.flashsphere.privatednsqs" target="_blank">
+    <img alt="Get it on F-Droid" height="80" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" /></a>
+
+<a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank">
+    <img alt="Get it on GitHub" height="80" src="https://github.com/flashsphere/private-dns-qs/blob/main/static/get-it-on-github.png?raw=true" /></a>
+</div>
+
+### No-launcher version 
+<div>
+<a href="https://apt.izzysoft.de/fdroid/index/apk/com.flashsphere.privatednsqs.nolauncher" target="_blank">
     <img alt="Get it on F-Droid" height="80" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" /></a>
 
 <a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank">

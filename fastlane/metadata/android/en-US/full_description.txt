@@ -13,3 +13,5 @@ This permission can only be granted either by Shizuku or in an ADB shell.
     Use the command: `adb shell pm grant com.flashsphere.privatednsqs android.permission.WRITE_SECURE_SETTINGS`
 
     Check out [private-dns-qs.web.app/help](https://private-dns-qs.web.app/help) on the steps to use adb to grant the permission.
+
+If you prefer not to have a launcher icon on your home screen, check out the [no-launcher version](https://apt.izzysoft.de/fdroid/index/apk/com.flashsphere.privatednsqs.nolauncher).
