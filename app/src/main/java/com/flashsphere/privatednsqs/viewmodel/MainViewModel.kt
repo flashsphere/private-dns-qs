@@ -75,7 +75,6 @@ class MainViewModel(
     init {
         dataStore.dnsProvidersFlow()
             .onEach { list ->
-                Timber.d("dns providers: %s", list)
                 dnsProviders.clear()
                 dnsProviders.addAll(list)
             }
@@ -286,6 +285,12 @@ class MainViewModel(
             "family.adguard-dns.com",
             "dns.opendns.com",
             "familyshield.opendns.com",
+            "dns.mullvad.net",
+            "adblock.dns.mullvad.net",
+            "base.dns.mullvad.net",
+            "extended.dns.mullvad.net",
+            "family.dns.mullvad.net",
+            "all.dns.mullvad.net",
         )
     }
 }
