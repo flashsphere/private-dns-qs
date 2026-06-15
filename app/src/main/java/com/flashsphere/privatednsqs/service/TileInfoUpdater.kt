@@ -3,6 +3,7 @@ package com.flashsphere.privatednsqs.service
 import android.content.Context
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.os.SystemProperties
 import android.service.quicksettings.Tile
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsConfiguration
@@ -47,7 +48,8 @@ class DefaultTileInfoUpdater(
 
 /**
  * Workaround icon not updating when switching from auto -> on.
- * It appears that Samsung devices do not update the icon when the tile state doesn't change.
+ * It appears that Samsung devices on One UI 8.5 do not update the icon
+ * when the tile state doesn't change.
  */
 class SamsungTileInfoUpdater(
     context: Context,
@@ -73,6 +75,22 @@ class SamsungTileInfoUpdater(
             Tile.STATE_INACTIVE -> Tile.STATE_ACTIVE
             Tile.STATE_ACTIVE -> Tile.STATE_INACTIVE
             else -> state
+        }
+    }
+
+    companion object {
+        private const val ONE_UI_8_5 = 80500
+
+        fun isApplicable(): Boolean {
+            return Build.MANUFACTURER.equals("samsung", ignoreCase = true) &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA &&
+                    getOneUiVersion() >= ONE_UI_8_5
+        }
+
+        private fun getOneUiVersion(): Int {
+            return runCatching { SystemProperties.getInt("ro.build.version.oneui", 0) }
+                .onFailure { Timber.e(it) }
+                .getOrDefault(0)
         }
     }
 }

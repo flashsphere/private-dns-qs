@@ -1,7 +1,6 @@
 package com.flashsphere.privatednsqs.service
 
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
-import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.core.service.quicksettings.PendingIntentActivityWrapper
@@ -42,10 +41,9 @@ class PrivateDnsTileService : TileService() {
                 started = SharingStarted.Eagerly,
                 replay = 1,
             )
-        tileInfoUpdater = if (!Build.MANUFACTURER.equals("samsung", ignoreCase = true)) {
-            DefaultTileInfoUpdater(this)
-        } else {
-            SamsungTileInfoUpdater(this, mainScope)
+        tileInfoUpdater = when {
+            SamsungTileInfoUpdater.isApplicable() -> SamsungTileInfoUpdater(this, mainScope)
+            else -> DefaultTileInfoUpdater(this)
         }
         privateDns = PrivateDns(this)
     }
