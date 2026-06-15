@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,7 +47,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun AddDnsDialog(
     openDialog: MutableState<Boolean>,
-    getSuggestions: () -> Set<String>,
+    getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     addDns: (hostname: String) -> Unit,
 ) {
@@ -68,7 +69,7 @@ fun AddDnsDialog(
 @Composable
 fun EditDnsDialog(
     openDialog: MutableState<IndexedValue<DnsProvider>?>,
-    getSuggestions: () -> Set<String>,
+    getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     updateDns: (index: Int, hostname: String) -> Unit,
 ) {
@@ -95,7 +96,7 @@ fun EditDnsDialog(
 @Composable
 private fun DnsProviderDialog(
     initialHostname: String = "",
-    getSuggestions: () -> Set<String>,
+    getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     onDismiss: () -> Unit,
     onConfirm: (hostname: String) -> Unit,
@@ -107,19 +108,23 @@ private fun DnsProviderDialog(
     val errorMessage = remember { mutableStateOf<String?>(null) }
 
     var expandSuggestions by remember { mutableStateOf(false) }
-    val suggestions = getSuggestions()
+    val suggestions = remember { mutableStateListOf<String>() }
 
     @OptIn(FlowPreview::class)
     LaunchedEffect(textFieldState) {
         snapshotFlow { textFieldState.text }
             .debounce(300.milliseconds)
-            .collect { hostname ->
-                if (!validate(hostname.toString())) {
+            .collect {
+                val hostname = it.toString()
+                if (!validate(hostname)) {
                     errorMessage.value = resources.getString(R.string.dns_provider_already_exists)
                 } else {
                     errorMessage.value = null
                 }
-                expandSuggestions = suggestions.isNotEmpty() && hostname.isBlank()
+
+                suggestions.clear()
+                suggestions.addAll(getSuggestions(hostname))
+                expandSuggestions = suggestions.isNotEmpty()
             }
     }
 

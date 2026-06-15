@@ -37,7 +37,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -203,8 +202,12 @@ class MainViewModel(
         viewModelScope.launch { dataStore.dnsProviders(dnsProviders.toList()) }
     }
 
-    fun getSuggestions(): Set<String> {
-        return suggestions - dnsProviders.map { it.hostname.lowercase() }.toSet()
+    fun getSuggestions(text: String): Set<String> {
+        val lowercaseText = text.lowercase()
+        return suggestions.asSequence()
+            .filter { it != lowercaseText && it.contains(lowercaseText)  }
+            .minus(dnsProviders.asSequence().map { it.hostname.lowercase() }.toSet())
+            .toSet()
     }
 
     @OptIn(ExperimentalSerializationApi::class)

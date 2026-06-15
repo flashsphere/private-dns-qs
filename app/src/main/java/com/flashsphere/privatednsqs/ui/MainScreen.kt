@@ -112,7 +112,7 @@ private fun MainScreen(
     dnsAutoStateFlow: StateFlow<Boolean>,
     onDnsAutoClick: (checked: Boolean) -> Unit,
     dnsProviders: SnapshotStateList<DnsProvider>,
-    getDnsSuggestions: () -> Set<String>,
+    getDnsSuggestions: (text: String) -> Set<String>,
     validateDnsProvider: (hostname: String) -> Boolean,
     addDnsProvider: (hostname: String) -> Unit,
     updateDnsProvider: (index: Int, hostname: String) -> Unit,
