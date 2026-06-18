@@ -1,13 +1,16 @@
 package com.flashsphere.privatednsqs.ui
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -21,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,8 +43,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsProvider
+import com.flashsphere.privatednsqs.util.suspendRunCatching
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,6 +115,7 @@ private fun DnsProviderDialog(
 
     var expandSuggestions by remember { mutableStateOf(false) }
     val suggestions = remember { mutableStateListOf<String>() }
+    val suggestionsScrollState = rememberScrollState()
 
     @OptIn(FlowPreview::class)
     LaunchedEffect(textFieldState) {
@@ -124,6 +131,8 @@ private fun DnsProviderDialog(
 
                 suggestions.clear()
                 suggestions.addAll(getSuggestions(hostname))
+
+                launch { suspendRunCatching { suggestionsScrollState.scrollTo(0) } }
                 expandSuggestions = suggestions.isNotEmpty()
             }
     }
@@ -177,20 +186,27 @@ private fun DnsProviderDialog(
                         .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable),
                 )
                 ExposedDropdownMenu(
-                    modifier = Modifier.heightIn(max = 150.dp),
                     expanded = expandSuggestions,
                     onDismissRequest = { expandSuggestions = false }
                 ) {
-                    suggestions.forEach { host ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(modifier = Modifier.padding(vertical = 4.dp), text = host)
-                            },
-                            onClick = {
-                                textFieldState.setTextAndPlaceCursorAtEnd(host)
-                                expandSuggestions = false
+                    Column(
+                        modifier = Modifier.exposedDropdownSize()
+                            .heightIn(max = 150.dp)
+                            .verticalScroll(suggestionsScrollState)
+                    ) {
+                        suggestions.forEach { host ->
+                            key(host) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(modifier = Modifier.padding(vertical = 4.dp), text = host)
+                                    },
+                                    onClick = {
+                                        textFieldState.setTextAndPlaceCursorAtEnd(host)
+                                        expandSuggestions = false
+                                    }
+                                )
                             }
-                        )
+                        }
                     }
                 }
             }
