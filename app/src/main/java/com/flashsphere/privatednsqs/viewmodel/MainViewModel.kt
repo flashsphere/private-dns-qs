@@ -32,7 +32,7 @@ import com.flashsphere.privatednsqs.ui.DnsProviderDeleted
 import com.flashsphere.privatednsqs.ui.RestoreCompleted
 import com.flashsphere.privatednsqs.ui.RestoreFailed
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
-import kotlinx.coroutines.CancellationException
+import com.flashsphere.privatednsqs.util.suspendRunCatching
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -219,7 +219,7 @@ class MainViewModel(
     fun backup(contentResolver: ContentResolver, dest: Uri) {
         Timber.d("Writing to %s", dest.toString())
         viewModelScope.launch {
-            runCatching {
+            suspendRunCatching {
                 val snapshot = SettingsSnapshotV1(
                     dnsOffToggle = dnsOffChecked.value,
                     dnsAutoToggle = dnsAutoChecked.value,
@@ -234,7 +234,6 @@ class MainViewModel(
             }.onSuccess {
                 snackbarMessages.emit(BackupCompleted)
             }.onFailure { t ->
-                if (t is CancellationException) throw t
                 Timber.e(t, "Backup to '%s' failed", dest.toString())
                 snackbarMessages.emit(BackupFailed)
             }
@@ -245,7 +244,7 @@ class MainViewModel(
     fun restore(contentResolver: ContentResolver, input: Uri) {
         Timber.d("Restoring from %s", input.toString())
         viewModelScope.launch {
-            runCatching {
+            suspendRunCatching {
                 withContext(Dispatchers.IO) {
                     contentResolver.openInputStream(input)?.use { stream ->
                         json.decodeFromStream<SettingsSnapshot>(stream)
@@ -265,7 +264,6 @@ class MainViewModel(
                 }
                 snackbarMessages.emit(RestoreCompleted)
             }.onFailure { t ->
-                if (t is CancellationException) throw t
                 Timber.e(t, "Restore from backup '%s' failed", input.toString())
                 snackbarMessages.emit(RestoreFailed)
             }
