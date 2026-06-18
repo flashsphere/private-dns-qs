@@ -204,9 +204,14 @@ class MainViewModel(
 
     fun getSuggestions(text: String): Set<String> {
         val lowercaseText = text.lowercase()
+        if (suggestions.contains(lowercaseText)) {
+            return emptySet()
+        }
+
+        val existingDnsProviders = dnsProviders.asSequence().map { it.hostname.lowercase() }.toSet()
         return suggestions.asSequence()
-            .filter { it != lowercaseText && it.contains(lowercaseText)  }
-            .minus(dnsProviders.asSequence().map { it.hostname.lowercase() }.toSet())
+            .filter { it.contains(lowercaseText) }
+            .filterNot { it in existingDnsProviders }
             .toSet()
     }
 
