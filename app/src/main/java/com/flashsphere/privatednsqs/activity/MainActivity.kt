@@ -28,7 +28,9 @@ import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.service.PrivateDnsTileService
 import com.flashsphere.privatednsqs.shizuku.ShizukuUtils.grantWriteSecureSettingsPermission
 import com.flashsphere.privatednsqs.shizuku.ShizukuUtils.isShizukuAvailable
+import com.flashsphere.privatednsqs.ui.BackupFailed
 import com.flashsphere.privatednsqs.ui.MainScreen
+import com.flashsphere.privatednsqs.ui.RestoreFailed
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.ui.TileAddedMessage
 import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
@@ -178,11 +180,21 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
     private fun backupConfig() {
         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
         val timestamp = LocalDateTime.now().format(formatter)
-        selectBackupDestLauncher.launch("private-dns-qs-${timestamp}.txt")
+        runCatching {
+            selectBackupDestLauncher.launch("private-dns-qs-${timestamp}.txt")
+        }.onFailure {
+            Timber.e(it)
+            viewModel.showSnackbarMessage(BackupFailed)
+        }
     }
 
     private fun restoreConfig() {
-        openBackupLauncher.launch(arrayOf("text/plain"))
+        runCatching {
+            openBackupLauncher.launch(arrayOf("text/plain"))
+        }.onFailure {
+            Timber.e(it)
+            viewModel.showSnackbarMessage(RestoreFailed)
+        }
     }
 
     private fun checkShizukuPermission(code: Int): Boolean {
