@@ -14,13 +14,17 @@ import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
 
 interface TileInfoUpdater {
-    fun updateTile(tile: Tile, dnsConfiguration: DnsConfiguration)
+    fun update(tile: Tile, dnsConfiguration: DnsConfiguration)
+
+    fun change(tile: Tile, dnsConfiguration: DnsConfiguration) {
+        update(tile, dnsConfiguration)
+    }
 }
 
-class DefaultTileInfoUpdater(
+open class DefaultTileInfoUpdater(
     private val context: Context,
 ) : TileInfoUpdater {
-    override fun updateTile(tile: Tile, dnsConfiguration: DnsConfiguration) {
+    override fun update(tile: Tile, dnsConfiguration: DnsConfiguration) {
         Timber.d("Updating tile")
 
         val dnsMode = dnsConfiguration.mode
@@ -54,10 +58,9 @@ class DefaultTileInfoUpdater(
 class SamsungTileInfoUpdater(
     context: Context,
     private val mainScope: CoroutineScope,
-) : TileInfoUpdater {
-    private val defaultTileInfoUpdater = DefaultTileInfoUpdater(context)
+) : DefaultTileInfoUpdater(context) {
 
-    override fun updateTile(tile: Tile, dnsConfiguration: DnsConfiguration) {
+    override fun change(tile: Tile, dnsConfiguration: DnsConfiguration) {
         val dnsMode = dnsConfiguration.mode
         if (tile.state == dnsMode.tileState) {
             Timber.d("Inverting tile state")
@@ -66,7 +69,7 @@ class SamsungTileInfoUpdater(
         }
         mainScope.launch {
             delay(50.milliseconds)
-            defaultTileInfoUpdater.updateTile(tile, dnsConfiguration)
+            update(tile, dnsConfiguration)
         }
     }
 

@@ -1,7 +1,6 @@
 package com.flashsphere.privatednsqs.service
 
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
-import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.core.service.quicksettings.PendingIntentActivityWrapper
 import androidx.core.service.quicksettings.TileServiceCompat
@@ -58,7 +57,7 @@ class PrivateDnsTileService : TileService() {
 
         val tile = this.qsTile ?: return
 
-        changeTileState(tile, privateDns.getCurrentDnsConfig())
+        tileInfoUpdater.update(tile, privateDns.getCurrentDnsConfig())
     }
 
     override fun onClick() {
@@ -90,11 +89,7 @@ class PrivateDnsTileService : TileService() {
         privateDns.setDnsConfig(nextConfig)
 
         val tile = this.qsTile ?: return
-        changeTileState(tile, nextConfig)
-    }
-
-    private fun changeTileState(tile: Tile, dnsConfiguration: DnsConfiguration) {
-        tileInfoUpdater.updateTile(tile, dnsConfiguration)
+        tileInfoUpdater.change(tile, nextConfig)
     }
 
     private fun showSnackbarMessage(snackbarMessage: SnackbarMessage) {
