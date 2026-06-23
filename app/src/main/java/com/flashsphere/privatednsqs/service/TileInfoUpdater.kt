@@ -7,6 +7,8 @@ import android.os.SystemProperties
 import android.service.quicksettings.Tile
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsConfiguration
+import com.flashsphere.privatednsqs.util.FileUtils.toIconFile
+import com.flashsphere.privatednsqs.util.toBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -14,9 +16,9 @@ import timber.log.Timber
 import kotlin.time.Duration.Companion.milliseconds
 
 interface TileInfoUpdater {
-    fun update(tile: Tile, dnsConfiguration: DnsConfiguration)
+    suspend fun update(tile: Tile, dnsConfiguration: DnsConfiguration)
 
-    fun change(tile: Tile, dnsConfiguration: DnsConfiguration) {
+    suspend fun change(tile: Tile, dnsConfiguration: DnsConfiguration) {
         update(tile, dnsConfiguration)
     }
 }
@@ -24,7 +26,7 @@ interface TileInfoUpdater {
 open class DefaultTileInfoUpdater(
     private val context: Context,
 ) : TileInfoUpdater {
-    override fun update(tile: Tile, dnsConfiguration: DnsConfiguration) {
+    override suspend fun update(tile: Tile, dnsConfiguration: DnsConfiguration) {
         Timber.d("Updating tile")
 
         val dnsMode = dnsConfiguration.mode
@@ -44,9 +46,19 @@ open class DefaultTileInfoUpdater(
         } else {
             tile.label = label
         }
-        tile.icon = Icon.createWithResource(context, dnsMode.iconResId)
+        tile.icon = toIcon(dnsConfiguration)
         tile.contentDescription = context.getString(R.string.tile_name)
         tile.updateTile()
+    }
+
+    private suspend fun toIcon(dnsConfiguration: DnsConfiguration): Icon {
+        if (dnsConfiguration is DnsConfiguration.On && !dnsConfiguration.icon.isNullOrBlank()) {
+            val bitmap = toIconFile(context, dnsConfiguration.icon).toBitmap()
+            if (bitmap != null) {
+                return Icon.createWithBitmap(bitmap)
+            }
+        }
+        return Icon.createWithResource(context, dnsConfiguration.mode.iconResId)
     }
 }
 
@@ -60,7 +72,7 @@ class SamsungTileInfoUpdater(
     private val mainScope: CoroutineScope,
 ) : DefaultTileInfoUpdater(context) {
 
-    override fun change(tile: Tile, dnsConfiguration: DnsConfiguration) {
+    override suspend fun change(tile: Tile, dnsConfiguration: DnsConfiguration) {
         val dnsMode = dnsConfiguration.mode
         if (tile.state == dnsMode.tileState) {
             Timber.d("Inverting tile state")

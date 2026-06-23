@@ -52,14 +52,14 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
         registerForActivityResult(
             ActivityResultContracts.CreateDocument("text/plain")
         ) { uri ->
-            uri?.let { viewModel.backup(contentResolver, it) }
+            uri?.let { viewModel.backup(it) }
         }
 
     private val openBackupLauncher =
         registerForActivityResult(
             ActivityResultContracts.OpenDocument()
         ) { uri ->
-            uri?.let { viewModel.restore(contentResolver, it) }
+            uri?.let { viewModel.restore(it) }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {

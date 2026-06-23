@@ -27,6 +27,7 @@ class SettingsMigration(private val context: Context) : DataMigration<Preference
                     val dnsProvider = DnsProvider(
                         id = IdGenerator.getNextId(mutablePrefs),
                         hostname = hostname,
+                        icon = null,
                     )
                     mutablePrefs[PreferenceKeys.DNS_PROVIDERS.key] =
                         context.json.encodeToString(listOf(dnsProvider))

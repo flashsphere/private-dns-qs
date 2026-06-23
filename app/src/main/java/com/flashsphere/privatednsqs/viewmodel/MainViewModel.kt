@@ -1,6 +1,5 @@
 package com.flashsphere.privatednsqs.viewmodel
 
-import android.content.ContentResolver
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.SavedStateHandle
@@ -10,12 +9,18 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import coil3.imageLoader
+import coil3.request.ErrorResult
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.toBitmap
 import com.flashsphere.privatednsqs.PrivateDnsApplication
 import com.flashsphere.privatednsqs.backup.DnsProviderSnapshot
 import com.flashsphere.privatednsqs.backup.SettingsSnapshot
 import com.flashsphere.privatednsqs.backup.SettingsSnapshotV1
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.datastore.IdGenerator
+import com.flashsphere.privatednsqs.datastore.ImageIdGenerator
 import com.flashsphere.privatednsqs.datastore.PreferenceKeys
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.datastore.dataStore
@@ -32,7 +37,14 @@ import com.flashsphere.privatednsqs.ui.DnsProviderDeleted
 import com.flashsphere.privatednsqs.ui.RestoreCompleted
 import com.flashsphere.privatednsqs.ui.RestoreFailed
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
+import com.flashsphere.privatednsqs.util.FileUtils.delete
+import com.flashsphere.privatednsqs.util.FileUtils.move
+import com.flashsphere.privatednsqs.util.FileUtils.toIconFile
+import com.flashsphere.privatednsqs.util.FileUtils.write
+import com.flashsphere.privatednsqs.util.absolutePathIfExists
+import com.flashsphere.privatednsqs.util.base64DecodeToFile
 import com.flashsphere.privatednsqs.util.suspendRunCatching
+import com.flashsphere.privatednsqs.util.toBase64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,14 +59,18 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import timber.log.Timber
+import java.io.File
+import kotlin.time.Duration.Companion.days
 
 class MainViewModel(
-    application: PrivateDnsApplication,
+    private val application: PrivateDnsApplication,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val dataStore = application.dataStore
     private val json = application.json
+    private val contentResolver = application.contentResolver
     private val privateDns = PrivateDns(application)
+//    private val iconsDir = File(application.filesDir, "icons")
 
     val snackbarMessages: SharedFlow<SnackbarMessage>
         field = MutableSharedFlow<SnackbarMessage>(
@@ -80,6 +96,7 @@ class MainViewModel(
             .launchIn(viewModelScope)
 
         _openHelpDialogFlow.value = !hasPermission()
+        cleanupOrphanImages()
     }
 
     fun openHelpDialog(open: Boolean) {
@@ -117,30 +134,62 @@ class MainViewModel(
         return !dnsProviders.any { it.hostname.equals(trimmedHost, true) }
     }
 
-    fun addDnsProvider(hostname: String) {
+    fun addDnsProvider(hostname: String, iconFile: File? = null) {
         val trimmedHost = hostname.trim()
         if (trimmedHost.isEmpty()) return
 
         val providers = dnsProviders.toMutableList()
         viewModelScope.launch {
-            providers.add(DnsProvider(id = IdGenerator.getNextId(dataStore), hostname = trimmedHost))
-            Timber.d("Adding '%s'", trimmedHost)
+            Timber.d("Adding '%s'", hostname)
+            val dnsProvider = createDnsProvider(trimmedHost, true, iconFile)
+            providers.add(dnsProvider)
             dataStore.dnsProviders(providers)
         }
     }
 
-    fun updateDnsProvider(index: Int, newHostname: String) {
-        val trimmedHost = newHostname.trim()
+    suspend fun createDnsProvider(hostname: String, enabled: Boolean = true, iconFile: File? = null): DnsProvider {
+        val id = IdGenerator.getNextId(dataStore)
+
+        val iconFilename = if (iconFile != null && iconFile.exists()) {
+            val filename = iconFile.name.ifBlank { "${ImageIdGenerator.getNextId(dataStore)}.png" }
+            move(iconFile, toIconFile(application, filename))
+            filename
+        } else {
+            null
+        }
+
+        return DnsProvider(
+            id = id,
+            hostname = hostname,
+            enabled = enabled,
+            icon = iconFilename,
+        )
+    }
+
+    fun updateDnsProvider(index: Int, hostname: String, iconFile: File? = null) {
+        val trimmedHost = hostname.trim()
         if (trimmedHost.isEmpty()) return
 
         val providers = dnsProviders.toMutableList()
         if (index >= providers.size) return
 
-        val provider = providers[index]
-        providers[index] = provider.copy(hostname = trimmedHost)
-        Timber.d("Updating '%s' to '%s", provider, trimmedHost)
-
         viewModelScope.launch {
+            val provider = providers[index]
+
+            val currentIconFile = provider.icon?.let { toIconFile(application, it) }
+            currentIconFile
+                ?.takeIf { it != iconFile }
+                ?.let { delete(it) }
+
+            val iconFilename = iconFile?.let {
+                val filename = iconFile.name.ifBlank { "${ImageIdGenerator.getNextId(dataStore)}.png" }
+                move(it, toIconFile(application, filename))
+                filename
+            }
+
+            providers[index] = provider.copy(hostname = trimmedHost, icon = iconFilename)
+            Timber.d("Updating '%s' to '%s", provider, trimmedHost)
+
             dataStore.dnsProviders(providers)
         }
     }
@@ -153,8 +202,19 @@ class MainViewModel(
         Timber.d("Deleting '%s'", provider)
 
         viewModelScope.launch {
+            val newIconFilePath = provider.icon
+                ?.let { icon ->
+                    // move existing icon to cache dir
+                    val currentFile = toIconFile(application, icon)
+
+                    val newFile = File(application.cacheDir, icon)
+                    move(currentFile, newFile)
+
+                    newFile.absolutePathIfExists
+                }
+
             dataStore.dnsProviders(providers)
-            snackbarMessages.emit(DnsProviderDeleted(index, provider))
+            snackbarMessages.emit(DnsProviderDeleted(index, provider.copy(icon = newIconFilePath)))
         }
     }
 
@@ -163,10 +223,10 @@ class MainViewModel(
 
         val providers = dnsProviders.toMutableList()
         viewModelScope.launch {
-            val provider = DnsProvider(
-                id = IdGenerator.getNextId(dataStore),
+            val provider = createDnsProvider(
                 hostname = deleted.hostname,
                 enabled = deleted.enabled,
+                iconFile = deleted.icon?.let { File(it) },
             )
             if (index >= providers.size) {
                 providers.add(provider)
@@ -174,7 +234,6 @@ class MainViewModel(
                 providers.add(index, provider)
             }
             Timber.d("Restoring '%s' with a new id", deleted)
-
             dataStore.dnsProviders(providers)
         }
     }
@@ -216,7 +275,7 @@ class MainViewModel(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    fun backup(contentResolver: ContentResolver, dest: Uri) {
+    fun backup(dest: Uri) {
         Timber.d("Writing to %s", dest.toString())
         viewModelScope.launch {
             suspendRunCatching {
@@ -224,7 +283,17 @@ class MainViewModel(
                     dnsOffToggle = dnsOffChecked.value,
                     dnsAutoToggle = dnsAutoChecked.value,
                     requireUnlock = requireUnlockChecked.value,
-                    dnsProviders = dnsProviders.map { DnsProviderSnapshot(it) },
+                    dnsProviders = dnsProviders.map {
+                        val iconBase64 = it.icon?.let { icon ->
+                            toIconFile(application, icon).toBase64()
+                        }
+
+                        DnsProviderSnapshot(
+                            hostname = it.hostname,
+                            enabled = it.enabled,
+                            iconBase64 = iconBase64,
+                        )
+                    },
                 )
                 withContext(Dispatchers.IO) {
                     contentResolver.openOutputStream(dest, "wt")?.use { stream ->
@@ -241,7 +310,7 @@ class MainViewModel(
     }
 
     @OptIn(ExperimentalSerializationApi::class)
-    fun restore(contentResolver: ContentResolver, input: Uri) {
+    fun restore(input: Uri) {
         Timber.d("Restoring from %s", input.toString())
         viewModelScope.launch {
             suspendRunCatching {
@@ -253,19 +322,92 @@ class MainViewModel(
             }.map { snapshot ->
                 requireNotNull(snapshot) { "Invalid file format" }
             }.onSuccess { snapshot ->
+                // delete existing icon files from existing dns
+                dnsProviders.asSequence()
+                    .mapNotNull { it.icon }
+                    .map { toIconFile(application, it) }
+                    .forEach { delete(it) }
+
                 when (snapshot) {
                     is SettingsSnapshotV1 -> {
                         dataStore.dnsOffToggle(snapshot.dnsOffToggle)
                         dataStore.dnsAutoToggle(snapshot.dnsAutoToggle)
                         dataStore.requireUnlock(snapshot.requireUnlock)
                         dataStore.dnsProviders(snapshot.dnsProviders
-                            .map { it.toDnsProvider(IdGenerator.getNextId(dataStore)) })
+                            .map {
+                                // decode base64 icon to a file in the cache dir
+                                val imageId = ImageIdGenerator.getNextId(dataStore)
+                                val iconFile = it.iconBase64?.let { iconBase64 ->
+                                    val file = File(application.cacheDir, "$imageId")
+                                    iconBase64.base64DecodeToFile(file)
+
+                                    // process icon file again in case the json was manually edited
+                                    // to have a larger/non-image file
+                                    processSelectedIcon(file)
+                                }
+
+                                createDnsProvider(
+                                    hostname = it.hostname,
+                                    enabled = it.enabled,
+                                    iconFile = iconFile,
+                                )
+                            })
                     }
                 }
                 snackbarMessages.emit(RestoreCompleted)
             }.onFailure { t ->
                 Timber.e(t, "Restore from backup '%s' failed", input.toString())
                 snackbarMessages.emit(RestoreFailed)
+            }
+        }
+    }
+
+    suspend fun processSelectedIcon(input: Uri): File? {
+        val imageId = ImageIdGenerator.getNextId(dataStore)
+        val src = File(application.cacheDir, "$imageId")
+        contentResolver.openInputStream(input)?.use {
+            write(it, src)
+        }
+        return processSelectedIcon(src)
+    }
+
+    private suspend fun processSelectedIcon(src: File): File? {
+        if (!src.exists()) return null
+
+        val filename = "${src.name}.png"
+        val request = ImageRequest.Builder(application)
+            .data(src)
+            .size(96, 96)
+            .build()
+
+        return when (val result = application.imageLoader.execute(request)) {
+            is SuccessResult -> {
+                val bitmap = result.image.toBitmap()
+
+                val dest = File(application.cacheDir, filename)
+                write(bitmap, dest)
+                delete(src)
+                dest
+            }
+            is ErrorResult -> {
+                Timber.e(result.throwable)
+                null
+            }
+        }
+    }
+
+    fun cleanupOrphanImages() {
+        val cutoff = System.currentTimeMillis() - 7.days.inWholeMilliseconds
+
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                application.cacheDir.walkTopDown()
+                    .filter {
+                        it.isFile &&
+                        it.name.endsWith(".png", ignoreCase = true) &&
+                        it.lastModified() < cutoff
+                    }
+                    .forEach { delete(it) }
             }
         }
     }

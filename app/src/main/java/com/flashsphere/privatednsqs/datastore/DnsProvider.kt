@@ -10,4 +10,5 @@ data class DnsProvider(
     val id: Int,
     val hostname: String,
     val enabled: Boolean = true,
+    val icon: String?,
 ) : Parcelable

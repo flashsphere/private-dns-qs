@@ -48,5 +48,8 @@
     <string name="restore">Restore</string>
     <string name="restore_completed">Restore completed</string>
     <string name="restore_failed">Restore failed</string>
+    <string name="icon">Icon</string>
+    <string name="select_icon">Change</string>
+    <string name="default_icon">Default</string>
     <string name="help">Help</string>
 </resources>

@@ -47,5 +47,8 @@
     <string name="restore">還原</string>
     <string name="restore_completed">還原完成</string>
     <string name="restore_failed">還原失敗</string>
+    <string name="icon">Icon</string>
+    <string name="select_icon">Change</string>
+    <string name="default_icon">Default</string>
     <string name="help">說明</string>
 </resources>

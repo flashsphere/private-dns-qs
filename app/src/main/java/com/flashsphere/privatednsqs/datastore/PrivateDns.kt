@@ -17,11 +17,16 @@ class PrivateDns(
         return ContextCompat.checkSelfPermission(context, WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun getCurrentDnsConfig(): DnsConfiguration {
+    fun getCurrentDnsConfig(configs: List<DnsConfiguration>): DnsConfiguration {
         val setting = Settings.Global.getString(contentResolver, PRIVATE_DNS_MODE)
 
         if (DnsMode.On.value.equals(setting, ignoreCase = true)) {
-            return DnsConfiguration.On(getHostname() ?: "")
+            val hostname = getHostname() ?: ""
+
+            return configs.filterIsInstance<DnsConfiguration.On>()
+                .firstOrNull {
+                    it.hostname.equals(hostname, ignoreCase = true)
+                } ?: DnsConfiguration.On(hostname = hostname, icon = null)
         }
         if (DnsMode.Auto.value.equals(setting, ignoreCase = true)) {
             return DnsConfiguration.Auto
@@ -35,7 +40,7 @@ class PrivateDns(
     fun getNextDnsConfig(configs: List<DnsConfiguration>): DnsConfiguration? {
         if (configs.isEmpty()) return null
 
-        val currentConfig = getCurrentDnsConfig()
+        val currentConfig = getCurrentDnsConfig(configs)
         val index = configs.indexOf(currentConfig)
         val nextIndex = if (index == -1) 0 else (index + 1) % configs.size
         return configs[nextIndex]

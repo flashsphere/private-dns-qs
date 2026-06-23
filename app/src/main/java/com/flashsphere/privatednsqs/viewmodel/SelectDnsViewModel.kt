@@ -36,7 +36,7 @@ class SelectDnsViewModel(
     }
 
     fun getCurrentDnsConfig(): DnsConfiguration {
-        return privateDns.getCurrentDnsConfig()
+        return privateDns.getCurrentDnsConfig(dnsConfigs)
     }
 
     fun selectDns(dnsConfig: DnsConfiguration) {

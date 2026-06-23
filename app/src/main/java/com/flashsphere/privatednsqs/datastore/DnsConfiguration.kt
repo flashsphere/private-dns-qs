@@ -11,7 +11,7 @@ sealed class DnsConfiguration {
         override val mode = DnsMode.Auto
     }
 
-    data class On(val hostname: String) : DnsConfiguration() {
+    data class On(val hostname: String, val icon: String?) : DnsConfiguration() {
         override val mode = DnsMode.On
     }
 }

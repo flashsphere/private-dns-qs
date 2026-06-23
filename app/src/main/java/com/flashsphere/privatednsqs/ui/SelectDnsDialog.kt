@@ -149,17 +149,17 @@ private fun SelectDnsDialogPreview() {
         mutableStateListOf(
             DnsConfiguration.Off,
             DnsConfiguration.Auto,
-            DnsConfiguration.On("one"),
+            DnsConfiguration.On("one", null),
             DnsConfiguration.On("two two two two two two two two two two two two " +
-                    "two two two two two two two two two two two two two two two"),
-            DnsConfiguration.On("three"),
-            DnsConfiguration.On("four"),
+                    "two two two two two two two two two two two two two two two", null),
+            DnsConfiguration.On("three", null),
+            DnsConfiguration.On("four", null),
         )
     }
     Surface(Modifier.fillMaxSize()) {
         SelectDnsDialog(
             configs = configs,
-            currentConfig = DnsConfiguration.On("one"),
+            currentConfig = DnsConfiguration.On("one", null),
             onSelect = {},
             openApp = {},
             onDismiss = {},

@@ -1,13 +1,18 @@
 package com.flashsphere.privatednsqs
 
 import android.app.Application
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.request.CachePolicy
+import coil3.svg.SvgDecoder
 import com.jakewharton.processphoenix.ProcessPhoenix
 import timber.log.Timber
 
-class PrivateDnsApplication : Application() {
+class PrivateDnsApplication : Application(), SingletonImageLoader.Factory {
     init {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
@@ -27,6 +32,13 @@ class PrivateDnsApplication : Application() {
         } else {
             Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
         }
+    }
+
+    override fun newImageLoader(context: Context): ImageLoader {
+        return ImageLoader.Builder(context)
+            .components { add(SvgDecoder.Factory()) }
+            .diskCachePolicy(CachePolicy.DISABLED)
+            .build()
     }
 
     fun showToast(message: String) {

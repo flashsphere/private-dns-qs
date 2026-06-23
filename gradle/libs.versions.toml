@@ -17,12 +17,13 @@ shizuku = "13.1.5"
 rikkaHiddenApi = "4.4.0"
 hiddenApiBypass = "6.1"
 reorderable = "3.1.0"
+coil = "3.5.0"
 
 [libraries]
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
-androidx-datastore-prefs = { module = "androidx.datastore:datastore-preferences", name = "datastore-preferences", version.ref = "androidxDatastorePrefs" }
+androidx-datastore-prefs = { module = "androidx.datastore:datastore-preferences", version.ref = "androidxDatastorePrefs" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidxComposeBom" }
@@ -44,6 +45,8 @@ shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
 hidden-api-stub = { module = "dev.rikka.hidden:stub", version.ref = "rikkaHiddenApi" }
 hidden-api-bypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

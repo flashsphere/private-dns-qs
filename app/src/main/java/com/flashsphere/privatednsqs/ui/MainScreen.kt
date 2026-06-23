@@ -1,5 +1,6 @@
 package com.flashsphere.privatednsqs.ui
 
+import android.net.Uri
 import androidx.activity.compose.ReportDrawn
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
+import com.flashsphere.privatednsqs.util.FileUtils.delete
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,6 +65,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import java.io.File
 
 @Composable
 fun MainScreen(
@@ -98,6 +101,7 @@ fun MainScreen(
         requestAddTile = requestAddTile,
         backupConfig = backupConfig,
         restoreConfig = restoreConfig,
+        processIcon = viewModel::processSelectedIcon,
     )
 }
 
@@ -114,8 +118,8 @@ private fun MainScreen(
     dnsProviders: SnapshotStateList<DnsProvider>,
     getDnsSuggestions: (text: String) -> Set<String>,
     validateDnsProvider: (hostname: String) -> Boolean,
-    addDnsProvider: (hostname: String) -> Unit,
-    updateDnsProvider: (index: Int, hostname: String) -> Unit,
+    addDnsProvider: (hostname: String, icon: File?) -> Unit,
+    updateDnsProvider: (index: Int, hostname: String, icon: File?) -> Unit,
     toggleDnsProvider: (index: Int, enabled: Boolean) -> Unit,
     deleteDnsProvider: (index: Int) -> Unit,
     restoreDnsProvider: (index: Int, deleted: DnsProvider) -> Unit,
@@ -128,6 +132,7 @@ private fun MainScreen(
     requestAddTile: () -> Unit,
     backupConfig: () -> Unit,
     restoreConfig: () -> Unit,
+    processIcon: suspend (uri: Uri) -> File?,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -157,8 +162,13 @@ private fun MainScreen(
                             message = message.getMessage(resources),
                             actionLabel = resources.getString(R.string.undo),
                             duration = SnackbarDuration.Long)
-                        if (result == SnackbarResult.ActionPerformed) {
-                            restoreDnsProvider(message.index, message.dnsProvider)
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                restoreDnsProvider(message.index, message.dnsProvider)
+                            }
+                            SnackbarResult.Dismissed -> {
+                                launch { delete(message.dnsProvider.icon) }
+                            }
                         }
                     }
                     else -> {
@@ -264,12 +274,14 @@ private fun MainScreen(
                 openDialog = showAddDnsDialog,
                 getSuggestions = getDnsSuggestions,
                 validate = validateDnsProvider,
+                processIcon = processIcon,
                 addDns = addDnsProvider,
             )
             EditDnsDialog(
                 openDialog = showEditDnsDialog,
                 getSuggestions = getDnsSuggestions,
                 validate = validateDnsProvider,
+                processIcon = processIcon,
                 updateDns = updateDnsProvider,
             )
             HelpDialog(
@@ -300,7 +312,7 @@ private fun Header(text: String) {
 private fun MainScreenPreview() {
     val openHelpDialogFlow = remember { MutableStateFlow(false) }
     val snackbarMessageFlow = remember { MutableStateFlow(null).filterNotNull() }
-    val dnsProviders = remember { mutableStateListOf(DnsProvider(id = 0, hostname = "one.one.one.one")) }
+    val dnsProviders = remember { mutableStateListOf(DnsProvider(id = 0, hostname = "one.one.one.one", icon = null)) }
     val dnsOff = remember { MutableStateFlow(true) }
     val dnsAuto = remember { MutableStateFlow(true) }
     val requireUnlock = remember { MutableStateFlow(false) }
@@ -316,8 +328,8 @@ private fun MainScreenPreview() {
         dnsProviders = dnsProviders,
         getDnsSuggestions = { emptySet() },
         validateDnsProvider = { true },
-        addDnsProvider = {},
-        updateDnsProvider = { _, _ -> },
+        addDnsProvider = { _, _ -> },
+        updateDnsProvider = { _, _, _ -> },
         toggleDnsProvider = { _, _ -> },
         deleteDnsProvider = {},
         restoreDnsProvider = { _, _ -> },
@@ -330,5 +342,6 @@ private fun MainScreenPreview() {
         requestAddTile = {},
         backupConfig = {},
         restoreConfig = {},
+        processIcon = { null },
     )
 }

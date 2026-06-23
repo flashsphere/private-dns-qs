@@ -121,7 +121,7 @@ fun DataStore<Preferences>.dnsConfigurationsFlow(): Flow<List<DnsConfiguration>>
             if (dnsAutoToggle) {
                 configs.add(DnsConfiguration.Auto)
             }
-            configs.addAll(dnsProviders.map { DnsConfiguration.On(it.hostname) })
+            configs.addAll(dnsProviders.map { DnsConfiguration.On(it.hostname, it.icon) })
         }
     }.onEmpty { emptyList<DnsConfiguration>() }
 }

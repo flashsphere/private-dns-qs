@@ -57,7 +57,9 @@ class PrivateDnsTileService : TileService() {
 
         val tile = this.qsTile ?: return
 
-        tileInfoUpdater.update(tile, privateDns.getCurrentDnsConfig())
+        mainScope.launch {
+            tileInfoUpdater.update(tile, privateDns.getCurrentDnsConfig(dnsConfigsFlow.first()))
+        }
     }
 
     override fun onClick() {
