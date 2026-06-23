@@ -14,7 +14,7 @@ object PreferenceKeys {
     val DNS_AUTO_TOGGLE = PreferenceKey(booleanPreferencesKey("toggle_auto"), true)
     val REQUIRE_UNLOCK = PreferenceKey(booleanPreferencesKey("require_unlock"), false)
     val DNS_PROVIDERS = PreferenceKey(stringPreferencesKey("dns_providers"), "[]")
-    val ID_SEQUENCE = PreferenceKey(intPreferencesKey("id_sequence"), 1)
+    val ID_SEQUENCE = PreferenceKey(longPreferencesKey("id_sequence"), 0)
     val IMAGE_ID_SEQUENCE = PreferenceKey(longPreferencesKey("image_id_sequence"), 0)
 
     @Deprecated("Not used since migrating to datastore")
