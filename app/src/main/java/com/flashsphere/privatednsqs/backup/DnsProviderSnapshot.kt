@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 data class DnsProviderSnapshot(
     val hostname: String,
     val enabled: Boolean,
-    val iconBase64: String?,
+    val iconBase64: String? = null,
 )
