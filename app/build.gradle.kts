@@ -5,6 +5,12 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
+kotlin {
+    compilerOptions {
+        allWarningsAsErrors.set(true)
+    }
+}
+
 android {
     namespace = "com.flashsphere.privatednsqs"
     compileSdk = 37
@@ -89,6 +95,10 @@ android {
         dex {
             useLegacyPackaging = true
         }
+    }
+    lint {
+        warningsAsErrors = true
+        abortOnError = true
     }
 }
 

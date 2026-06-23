@@ -29,6 +29,7 @@ fun rememberNoFlingSwipeToDismissBoxState(
     positionalThreshold: (totalDistance: Float) -> Float = SwipeToDismissBoxDefaults.positionalThreshold,
 ): SwipeToDismissBoxState {
     val density = Density(Float.POSITIVE_INFINITY)
+    @Suppress("Deprecation")
     return rememberSaveable(
         saver =
             Saver(
