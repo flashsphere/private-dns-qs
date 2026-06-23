@@ -70,7 +70,6 @@ class MainViewModel(
     private val json = application.json
     private val contentResolver = application.contentResolver
     private val privateDns = PrivateDns(application)
-//    private val iconsDir = File(application.filesDir, "icons")
 
     val snackbarMessages: SharedFlow<SnackbarMessage>
         field = MutableSharedFlow<SnackbarMessage>(

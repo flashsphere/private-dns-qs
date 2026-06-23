@@ -28,9 +28,8 @@ import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.service.PrivateDnsTileService
 import com.flashsphere.privatednsqs.shizuku.ShizukuUtils.grantWriteSecureSettingsPermission
 import com.flashsphere.privatednsqs.shizuku.ShizukuUtils.isShizukuAvailable
-import com.flashsphere.privatednsqs.ui.BackupFailed
 import com.flashsphere.privatednsqs.ui.MainScreen
-import com.flashsphere.privatednsqs.ui.RestoreFailed
+import com.flashsphere.privatednsqs.ui.NoFilePicker
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.ui.TileAddedMessage
 import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
@@ -75,6 +74,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
                 requestAddTile = this::requestAddTile,
                 backupConfig = this::backupConfig,
                 restoreConfig = this::restoreConfig,
+                showToast = this::showToast,
             )
         }
 
@@ -108,25 +108,23 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
         intent.data = "package:$packageName".toUri()
         runCatching { startActivity(intent) }
             .onFailure {
-                cancelToast()
-                val message = getString(R.string.toast_cannot_open_app_info, it.toString())
-                Toast.makeText(this, message, Toast.LENGTH_LONG)?.apply {
-                    toast = this
-                    show()
-                }
+                showToast(getString(R.string.toast_cannot_open_app_info, it.toString()))
             }
     }
 
     private fun showMoreInfo() {
         runCatching { startActivity(Intent(ACTION_VIEW, HELP_URL)) }
             .onFailure {
-                cancelToast()
-                val message = getString(R.string.toast_cannot_open_more_info, it.toString())
-                Toast.makeText(this, message, Toast.LENGTH_LONG)?.apply {
-                    toast = this
-                    show()
-                }
+                showToast(getString(R.string.toast_cannot_open_more_info, it.toString()))
             }
+    }
+
+    private fun showToast(message: String) {
+        cancelToast()
+        Toast.makeText(this, message, Toast.LENGTH_LONG)?.apply {
+            toast = this
+            show()
+        }
     }
 
     private fun cancelToast() {
@@ -184,7 +182,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
             selectBackupDestLauncher.launch("private-dns-qs-${timestamp}.txt")
         }.onFailure {
             Timber.e(it)
-            viewModel.showSnackbarMessage(BackupFailed)
+            viewModel.showSnackbarMessage(NoFilePicker(it.message))
         }
     }
 
@@ -193,7 +191,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
             openBackupLauncher.launch(arrayOf("text/plain"))
         }.onFailure {
             Timber.e(it)
-            viewModel.showSnackbarMessage(RestoreFailed)
+            viewModel.showSnackbarMessage(NoFilePicker(it.message))
         }
     }
 

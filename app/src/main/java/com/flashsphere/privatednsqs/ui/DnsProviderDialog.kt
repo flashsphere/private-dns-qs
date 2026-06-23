@@ -65,6 +65,7 @@ import com.flashsphere.privatednsqs.util.suspendRunCatching
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -75,6 +76,7 @@ fun AddDnsDialog(
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
+    showToast: (message: String) -> Unit,
     addDns: (hostname: String, iconFile: File?) -> Unit,
 ) {
     if (openDialog.value) {
@@ -84,6 +86,7 @@ fun AddDnsDialog(
             getSuggestions = getSuggestions,
             validate = validate,
             processIcon = processIcon,
+            showToast = showToast,
             onDismiss = { openDialog.value = false },
             onConfirm = { newHostname, newIcon ->
                 addDns(newHostname, newIcon)
@@ -100,6 +103,7 @@ fun EditDnsDialog(
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
+    showToast: (message: String) -> Unit,
     updateDns: (index: Int, hostname: String, iconFile: File?) -> Unit,
 ) {
     openDialog.value?.let {
@@ -114,6 +118,7 @@ fun EditDnsDialog(
                         validate(trimmedHostname)
             },
             processIcon = processIcon,
+            showToast = showToast,
             onDismiss = { openDialog.value = null },
             onConfirm = { newHostname, newIcon, ->
                 updateDns(index, newHostname, newIcon)
@@ -131,10 +136,12 @@ private fun DnsProviderDialog(
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
+    showToast: (message: String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: (hostname: String, iconFile: File?) -> Unit,
 ) {
     val context = LocalContext.current
+    val resources = LocalResources.current
     val coroutineScope = rememberCoroutineScope()
 
     val textFieldState = rememberTextFieldState(initialText = initialHostname)
@@ -189,7 +196,13 @@ private fun DnsProviderDialog(
                     }
                     Row {
                         TextButton(
-                            onClick = { iconPicker.launch(arrayOf("image/png", "image/svg+xml")) }
+                            onClick = {
+                                runCatching { iconPicker.launch(arrayOf("image/png", "image/svg+xml")) }
+                                    .onFailure {
+                                        Timber.e(it)
+                                        showToast(NoFilePicker(it.message).getMessage(resources))
+                                    }
+                            }
                         ) {
                             Text(stringResource(R.string.select_icon))
                         }
@@ -347,6 +360,7 @@ private fun DnsProviderDialogPreview() {
             processIcon = { null },
             onDismiss = {},
             onConfirm = { _, _ -> },
+            showToast = {},
         )
     }
 }

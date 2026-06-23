@@ -82,3 +82,14 @@ object RestoreFailed : SnackbarMessage {
         return resources.getString(R.string.restore_failed)
     }
 }
+
+@Parcelize
+data class NoFilePicker(val exceptionMessage: String?) : SnackbarMessage {
+    override fun getMessage(resources: Resources): String {
+        return if (!exceptionMessage.isNullOrBlank()) {
+            "${resources.getString(R.string.no_file_picker)}: $exceptionMessage"
+        } else {
+            resources.getString(R.string.no_file_picker)
+        }
+    }
+}

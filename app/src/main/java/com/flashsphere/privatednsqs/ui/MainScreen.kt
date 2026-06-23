@@ -75,6 +75,7 @@ fun MainScreen(
     requestAddTile: () -> Unit,
     backupConfig: () -> Unit,
     restoreConfig: () -> Unit,
+    showToast: (message: String) -> Unit,
 ) {
     MainScreen(
         openHelpDialogFlow = viewModel.openHelpDialogFlow,
@@ -102,6 +103,7 @@ fun MainScreen(
         backupConfig = backupConfig,
         restoreConfig = restoreConfig,
         processIcon = viewModel::processSelectedIcon,
+        showToast = showToast,
     )
 }
 
@@ -133,6 +135,7 @@ private fun MainScreen(
     backupConfig: () -> Unit,
     restoreConfig: () -> Unit,
     processIcon: suspend (uri: Uri) -> File?,
+    showToast: (message: String) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -275,6 +278,7 @@ private fun MainScreen(
                 getSuggestions = getDnsSuggestions,
                 validate = validateDnsProvider,
                 processIcon = processIcon,
+                showToast = showToast,
                 addDns = addDnsProvider,
             )
             EditDnsDialog(
@@ -282,6 +286,7 @@ private fun MainScreen(
                 getSuggestions = getDnsSuggestions,
                 validate = validateDnsProvider,
                 processIcon = processIcon,
+                showToast = showToast,
                 updateDns = updateDnsProvider,
             )
             HelpDialog(
@@ -343,5 +348,6 @@ private fun MainScreenPreview() {
         backupConfig = {},
         restoreConfig = {},
         processIcon = { null },
+        showToast = {},
     )
 }
