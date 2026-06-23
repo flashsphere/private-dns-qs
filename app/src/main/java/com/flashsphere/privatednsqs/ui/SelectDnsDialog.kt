@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -28,14 +30,19 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import coil3.compose.AsyncImage
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
+import com.flashsphere.privatednsqs.util.FileUtils.toIconFile
+import com.flashsphere.privatednsqs.util.absolutePathIfExists
 
 
 @Composable
@@ -75,6 +82,7 @@ private fun SelectDnsDialogContent(
     openApp: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val context = LocalContext.current
     val selectedIndex = configs.indexOf(currentConfig)
     val backgroundColor = if (isSystemInDarkTheme()) {
         MaterialTheme.colorScheme.surfaceBright
@@ -101,7 +109,7 @@ private fun SelectDnsDialogContent(
                     items = configs,
                     key = { index, _ -> index },
                 ) { index, item ->
-                    Text(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(MaterialTheme.shapes.medium)
@@ -115,18 +123,42 @@ private fun SelectDnsDialogContent(
                             )
                             .padding(horizontal = 16.dp)
                             .padding(vertical = 12.dp),
-                        color = if (selectedIndex == index) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onBackground
-                        },
-                        text = if (item is DnsConfiguration.On) {
-                            item.hostname
-                        } else {
-                            stringResource(item.mode.labelResId)
-                        },
-                        style = AppTypography.bodyMedium
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (item is DnsConfiguration.On) {
+                            val iconPath = remember(item.icon) {
+                                item.icon?.let { toIconFile(context, it).absolutePathIfExists }
+                            }
+
+                            if (iconPath != null) {
+                                AsyncImage(
+                                    modifier = Modifier.size(24.dp),
+                                    model = iconPath,
+                                    contentDescription = stringResource(R.string.icon),
+                                    colorFilter = if (selectedIndex == index) {
+                                        ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
+                                    } else {
+                                        ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
+                                    }
+                                )
+                                Spacer(Modifier.width(8.dp))
+                            }
+                        }
+                        Text(
+                            modifier = Modifier.weight(1F),
+                            color = if (selectedIndex == index) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onBackground
+                            },
+                            text = if (item is DnsConfiguration.On) {
+                                item.hostname
+                            } else {
+                                stringResource(item.mode.labelResId)
+                            },
+                            style = AppTypography.bodyMedium
+                        )
+                    }
                 }
             }
         }
