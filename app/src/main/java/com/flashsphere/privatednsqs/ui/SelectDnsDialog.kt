@@ -41,8 +41,9 @@ import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
-import com.flashsphere.privatednsqs.util.FileUtils.toIconFile
 import com.flashsphere.privatednsqs.util.absolutePathIfExists
+import com.flashsphere.privatednsqs.util.iconsDir
+import java.io.File
 
 
 @Composable
@@ -127,7 +128,7 @@ private fun SelectDnsDialogContent(
                     ) {
                         if (item is DnsConfiguration.On) {
                             val iconPath = remember(item.icon) {
-                                item.icon?.let { toIconFile(context, it).absolutePathIfExists }
+                                item.icon?.let { File(context.iconsDir, it).absolutePathIfExists }
                             }
 
                             if (iconPath != null) {

@@ -29,7 +29,6 @@ import com.flashsphere.privatednsqs.service.PrivateDnsTileService
 import com.flashsphere.privatednsqs.shizuku.ShizukuUtils.grantWriteSecureSettingsPermission
 import com.flashsphere.privatednsqs.shizuku.ShizukuUtils.isShizukuAvailable
 import com.flashsphere.privatednsqs.ui.MainScreen
-import com.flashsphere.privatednsqs.ui.NoFilePicker
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.ui.TileAddedMessage
 import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
@@ -39,8 +38,6 @@ import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
 import timber.log.Timber
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
@@ -72,8 +69,6 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
                 showAppInfo = this::showAppInfo,
                 showMoreInfo = this::showMoreInfo,
                 requestAddTile = this::requestAddTile,
-                backupConfig = this::backupConfig,
-                restoreConfig = this::restoreConfig,
                 showToast = this::showToast,
             )
         }
@@ -175,26 +170,6 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
         }
     }
 
-    private fun backupConfig() {
-        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
-        val timestamp = LocalDateTime.now().format(formatter)
-        runCatching {
-            selectBackupDestLauncher.launch("private-dns-qs-${timestamp}.txt")
-        }.onFailure {
-            Timber.e(it)
-            viewModel.showSnackbarMessage(NoFilePicker(it.message))
-        }
-    }
-
-    private fun restoreConfig() {
-        runCatching {
-            openBackupLauncher.launch(arrayOf("text/plain"))
-        }.onFailure {
-            Timber.e(it)
-            viewModel.showSnackbarMessage(NoFilePicker(it.message))
-        }
-    }
-
     private fun checkShizukuPermission(code: Int): Boolean {
         runCatching {
             if (Shizuku.isPreV11()) {
@@ -217,12 +192,12 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
         fun getIntent(context: Context, message: SnackbarMessage? = null): Intent =
             Intent(context, MainActivity::class.java)
                 .addFlags(FLAG_ACTIVITY_CLEAR_TOP or FLAG_ACTIVITY_CLEAR_TASK or FLAG_ACTIVITY_NEW_TASK)
-                .also { intent ->
+                .apply {
                     if (message != null) {
-                        val bundle = Bundle().also {
-                            it.putParcelable(PARAM_MESSAGE, message)
+                        val bundle = Bundle().apply {
+                            putParcelable(PARAM_MESSAGE, message)
                         }
-                        intent.putExtra(PARAM_BUNDLE, bundle)
+                        putExtra(PARAM_BUNDLE, bundle)
                     }
                 }
 

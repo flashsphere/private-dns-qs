@@ -9,8 +9,8 @@ import com.flashsphere.privatednsqs.activity.MainActivity
 import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.datastore.dataStore
-import com.flashsphere.privatednsqs.datastore.dnsConfigurationsFlow
-import com.flashsphere.privatednsqs.datastore.requireUnlock
+import com.flashsphere.privatednsqs.json.json
+import com.flashsphere.privatednsqs.repository.SettingsRepository
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import kotlinx.coroutines.CoroutineScope
@@ -27,13 +27,15 @@ import kotlinx.coroutines.launch
 class PrivateDnsTileService : TileService() {
     private val mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private lateinit var privateDns: PrivateDns
+    private lateinit var settingsRepository: SettingsRepository
     private lateinit var tileInfoUpdater: TileInfoUpdater
     private lateinit var dnsConfigsFlow: Flow<List<DnsConfiguration>>
 
     override fun onCreate() {
         super.onCreate()
 
-        dnsConfigsFlow = dataStore.dnsConfigurationsFlow()
+        settingsRepository = SettingsRepository(dataStore, json)
+        dnsConfigsFlow = settingsRepository.getDnsConfigurationsFlow()
             .buffer(0)
             .shareIn(
                 scope = mainScope,
@@ -66,7 +68,7 @@ class PrivateDnsTileService : TileService() {
         val isLocked = this.isSecure && this.isLocked
 
         mainScope.launch {
-            val requireUnlock = dataStore.requireUnlock()
+            val requireUnlock = settingsRepository.getRequireUnlock()
 
             if (!isLocked || !requireUnlock) {
                 toggle()

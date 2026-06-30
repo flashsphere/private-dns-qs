@@ -3,6 +3,7 @@ package com.flashsphere.privatednsqs.datastore
 import android.content.Context
 import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.core.Preferences
+import com.flashsphere.privatednsqs.json.json
 
 class SettingsMigration(private val context: Context) : DataMigration<Preferences> {
     override suspend fun cleanUp() {

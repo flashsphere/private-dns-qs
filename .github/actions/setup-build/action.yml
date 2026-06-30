@@ -1,0 +1,43 @@
+name: Setup build
+description: Configure build and project secrets
+
+inputs:
+  release-keystore:
+    required: true
+    description: Release keystore
+  release-keystore-passphrase:
+    required: true
+    description: Release keystore passphrase
+  release-keystore-password:
+    required: true
+    description: Release keystore password
+  release-key-alias:
+    required: true
+    description: Release key alias
+  release-key-password:
+    required: true
+    description: Release key password
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v5
+      with:
+        java-version: 21
+        distribution: 'zulu'
+    - uses: gradle/actions/setup-gradle@v6
+      with:
+        cache-overwrite-existing: true
+        cache-provider: basic
+    - name: Prepare release keystore
+      shell: bash
+      run: |
+        echo "${{ inputs.release-keystore }}" > keystore.jks.asc
+        gpg -d --passphrase "${{ inputs.release-keystore-passphrase }}" --batch keystore.jks.asc > app/keystore.jks
+    - name: Write secrets to environment
+      shell: bash
+      run: |
+        echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_STORE_FILE=keystore.jks" >> "$GITHUB_ENV"
+        echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD=${{ inputs.release-keystore-password }}" >> "$GITHUB_ENV"
+        echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_KEY_ALIAS=${{ inputs.release-key-alias }}" >> "$GITHUB_ENV"
+        echo "ORG_GRADLE_PROJECT_PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD=${{ inputs.release-key-password }}" >> "$GITHUB_ENV"

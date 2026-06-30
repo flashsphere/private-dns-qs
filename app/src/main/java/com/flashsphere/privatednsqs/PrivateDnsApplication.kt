@@ -44,6 +44,6 @@ class PrivateDnsApplication : Application(), SingletonImageLoader.Factory {
     fun showToast(message: String) {
         toast?.cancel()
         toast = Toast.makeText(this, message, Toast.LENGTH_SHORT)
-            .also { it.show() }
+            .apply { show() }
     }
 }

@@ -18,8 +18,6 @@
     <string name="other_settings">Diğer ayarlar</string>
     <string name="toast_no_permission">WRITE_SECURE_SETTINGS izni verilmedi</string>
     <string name="dns_hostname_hint">DNS sağlayıcı sunucu adı</string>
-    <string name="toast_no_dns">DNS sağlayıcısı yapılandırılmadı</string>
-    <string name="toast_changes_saved">Değişikliklerin başarıyla kaydedildi</string>
     <string name="toast_cannot_open_app_info">Android\'de uygulama bilgisi açılırken hata oluştu: %1$s</string>
     <string name="toast_cannot_open_more_info">Web sayfası açılırken hata oluştu: %1$s</string>
     <string name="message_help">Özel DNS ayarlarını değiştirmek için uygulamanın WRITE_SECURE_SETTINGS iznine ihtiyacı var. Bu izin yalnızca ADB üzerinden verilebilir:</string>
@@ -39,7 +37,6 @@
     <string name="cancel">İptal</string>
     <string name="close">Kapat</string>
     <string name="settings">Ayarlar</string>
-    <string name="save">Kaydet</string>
     <string name="ok">Tamam</string>
     <string name="backup">Yedekle</string>
     <string name="backup_completed">Yedekleme tamamlandı</string>

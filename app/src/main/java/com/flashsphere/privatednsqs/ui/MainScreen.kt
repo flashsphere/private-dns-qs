@@ -56,7 +56,7 @@ import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
-import com.flashsphere.privatednsqs.util.FileUtils.delete
+import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,8 +73,6 @@ fun MainScreen(
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
-    backupConfig: () -> Unit,
-    restoreConfig: () -> Unit,
     showToast: (message: String) -> Unit,
 ) {
     MainScreen(
@@ -100,10 +98,11 @@ fun MainScreen(
         showAppInfo = showAppInfo,
         showMoreInfo = showMoreInfo,
         requestAddTile = requestAddTile,
-        backupConfig = backupConfig,
-        restoreConfig = restoreConfig,
+        backupConfig = viewModel::backup,
+        restoreConfig = viewModel::restore,
         processIcon = viewModel::processSelectedIcon,
         showToast = showToast,
+        showSnackbarMessage = viewModel::showSnackbarMessage,
     )
 }
 
@@ -132,10 +131,11 @@ private fun MainScreen(
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
-    backupConfig: () -> Unit,
-    restoreConfig: () -> Unit,
+    backupConfig: (uri: Uri) -> Unit,
+    restoreConfig: (uri: Uri) -> Unit,
     processIcon: suspend (uri: Uri) -> File?,
     showToast: (message: String) -> Unit,
+    showSnackbarMessage: (message: SnackbarMessage) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -145,6 +145,8 @@ private fun MainScreen(
     }
 
     LaunchedEffect(Unit) {
+        val fileOperations = FileOperations()
+
         snackbarMessageFlow.collect { message ->
             snackbarHostState.currentSnackbarData?.dismiss()
             // launch is needed so that the current snackbar can be dismissed while it is being shown,
@@ -170,7 +172,7 @@ private fun MainScreen(
                                 restoreDnsProvider(message.index, message.dnsProvider)
                             }
                             SnackbarResult.Dismissed -> {
-                                launch { delete(message.dnsProvider.icon) }
+                                launch { fileOperations.delete(message.dnsProvider.icon) }
                             }
                         }
                     }
@@ -196,6 +198,7 @@ private fun MainScreen(
                     requestAddTile = requestAddTile,
                     backupConfig = backupConfig,
                     restoreConfig = restoreConfig,
+                    showSnackbarMessage = showSnackbarMessage,
                 )
             },
             snackbarHost = {
@@ -349,5 +352,6 @@ private fun MainScreenPreview() {
         restoreConfig = {},
         processIcon = { null },
         showToast = {},
+        showSnackbarMessage = {},
     )
 }

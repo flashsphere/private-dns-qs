@@ -59,8 +59,8 @@ import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsProvider
-import com.flashsphere.privatednsqs.util.FileUtils.toIconFile
 import com.flashsphere.privatednsqs.util.absolutePathIfExists
+import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.util.suspendRunCatching
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
@@ -149,7 +149,7 @@ private fun DnsProviderDialog(
     val errorMessage = remember { mutableStateOf<String?>(null) }
 
     val initialIconPath = remember(initialIcon) {
-        initialIcon?.let { toIconFile(context, it).absolutePathIfExists }
+        initialIcon?.let { File(context.iconsDir, it).absolutePathIfExists }
     }
     var selectedIcon by rememberSaveable { mutableStateOf(initialIconPath) }
     val iconPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->

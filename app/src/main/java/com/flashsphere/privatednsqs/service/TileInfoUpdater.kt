@@ -5,14 +5,16 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.SystemProperties
 import android.service.quicksettings.Tile
+import androidx.core.graphics.drawable.toIcon
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsConfiguration
-import com.flashsphere.privatednsqs.util.FileUtils.toIconFile
-import com.flashsphere.privatednsqs.util.toBitmap
+import com.flashsphere.privatednsqs.util.FileOperations
+import com.flashsphere.privatednsqs.util.iconsDir
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
 interface TileInfoUpdater {
@@ -26,6 +28,8 @@ interface TileInfoUpdater {
 open class DefaultTileInfoUpdater(
     private val context: Context,
 ) : TileInfoUpdater {
+    private val fileOperations = FileOperations()
+
     override suspend fun update(tile: Tile, dnsConfiguration: DnsConfiguration) {
         Timber.d("Updating tile")
 
@@ -53,9 +57,9 @@ open class DefaultTileInfoUpdater(
 
     private suspend fun toIcon(dnsConfiguration: DnsConfiguration): Icon {
         if (dnsConfiguration is DnsConfiguration.On && !dnsConfiguration.icon.isNullOrBlank()) {
-            val bitmap = toIconFile(context, dnsConfiguration.icon).toBitmap()
+            val bitmap = fileOperations.toBitmap(File(context.iconsDir, dnsConfiguration.icon))
             if (bitmap != null) {
-                return Icon.createWithBitmap(bitmap)
+                return bitmap.toIcon()
             }
         }
         return Icon.createWithResource(context, dnsConfiguration.mode.iconResId)

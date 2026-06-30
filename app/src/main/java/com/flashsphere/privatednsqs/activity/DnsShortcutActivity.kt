@@ -6,11 +6,15 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import com.flashsphere.privatednsqs.PrivateDnsApplication
 import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import com.flashsphere.privatednsqs.datastore.PrivateDns
+import com.flashsphere.privatednsqs.datastore.dataStore
+import com.flashsphere.privatednsqs.json.json
+import com.flashsphere.privatednsqs.repository.SettingsRepository
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 
 abstract class DnsShortcutActivity : BaseActivity() {
     protected lateinit var privateDns: PrivateDns
+    protected lateinit var settingsRepository: SettingsRepository
 
     protected open val showToastAfterSet: Boolean = false
 
@@ -20,6 +24,7 @@ abstract class DnsShortcutActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         privateDns = PrivateDns(this)
+        settingsRepository = SettingsRepository(dataStore, json)
     }
 
     @CallSuper

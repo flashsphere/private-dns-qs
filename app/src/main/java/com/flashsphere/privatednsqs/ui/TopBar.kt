@@ -1,6 +1,9 @@
 package com.flashsphere.privatednsqs.ui
 
+import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Add
@@ -22,6 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import com.flashsphere.privatednsqs.R
+import timber.log.Timber
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,9 +35,16 @@ fun TopBar(
     showAppInfo: () -> Unit,
     openHelpDialog: (Boolean) -> Unit,
     requestAddTile: () -> Unit,
-    backupConfig: () -> Unit,
-    restoreConfig: () -> Unit,
+    backupConfig: (uri: Uri) -> Unit,
+    restoreConfig: (uri: Uri) -> Unit,
+    showSnackbarMessage: (message: SnackbarMessage) -> Unit,
 ) {
+    val backupDestPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        uri?.let { backupConfig(it) }
+    }
+    val restoreFilePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { restoreConfig(it) }
+    }
     TopAppBar(
         title = {
             Text(text = stringResource(R.string.app_name))
@@ -73,7 +86,14 @@ fun TopBar(
                     leadingIcon = { Icon(Icons.Outlined.Backup, stringResource(id = R.string.backup)) },
                     text = { Text(stringResource(id = R.string.backup))},
                     onClick = {
-                        backupConfig()
+                        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
+                        val timestamp = LocalDateTime.now().format(formatter)
+                        runCatching {
+                            backupDestPicker.launch("private-dns-qs-${timestamp}.txt")
+                        }.onFailure {
+                            Timber.e(it)
+                            showSnackbarMessage(NoFilePicker(it.message))
+                        }
                         openDropdownMenu.value = false
                     },
                 )
@@ -81,7 +101,12 @@ fun TopBar(
                     leadingIcon = { Icon(Icons.Outlined.Restore, stringResource(id = R.string.restore)) },
                     text = { Text(stringResource(id = R.string.restore))},
                     onClick = {
-                        restoreConfig()
+                        runCatching {
+                            restoreFilePicker.launch(arrayOf("text/plain"))
+                        }.onFailure {
+                            Timber.e(it)
+                            showSnackbarMessage(NoFilePicker(it.message))
+                        }
                         openDropdownMenu.value = false
                     }
                 )

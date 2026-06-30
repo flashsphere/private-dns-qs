@@ -3,7 +3,7 @@ package com.flashsphere.privatednsqs.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.util.Base64
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -12,9 +12,12 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import kotlin.io.encoding.Base64
 
-object FileUtils {
-    suspend fun write(input: InputStream, dest: File): Boolean = withContext(Dispatchers.IO) {
+class FileOperations(
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+) {
+    suspend fun write(input: InputStream, dest: File): Boolean = withContext(ioDispatcher) {
         suspendRunCatching {
             mkdirs(dest)
             FileOutputStream(dest).use { output ->
@@ -26,7 +29,7 @@ object FileUtils {
         .getOrDefault(false)
     }
 
-    suspend fun write(bitmap: Bitmap, dest: File): Boolean = withContext(Dispatchers.IO) {
+    suspend fun write(bitmap: Bitmap, dest: File): Boolean = withContext(ioDispatcher) {
         suspendRunCatching {
             mkdirs(dest)
             dest.outputStream().use {
@@ -38,7 +41,7 @@ object FileUtils {
         .getOrDefault(false)
     }
 
-    suspend fun move(src: File, dest: File): Boolean = withContext(Dispatchers.IO) {
+    suspend fun move(src: File, dest: File): Boolean = withContext(ioDispatcher) {
         suspendRunCatching {
             if (!src.exists()) return@suspendRunCatching false
             mkdirs(dest)
@@ -54,13 +57,13 @@ object FileUtils {
         delete(File(filePath))
     }
 
-    suspend fun delete(file: File) = withContext(Dispatchers.IO) {
+    suspend fun delete(file: File) = withContext(ioDispatcher) {
         suspendRunCatching {
             Files.deleteIfExists(file.toPath())
         }
     }
 
-    private suspend fun mkdirs(dest: File) = withContext(Dispatchers.IO) {
+    private suspend fun mkdirs(dest: File) = withContext(ioDispatcher) {
         dest.parentFile?.let {
             if (!it.exists()) {
                 it.mkdirs()
@@ -68,14 +71,29 @@ object FileUtils {
         }
     }
 
-    fun getIconsDir(context: Context): File {
-        return File(context.filesDir, "icons")
+    suspend fun toBase64(file: File): String? = withContext(ioDispatcher) {
+        if (file.exists() && file.isFile) {
+            Base64.encode(file.readBytes())
+        } else {
+            null
+        }
     }
 
-    fun toIconFile(context: Context, iconFilename: String): File {
-        return File(getIconsDir(context), iconFilename)
+    suspend fun toBitmap(file: File): Bitmap? = withContext(ioDispatcher) {
+        file.absolutePathIfExists?.let {
+            val options = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.HARDWARE }
+            BitmapFactory.decodeFile(it, options)
+        }
+    }
+
+    suspend fun base64DecodeToFile(base64Encoded: String, dest: File) = withContext(ioDispatcher) {
+        val bytes = Base64.decode(base64Encoded)
+        dest.writeBytes(bytes)
     }
 }
+
+val Context.iconsDir: File
+    get() = File(this.filesDir, "icons")
 
 val File.absolutePathIfExists: String?
     get() = if (exists() && isFile) {
@@ -83,20 +101,3 @@ val File.absolutePathIfExists: String?
     } else {
         null
     }
-
-suspend fun File.toBase64(): String? = withContext(Dispatchers.IO) {
-    if (exists() && isFile) {
-        Base64.encodeToString(readBytes(), Base64.NO_WRAP)
-    } else {
-        null
-    }
-}
-
-suspend fun File.toBitmap(): Bitmap? = withContext(Dispatchers.IO) {
-    absolutePathIfExists?.let { BitmapFactory.decodeFile(it) }
-}
-
-suspend fun String.base64DecodeToFile(dest: File) = withContext(Dispatchers.IO) {
-    val bytes = Base64.decode(this@base64DecodeToFile, Base64.DEFAULT)
-    dest.writeBytes(bytes)
-}

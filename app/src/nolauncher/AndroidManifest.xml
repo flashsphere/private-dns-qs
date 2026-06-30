@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application>
-        <activity android:name=".activity.MainActivity">
+        <activity
+            android:name=".activity.MainActivity"
+            android:exported="true">
             <intent-filter tools:node="removeAll" />
             <intent-filter>
                 <action android:name="android.intent.action.APPLICATION_PREFERENCES" />

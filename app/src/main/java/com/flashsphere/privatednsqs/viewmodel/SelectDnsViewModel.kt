@@ -10,20 +10,21 @@ import com.flashsphere.privatednsqs.PrivateDnsApplication
 import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import com.flashsphere.privatednsqs.datastore.PrivateDns
 import com.flashsphere.privatednsqs.datastore.dataStore
-import com.flashsphere.privatednsqs.datastore.dnsConfigurationsFlow
+import com.flashsphere.privatednsqs.json.json
+import com.flashsphere.privatednsqs.repository.SettingsRepository
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 class SelectDnsViewModel(
     application: PrivateDnsApplication,
+    settingsRepository: SettingsRepository = SettingsRepository(application.dataStore, application.json),
 ) : ViewModel() {
-    private val dataStore = application.dataStore
     private val privateDns = PrivateDns(application)
 
     val dnsConfigs = mutableStateListOf<DnsConfiguration>()
 
     init {
-        dataStore.dnsConfigurationsFlow()
+        settingsRepository.getDnsConfigurationsFlow()
             .onEach {
                 dnsConfigs.clear()
                 dnsConfigs.addAll(it)

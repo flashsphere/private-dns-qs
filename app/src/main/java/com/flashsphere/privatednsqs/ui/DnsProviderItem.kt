@@ -33,10 +33,11 @@ import coil3.compose.AsyncImage
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
-import com.flashsphere.privatednsqs.util.FileUtils.toIconFile
 import com.flashsphere.privatednsqs.util.absolutePathIfExists
+import com.flashsphere.privatednsqs.util.iconsDir
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableCollectionItemScope
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +58,7 @@ fun DnsProviderItem(
     val dismissState = rememberNoFlingSwipeToDismissBoxState()
 
     val iconPath = remember(dnsProvider.icon) {
-        dnsProvider.icon?.let { toIconFile(context, it).absolutePathIfExists }
+        dnsProvider.icon?.let { File(context.iconsDir, it).absolutePathIfExists }
     }
 
     SwipeToDismissBox(

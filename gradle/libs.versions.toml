@@ -9,6 +9,7 @@ androidxActivity = "1.13.0"
 androidxLifecycle = "2.11.0"
 androidxAnnotation = "1.10.0"
 androidxComposeBom = "2026.06.00"
+androidxTest = "1.7.0"
 kotlinxCoroutines = "1.11.0"
 kotlinxJson = "1.11.0"
 timber = "5.0.1"
@@ -18,6 +19,10 @@ rikkaHiddenApi = "4.4.0"
 hiddenApiBypass = "6.1"
 reorderable = "3.1.0"
 coil = "3.5.0"
+junit = "4.13.2"
+mockk = "1.14.11"
+assertk = "0.28.1"
+jsonassert = "1.5.3"
 
 [libraries]
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -36,7 +41,11 @@ androidx-compose-foundation = { module = "androidx.compose.foundation:foundation
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTest" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTest" }
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidxTest" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxJson" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
@@ -47,6 +56,10 @@ hidden-api-stub = { module = "dev.rikka.hidden:stub", version.ref = "rikkaHidden
 hidden-api-bypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
+junit = { module = "junit:junit", version.ref = "junit" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
+jsonassert = { module = "org.skyscreamer:jsonassert", version.ref = "jsonassert" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
