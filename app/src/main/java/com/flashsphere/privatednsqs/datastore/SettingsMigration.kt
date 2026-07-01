@@ -3,9 +3,13 @@ package com.flashsphere.privatednsqs.datastore
 import android.content.Context
 import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.core.Preferences
-import com.flashsphere.privatednsqs.json.json
+import com.flashsphere.privatednsqs.util.PrivateDns
+import kotlinx.serialization.json.Json
 
-class SettingsMigration(private val context: Context) : DataMigration<Preferences> {
+class SettingsMigration(
+    private val context: Context,
+    private val json: Json,
+) : DataMigration<Preferences> {
     override suspend fun cleanUp() {
     }
 
@@ -23,7 +27,7 @@ class SettingsMigration(private val context: Context) : DataMigration<Preference
         }
 
         if (!mutablePrefs.contains(PreferenceKeys.DNS_PROVIDERS.key)) {
-            PrivateDns(context).getHostname()?.let { hostname ->
+            PrivateDns.getHostname(context.contentResolver)?.let { hostname ->
                 if (hostname.isNotBlank()) {
                     val dnsProvider = DnsProvider(
                         id = IdGenerator.getNextId(mutablePrefs),
@@ -31,7 +35,7 @@ class SettingsMigration(private val context: Context) : DataMigration<Preference
                         icon = null,
                     )
                     mutablePrefs[PreferenceKeys.DNS_PROVIDERS.key] =
-                        context.json.encodeToString(listOf(dnsProvider))
+                        json.encodeToString(listOf(dnsProvider))
                 }
             }
         }

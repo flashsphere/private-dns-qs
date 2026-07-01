@@ -1,15 +1,20 @@
-package com.flashsphere.privatednsqs.datastore
+package com.flashsphere.privatednsqs.util
 
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
+import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_MODE
 import com.flashsphere.privatednsqs.PrivateDnsConstants.PRIVATE_DNS_SPECIFIER
+import dagger.hilt.android.qualifiers.ApplicationContext
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
-class PrivateDns(
-    private val context: Context
+@Singleton
+class PrivateDns @Inject constructor(
+    @ApplicationContext private val context: Context,
 ) {
     private val contentResolver = context.contentResolver
 
@@ -20,21 +25,19 @@ class PrivateDns(
     fun getCurrentDnsConfig(configs: List<DnsConfiguration>): DnsConfiguration {
         val setting = Settings.Global.getString(contentResolver, PRIVATE_DNS_MODE)
 
-        if (DnsMode.On.value.equals(setting, ignoreCase = true)) {
-            val hostname = getHostname() ?: ""
-
-            return configs.filterIsInstance<DnsConfiguration.On>()
-                .firstOrNull {
-                    it.hostname.equals(hostname, ignoreCase = true)
-                } ?: DnsConfiguration.On(hostname = hostname, icon = null)
+        return when (setting?.lowercase()) {
+            DnsMode.On.value -> {
+                val hostname = getHostname(contentResolver).orEmpty()
+                configs.asSequence()
+                    .filterIsInstance<DnsConfiguration.On>()
+                    .firstOrNull {
+                        it.hostname.equals(hostname, ignoreCase = true)
+                    } ?: DnsConfiguration.On(hostname = hostname, icon = null)
+            }
+            DnsMode.Auto.value -> DnsConfiguration.Auto
+            DnsMode.Off.value -> DnsConfiguration.Off
+            else -> DnsConfiguration.Auto
         }
-        if (DnsMode.Auto.value.equals(setting, ignoreCase = true)) {
-            return DnsConfiguration.Auto
-        }
-        if (DnsMode.Off.value.equals(setting, ignoreCase = true)) {
-            return DnsConfiguration.Off
-        }
-        return DnsConfiguration.Auto
     }
 
     fun getNextDnsConfig(configs: List<DnsConfiguration>): DnsConfiguration? {
@@ -54,7 +57,9 @@ class PrivateDns(
         Settings.Global.putString(contentResolver, PRIVATE_DNS_MODE, dnsConfig.mode.value)
     }
 
-    fun getHostname(): String? {
-        return Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER)
+    companion object {
+        fun getHostname(contentResolver: ContentResolver): String? {
+            return Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER)
+        }
     }
 }

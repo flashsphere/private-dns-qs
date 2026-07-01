@@ -2,11 +2,8 @@ package com.flashsphere.privatednsqs.viewmodel
 
 import assertk.assertThat
 import assertk.assertions.exists
-import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
-import assertk.assertions.isGreaterThan
-import assertk.assertions.isNull
 import com.flashsphere.privatednsqs.BaseViewModelTest
 import com.flashsphere.privatednsqs.util.iconsDir
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,19 +25,19 @@ class CleanupOrphanImagesTest : BaseViewModelTest() {
         val cutoff = System.currentTimeMillis() - 7.days.inWholeMilliseconds
 
         val resIconFile = getFromResources("/icons/icon.png")
-        val iconFile = File(application.iconsDir, "test-icon.png").apply {
+        val iconFile = File(context.iconsDir, "test-icon.png").apply {
             copy(resIconFile, this)
             this.setLastModified(cutoff - 1.hours.inWholeMilliseconds)
         }
-        val iconFile1 = File(application.cacheDir, "test-icon1.png").apply {
+        val iconFile1 = File(context.cacheDir, "test-icon1.png").apply {
             copy(resIconFile, this)
             this.setLastModified(cutoff - 1.hours.inWholeMilliseconds)
         }
-        val iconFile2 = File(application.cacheDir, "test-icon2.png").apply {
+        val iconFile2 = File(context.cacheDir, "test-icon2.png").apply {
             copy(resIconFile, this)
             this.setLastModified(cutoff + 1.hours.inWholeMilliseconds)
         }
-        val iconFile3 = File(application.cacheDir, "test-icon3.png").apply {
+        val iconFile3 = File(context.cacheDir, "test-icon3.png").apply {
             copy(resIconFile, this)
             this.setLastModified(cutoff + 1.hours.inWholeMilliseconds)
         }
@@ -53,7 +50,7 @@ class CleanupOrphanImagesTest : BaseViewModelTest() {
         assertThat(iconFile2).exists()
         assertThat(iconFile3).exists()
 
-        assertThat(application.iconsDir.listFiles()!!.count()).isEqualTo(1)
-        assertThat(application.cacheDir.listFiles()!!.count()).isEqualTo(2)
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(1)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(2)
     }
 }

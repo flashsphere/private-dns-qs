@@ -1,9 +1,11 @@
 package com.flashsphere.privatednsqs.activity
 
-import com.flashsphere.privatednsqs.datastore.DnsConfiguration
+import com.flashsphere.privatednsqs.util.DnsConfiguration
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
+@AndroidEntryPoint
 class DnsOnActivity : DnsShortcutActivity() {
     override val showToastAfterSet: Boolean = true
 

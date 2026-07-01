@@ -3,7 +3,6 @@ package com.flashsphere.privatednsqs.repository
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.datastore.IdGenerator
 import com.flashsphere.privatednsqs.datastore.ImageIdGenerator
@@ -11,9 +10,12 @@ import com.flashsphere.privatednsqs.datastore.PreferenceKey
 import com.flashsphere.privatednsqs.datastore.PreferenceKeys
 import com.flashsphere.privatednsqs.datastore.get
 import com.flashsphere.privatednsqs.datastore.update
+import com.flashsphere.privatednsqs.hilt.ComputeDispatcher
+import com.flashsphere.privatednsqs.util.DnsConfiguration
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,10 +29,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import timber.log.Timber
 
-class SettingsRepository(
+@Singleton
+class SettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
     private val json: Json,
-    private val computeDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    @ComputeDispatcher private val computeDispatcher: CoroutineDispatcher,
 ) {
     suspend fun getNextId(): Long {
         return IdGenerator.getNextId(dataStore)

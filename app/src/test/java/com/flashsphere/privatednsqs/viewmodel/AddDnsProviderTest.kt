@@ -25,7 +25,7 @@ class AddDnsProviderTest : BaseViewModelTest() {
         runCurrent()
 
         val resIconFile = getFromResources("/icons/icon.png")
-        val inputIconFile = File(application.cacheDir, "test-icon.png").apply {
+        val inputIconFile = File(context.cacheDir, "test-icon.png").apply {
             copy(resIconFile, this)
         }
 
@@ -40,7 +40,7 @@ class AddDnsProviderTest : BaseViewModelTest() {
             assertThat(dnsProviders[0].enabled).isEqualTo(true)
             assertThat(dnsProviders[0].icon).isEqualTo(inputIconFile.name)
 
-            assertThat(File(application.iconsDir, dnsProviders[0].icon!!).readBytes())
+            assertThat(File(context.iconsDir, dnsProviders[0].icon!!).readBytes())
                 .isEqualTo(resIconFile.readBytes())
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
@@ -60,7 +60,7 @@ class AddDnsProviderTest : BaseViewModelTest() {
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
         }
 
-        assertThat(application.iconsDir.listFiles()!!.count()).isEqualTo(1)
-        assertThat(application.cacheDir.listFiles()!!.count()).isEqualTo(0)
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(1)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
     }
 }

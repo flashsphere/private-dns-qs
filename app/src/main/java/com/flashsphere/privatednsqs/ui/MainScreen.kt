@@ -56,7 +56,6 @@ import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
-import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -101,6 +100,7 @@ fun MainScreen(
         backupConfig = viewModel::backup,
         restoreConfig = viewModel::restore,
         processIcon = viewModel::processSelectedIcon,
+        deleteFile = viewModel::deleteFile,
         showToast = showToast,
         showSnackbarMessage = viewModel::showSnackbarMessage,
     )
@@ -134,6 +134,7 @@ private fun MainScreen(
     backupConfig: (uri: Uri) -> Unit,
     restoreConfig: (uri: Uri) -> Unit,
     processIcon: suspend (uri: Uri) -> File?,
+    deleteFile: (filePath: String?) -> Unit,
     showToast: (message: String) -> Unit,
     showSnackbarMessage: (message: SnackbarMessage) -> Unit,
 ) {
@@ -145,8 +146,6 @@ private fun MainScreen(
     }
 
     LaunchedEffect(Unit) {
-        val fileOperations = FileOperations()
-
         snackbarMessageFlow.collect { message ->
             snackbarHostState.currentSnackbarData?.dismiss()
             // launch is needed so that the current snackbar can be dismissed while it is being shown,
@@ -172,7 +171,7 @@ private fun MainScreen(
                                 restoreDnsProvider(message.index, message.dnsProvider)
                             }
                             SnackbarResult.Dismissed -> {
-                                launch { fileOperations.delete(message.dnsProvider.icon) }
+                                deleteFile(message.dnsProvider.icon)
                             }
                         }
                     }
@@ -351,6 +350,7 @@ private fun MainScreenPreview() {
         backupConfig = {},
         restoreConfig = {},
         processIcon = { null },
+        deleteFile = {},
         showToast = {},
         showSnackbarMessage = {},
     )

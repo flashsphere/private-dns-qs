@@ -57,7 +57,7 @@ class RestoreFromBackupTest : BaseViewModelTest() {
             assertThat(dnsProviders[0].hostname).isEqualTo("one.one.one.one")
             assertThat(dnsProviders[0].enabled).isEqualTo(true)
             assertThat(dnsProviders[0].icon).isNotNull().endsWith(".png")
-            assertThat(File(application.iconsDir, dnsProviders[0].icon!!).readBytes())
+            assertThat(File(context.iconsDir, dnsProviders[0].icon!!).readBytes())
                 .isEqualTo(getFromResources("/icons/icon.png").readBytes())
 
             assertThat(dnsProviders[1].id).isGreaterThan(0)
@@ -68,8 +68,8 @@ class RestoreFromBackupTest : BaseViewModelTest() {
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
         }
 
-        assertThat(application.iconsDir.listFiles()!!.count()).isEqualTo(1)
-        assertThat(application.cacheDir.listFiles()!!.count()).isEqualTo(0)
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(1)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
 
         coVerify(exactly = 1) { imageOperations.processIcon(any()) }
     }

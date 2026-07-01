@@ -26,7 +26,7 @@ class DeleteDnsProviderTest : BaseViewModelTest() {
 
     @Test
     fun deleteDnsProvider() = runTest(timeout = 10.seconds) {
-        val currentIcon = File(application.iconsDir, "test-icon.png").apply {
+        val currentIcon = File(context.iconsDir, "test-icon.png").apply {
             copyFromResources("/icons/icon.png", this)
         }
 
@@ -71,7 +71,7 @@ class DeleteDnsProviderTest : BaseViewModelTest() {
                 .isEqualTo(getFromResources("/icons/icon.png").readBytes())
         }
 
-        assertThat(application.iconsDir.listFiles()!!.count()).isEqualTo(0)
-        assertThat(application.cacheDir.listFiles()!!.count()).isEqualTo(1)
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(0)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(1)
     }
 }

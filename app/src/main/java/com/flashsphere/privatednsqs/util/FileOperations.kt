@@ -3,8 +3,10 @@ package com.flashsphere.privatednsqs.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import com.flashsphere.privatednsqs.hilt.IoDispatcher
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
@@ -14,8 +16,9 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import kotlin.io.encoding.Base64
 
-class FileOperations(
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+@Singleton
+class FileOperations @Inject constructor(
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) {
     suspend fun write(input: InputStream, dest: File): Boolean = withContext(ioDispatcher) {
         suspendRunCatching {

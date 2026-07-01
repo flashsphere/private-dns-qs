@@ -1,21 +1,20 @@
 package com.flashsphere.privatednsqs
 
 import android.content.ContentResolver
-import android.content.pm.PackageManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.lifecycle.SavedStateHandle
 import com.flashsphere.privatednsqs.repository.SettingsRepository
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.ImageOperations
+import com.flashsphere.privatednsqs.util.PrivateDns
 import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -35,7 +34,8 @@ abstract class BaseViewModelTest {
 
     val testDispatcher = mainDispatcherRule.testDispatcher
     lateinit var tempDir: File
-    lateinit var application: PrivateDnsApplication
+    lateinit var context: Context
+    lateinit var privateDns: PrivateDns
     lateinit var contentResolver: ContentResolver
     lateinit var imageOperations: ImageOperations
     lateinit var json: Json
@@ -43,10 +43,6 @@ abstract class BaseViewModelTest {
     @Before
     fun setup() {
         tempDir = createTempDirectory().toFile()
-
-        mockkStatic(ContextCompat::class).also {
-            every { ContextCompat.checkSelfPermission(any(), any()) } returns PackageManager.PERMISSION_DENIED
-        }
 
         imageOperations = mockk<ImageOperations>().also {
             coEvery { it.processIcon(any()) } answers {
@@ -77,7 +73,11 @@ abstract class BaseViewModelTest {
             }
         }
 
-        application = mockk<PrivateDnsApplication>().also {
+        privateDns = mockk<PrivateDns>().also {
+            every { it.hasPermission() } returns false
+        }
+
+        context = mockk<Context>().also {
             every { it.cacheDir } returns File(tempDir, "cache").apply { mkdirs() }
             every { it.filesDir } returns File(tempDir, "data").apply { mkdirs() }
             it.iconsDir.mkdirs()
@@ -114,7 +114,7 @@ abstract class BaseViewModelTest {
     fun createSettingsRepository(scope: CoroutineScope): SettingsRepository {
         val dataStore = PreferenceDataStoreFactory.create(
             scope = scope,
-            produceFile = { File(application.filesDir, "settings.preferences_pb") }
+            produceFile = { File(context.filesDir, "settings.preferences_pb") }
         )
         return SettingsRepository(
             dataStore = dataStore,
@@ -125,8 +125,9 @@ abstract class BaseViewModelTest {
 
     fun createViewModel(settingsRepository: SettingsRepository): MainViewModel {
         return MainViewModel(
-            application = application,
+            context = context,
             json = json,
+            privateDns = privateDns,
             ioDispatcher = testDispatcher,
             fileOperations = FileOperations(testDispatcher),
             imageOperations = imageOperations,

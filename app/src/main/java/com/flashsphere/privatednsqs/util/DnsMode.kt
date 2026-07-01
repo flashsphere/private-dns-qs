@@ -1,4 +1,4 @@
-package com.flashsphere.privatednsqs.datastore
+package com.flashsphere.privatednsqs.util
 
 import android.service.quicksettings.Tile
 import com.flashsphere.privatednsqs.R

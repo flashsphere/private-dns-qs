@@ -1,21 +1,24 @@
 package com.flashsphere.privatednsqs.util
 
+import android.content.Context
 import coil3.Bitmap
-import coil3.imageLoader
+import coil3.ImageLoader
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.toBitmap
-import com.flashsphere.privatednsqs.PrivateDnsApplication
+import dagger.hilt.android.qualifiers.ApplicationContext
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import java.io.File
 
-class ImageOperations(
-    private val application: PrivateDnsApplication,
+@Singleton
+class ImageOperations @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val imageLoader: ImageLoader,
 ) {
-    private val imageLoader = application.imageLoader
-
     suspend fun processIcon(src: File): Result<Bitmap> {
-        val request = ImageRequest.Builder(application)
+        val request = ImageRequest.Builder(context)
             .data(src)
             .size(ICON_SIZE)
             .build()

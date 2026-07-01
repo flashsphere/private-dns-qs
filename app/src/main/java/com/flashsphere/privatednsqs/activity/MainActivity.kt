@@ -18,7 +18,6 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.net.toUri
 import androidx.core.os.BundleCompat
@@ -35,28 +34,16 @@ import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
 import com.flashsphere.privatednsqs.ui.TileNotAddedMessage
 import com.flashsphere.privatednsqs.ui.WriteSecureSettingPermissionGrantedUsingShizuku
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import rikka.shizuku.Shizuku
 import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
 import timber.log.Timber
 
+@AndroidEntryPoint
 class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
-    private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
+    private val viewModel: MainViewModel by viewModels()
 
     private var toast: Toast? = null
-
-    private val selectBackupDestLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.CreateDocument("text/plain")
-        ) { uri ->
-            uri?.let { viewModel.backup(it) }
-        }
-
-    private val openBackupLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.OpenDocument()
-        ) { uri ->
-            uri?.let { viewModel.restore(it) }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()

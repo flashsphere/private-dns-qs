@@ -1,23 +1,17 @@
 package com.flashsphere.privatednsqs.viewmodel
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.flashsphere.privatednsqs.PrivateDnsApplication
 import com.flashsphere.privatednsqs.backup.DnsProviderSnapshot
 import com.flashsphere.privatednsqs.backup.SettingsSnapshot
 import com.flashsphere.privatednsqs.backup.SettingsSnapshotV1
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.datastore.PreferenceKeys
-import com.flashsphere.privatednsqs.datastore.PrivateDns
-import com.flashsphere.privatednsqs.datastore.dataStore
-import com.flashsphere.privatednsqs.json.json
+import com.flashsphere.privatednsqs.hilt.IoDispatcher
 import com.flashsphere.privatednsqs.repository.SettingsRepository
 import com.flashsphere.privatednsqs.ui.BackupCompleted
 import com.flashsphere.privatednsqs.ui.BackupFailed
@@ -27,11 +21,14 @@ import com.flashsphere.privatednsqs.ui.RestoreFailed
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.ImageOperations
+import com.flashsphere.privatednsqs.util.PrivateDns
 import com.flashsphere.privatednsqs.util.absolutePathIfExists
 import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.util.suspendRunCatching
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -49,23 +46,24 @@ import timber.log.Timber
 import java.io.File
 import kotlin.time.Duration.Companion.days
 
-class MainViewModel(
-    private val application: PrivateDnsApplication,
-    private val json: Json = application.json,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val fileOperations: FileOperations = FileOperations(ioDispatcher),
-    private val imageOperations: ImageOperations = ImageOperations(application),
-    private val settingsRepository: SettingsRepository = SettingsRepository(application.dataStore, application.json),
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val json: Json,
+    private val privateDns: PrivateDns,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val fileOperations: FileOperations,
+    private val imageOperations: ImageOperations,
+    private val settingsRepository: SettingsRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val contentResolver = application.contentResolver
-    private val privateDns = PrivateDns(application)
+    private val contentResolver = context.contentResolver
 
     val snackbarMessages: SharedFlow<SnackbarMessage>
-        field = MutableSharedFlow<SnackbarMessage>(
+        field = MutableSharedFlow(
             replay = 0,
             extraBufferCapacity = 1,
-            BufferOverflow.SUSPEND
+            onBufferOverflow = BufferOverflow.SUSPEND,
         )
 
     private val _openHelpDialogFlow = savedStateHandle.getMutableStateFlow("open_help_menu", false)
@@ -141,7 +139,7 @@ class MainViewModel(
 
         val iconFilename = if (iconFile != null && iconFile.exists()) {
             val filename = iconFile.name.ifBlank { "${settingsRepository.getNextImageId()}.png" }
-            fileOperations.move(iconFile, File(application.iconsDir, filename))
+            fileOperations.move(iconFile, File(context.iconsDir, filename))
             filename
         } else {
             null
@@ -166,13 +164,13 @@ class MainViewModel(
             val provider = providers[index]
 
             provider.icon
-                ?.let { File(application.iconsDir, it) }
+                ?.let { File(context.iconsDir, it) }
                 ?.takeIf { it != iconFile }
                 ?.let { fileOperations.delete(it) }
 
             val iconFilename = iconFile?.let {
                 val filename = iconFile.name.ifBlank { "${settingsRepository.getNextImageId()}.png" }
-                fileOperations.move(it, File(application.iconsDir, filename))
+                fileOperations.move(it, File(context.iconsDir, filename))
                 filename
             }
 
@@ -194,9 +192,9 @@ class MainViewModel(
             val newIconFilePath = provider.icon
                 ?.let { icon ->
                     // move existing icon to cache dir
-                    val currentFile = File(application.iconsDir, icon)
+                    val currentFile = File(context.iconsDir, icon)
 
-                    val newFile = File(application.cacheDir, icon)
+                    val newFile = File(context.cacheDir, icon)
                     fileOperations.move(currentFile, newFile)
 
                     newFile.absolutePathIfExists
@@ -275,7 +273,7 @@ class MainViewModel(
                     requireUnlock = requireUnlockChecked.value,
                     dnsProviders = dnsProviders.map {
                         val iconBase64 = it.icon?.let { icon ->
-                            fileOperations.toBase64(File(application.iconsDir, icon))
+                            fileOperations.toBase64(File(context.iconsDir, icon))
                         }
 
                         DnsProviderSnapshot(
@@ -313,7 +311,7 @@ class MainViewModel(
                 // delete existing icon files from existing dns
                 dnsProviders.asSequence()
                     .mapNotNull { it.icon }
-                    .map { File(application.iconsDir, it) }
+                    .map { File(context.iconsDir, it) }
                     .forEach { fileOperations.delete(it) }
 
                 when (snapshot) {
@@ -326,7 +324,7 @@ class MainViewModel(
                                 // decode base64 icon to a file in the cache dir
                                 val iconFile = it.iconBase64?.let { iconBase64 ->
                                     val imageId = settingsRepository.getNextImageId()
-                                    val file = File(application.cacheDir, "$imageId")
+                                    val file = File(context.cacheDir, "$imageId")
                                     fileOperations.base64DecodeToFile(iconBase64, file)
 
                                     // process icon file again in case the json was manually edited
@@ -352,7 +350,7 @@ class MainViewModel(
 
     suspend fun processSelectedIcon(input: Uri): File? {
         val imageId = settingsRepository.getNextImageId()
-        val src = File(application.cacheDir, "$imageId")
+        val src = File(context.cacheDir, "$imageId")
         contentResolver.openInputStream(input)?.use {
             fileOperations.write(it, src)
         }
@@ -364,7 +362,7 @@ class MainViewModel(
 
         return imageOperations.processIcon(src)
             .mapCatching { bitmap ->
-                File(application.cacheDir, "${src.name}.png").apply {
+                File(context.cacheDir, "${src.name}.png").apply {
                     fileOperations.write(bitmap, this)
                 }
             }
@@ -373,12 +371,20 @@ class MainViewModel(
             .getOrNull()
     }
 
+    fun deleteFile(filePath: String?) {
+        if (filePath.isNullOrBlank()) return
+
+        viewModelScope.launch {
+            fileOperations.delete(filePath)
+        }
+    }
+
     fun cleanupOrphanImages() {
         val cutoff = System.currentTimeMillis() - 7.days.inWholeMilliseconds
 
         viewModelScope.launch {
             withContext(ioDispatcher) {
-                application.cacheDir.walkTopDown()
+                context.cacheDir.walkTopDown()
                     .filter {
                         it.isFile &&
                         it.name.endsWith(".png", ignoreCase = true) &&
@@ -390,18 +396,6 @@ class MainViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-                val application = checkNotNull(extras[APPLICATION_KEY]) as PrivateDnsApplication
-                val savedStateHandle = extras.createSavedStateHandle()
-                return MainViewModel(
-                    application = application,
-                    savedStateHandle = savedStateHandle,
-                ) as T
-            }
-        }
-
         private val suggestions = setOf(
             "one.one.one.one",
             "family.cloudflare-dns.com",

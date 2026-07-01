@@ -7,31 +7,28 @@ import android.os.SystemProperties
 import android.service.quicksettings.Tile
 import androidx.core.graphics.drawable.toIcon
 import com.flashsphere.privatednsqs.R
-import com.flashsphere.privatednsqs.datastore.DnsConfiguration
+import com.flashsphere.privatednsqs.util.DnsConfiguration
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.iconsDir
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
 interface TileInfoUpdater {
     suspend fun update(tile: Tile, dnsConfiguration: DnsConfiguration)
-
-    suspend fun change(tile: Tile, dnsConfiguration: DnsConfiguration) {
-        update(tile, dnsConfiguration)
-    }
 }
 
-open class DefaultTileInfoUpdater(
+class DefaultTileInfoUpdater(
     private val context: Context,
+    private val fileOperations: FileOperations,
 ) : TileInfoUpdater {
-    private val fileOperations = FileOperations()
+    private val mutex = Mutex()
 
-    override suspend fun update(tile: Tile, dnsConfiguration: DnsConfiguration) {
-        Timber.d("Updating tile")
+    override suspend fun update(tile: Tile, dnsConfiguration: DnsConfiguration) = mutex.withLock {
+        Timber.d("Updating tile: %s", dnsConfiguration)
 
         val dnsMode = dnsConfiguration.mode
         val label = if (dnsConfiguration is DnsConfiguration.On && dnsConfiguration.hostname.isNotBlank()) {
@@ -67,26 +64,28 @@ open class DefaultTileInfoUpdater(
 }
 
 /**
- * Workaround icon not updating when switching from auto -> on.
+ * Workaround icon not updating when switching from auto -> on / dns a -> dns b
  * It appears that Samsung devices on One UI 8.5 do not update the icon
  * when the tile state doesn't change.
  */
 class SamsungTileInfoUpdater(
-    context: Context,
-    private val mainScope: CoroutineScope,
-) : DefaultTileInfoUpdater(context) {
+    private val defaultTileInfoUpdater: DefaultTileInfoUpdater
+) : TileInfoUpdater {
+    private var currentDnsConfig: DnsConfiguration? = null
 
-    override suspend fun change(tile: Tile, dnsConfiguration: DnsConfiguration) {
-        val dnsMode = dnsConfiguration.mode
-        if (tile.state == dnsMode.tileState) {
-            Timber.d("Inverting tile state")
-            tile.state = invertState(dnsMode.tileState)
-            tile.updateTile()
-        }
-        mainScope.launch {
+    override suspend fun update(tile: Tile, dnsConfiguration: DnsConfiguration) {
+        if (currentDnsConfig != null && currentDnsConfig != dnsConfiguration) {
+            val dnsMode = dnsConfiguration.mode
+            if (tile.state == dnsMode.tileState) {
+                Timber.d("Inverting tile state")
+                tile.state = invertState(dnsMode.tileState)
+                tile.updateTile()
+            }
+
             delay(50.milliseconds)
-            update(tile, dnsConfiguration)
         }
+        currentDnsConfig = dnsConfiguration
+        defaultTileInfoUpdater.update(tile, dnsConfiguration)
     }
 
     private fun invertState(state: Int): Int {

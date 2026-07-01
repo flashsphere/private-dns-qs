@@ -38,9 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil3.compose.AsyncImage
 import com.flashsphere.privatednsqs.R
-import com.flashsphere.privatednsqs.datastore.DnsConfiguration
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
 import com.flashsphere.privatednsqs.ui.theme.AppTypography
+import com.flashsphere.privatednsqs.util.DnsConfiguration
 import com.flashsphere.privatednsqs.util.absolutePathIfExists
 import com.flashsphere.privatednsqs.util.iconsDir
 import java.io.File

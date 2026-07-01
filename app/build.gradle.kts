@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -22,7 +24,7 @@ android {
         targetSdk = 37
         versionCode = libs.versions.appVersionCode.get().toInt()
         versionName = libs.versions.appVersionName.get()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.flashsphere.privatednsqs.HiltAndroidJUnitRunner"
 
         base.archivesName = "PrivateDnsQS-v${versionName}"
     }
@@ -103,6 +105,10 @@ android {
     }
 }
 
+hilt {
+    enableAggregatingTask = true
+}
+
 composeCompiler {
     reportsDestination = layout.buildDirectory.dir("compose_compiler")
     stabilityConfigurationFiles.addAll(
@@ -144,11 +150,17 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.svg)
 
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    ksp(libs.kotlin.metadata.jvm)
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.assertk)
+    androidTestImplementation(libs.hilt.testing)
+    kspAndroidTest(libs.hilt.compiler)
 
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.junit)
@@ -156,6 +168,8 @@ dependencies {
     testImplementation(libs.assertk)
     testImplementation(libs.jsonassert)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.hilt.testing)
+    kspTest(libs.hilt.compiler)
 }
 
 tasks.named("lint") {

@@ -25,7 +25,7 @@ class BackupTest : BaseViewModelTest() {
 
     @Test
     fun backup() = runTest(timeout = 10.seconds) {
-        val existingIconFile = File(application.iconsDir, "test-icon.png").apply {
+        val existingIconFile = File(context.iconsDir, "test-icon.png").apply {
             copyFromResources("/icons/icon.png", this)
         }
 
@@ -73,7 +73,7 @@ class BackupTest : BaseViewModelTest() {
             JSONCompareMode.STRICT,
         )
 
-        assertThat(application.iconsDir.listFiles()!!.count()).isEqualTo(1)
-        assertThat(application.cacheDir.listFiles()!!.count()).isEqualTo(0)
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(1)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
     }
 }

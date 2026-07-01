@@ -1,22 +1,15 @@
 package com.flashsphere.privatednsqs.viewmodel
 
 import assertk.assertThat
-import assertk.assertions.endsWith
 import assertk.assertions.hasSize
-import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isGreaterThan
-import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import com.flashsphere.privatednsqs.BaseViewModelTest
 import com.flashsphere.privatednsqs.datastore.DnsProvider
-import com.flashsphere.privatednsqs.ui.DnsProviderDeleted
 import com.flashsphere.privatednsqs.util.iconsDir
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -27,8 +20,8 @@ import kotlin.time.Duration.Companion.seconds
 class ToggleDnsProviderTest : BaseViewModelTest() {
 
     @Test
-    fun deleteDnsProvider() = runTest(timeout = 10.seconds) {
-        val currentIcon = File(application.iconsDir, "test-icon.png").apply {
+    fun toggleDnsProvider() = runTest(timeout = 10.seconds) {
+        val currentIcon = File(context.iconsDir, "test-icon.png").apply {
             copyFromResources("/icons/icon.png", this)
         }
 
@@ -71,7 +64,7 @@ class ToggleDnsProviderTest : BaseViewModelTest() {
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
         }
 
-        assertThat(application.iconsDir.listFiles()!!.count()).isEqualTo(1)
-        assertThat(application.cacheDir.listFiles()!!.count()).isEqualTo(0)
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(1)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
     }
 }

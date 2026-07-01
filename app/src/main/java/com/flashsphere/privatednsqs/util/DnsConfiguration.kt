@@ -1,4 +1,4 @@
-package com.flashsphere.privatednsqs.datastore
+package com.flashsphere.privatednsqs.util
 
 sealed class DnsConfiguration {
     abstract val mode: DnsMode

@@ -9,7 +9,6 @@ import assertk.assertions.isNull
 import com.flashsphere.privatednsqs.BaseViewModelTest
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.util.iconsDir
-import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -23,7 +22,7 @@ class RestoreDeletedDnsProviderTest : BaseViewModelTest() {
     @Test
     fun restoreDnsProvider() = runTest(timeout = 10.seconds) {
         val resIconFile = getFromResources("/icons/icon.png")
-        val iconFile = File(application.cacheDir, "test-icon.png").apply {
+        val iconFile = File(context.cacheDir, "test-icon.png").apply {
             copy(resIconFile, this)
         }
 
@@ -59,19 +58,19 @@ class RestoreDeletedDnsProviderTest : BaseViewModelTest() {
             assertThat(dnsProviders[0].hostname).isEqualTo("one.one.one.one")
             assertThat(dnsProviders[0].enabled).isEqualTo(true)
             assertThat(dnsProviders[0].icon).isEqualTo("test-icon.png")
-            assertThat(File(application.iconsDir, dnsProviders[0].icon!!).readBytes())
+            assertThat(File(context.iconsDir, dnsProviders[0].icon!!).readBytes())
                 .isEqualTo(resIconFile.readBytes())
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
         }
 
-        assertThat(application.iconsDir.listFiles()!!.count()).isEqualTo(1)
-        assertThat(application.cacheDir.listFiles()!!.count()).isEqualTo(0)
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(1)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
     }
     @Test
     fun restoreDnsProvider_does_not_restore_if_hostname_is_in_list() = runTest(timeout = 10.seconds) {
         val resIconFile = getFromResources("/icons/icon.png")
-        val iconFile = File(application.cacheDir, "test-icon.png").apply {
+        val iconFile = File(context.cacheDir, "test-icon.png").apply {
             copy(resIconFile, this)
         }
 
@@ -123,7 +122,7 @@ class RestoreDeletedDnsProviderTest : BaseViewModelTest() {
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
         }
 
-        assertThat(application.iconsDir.listFiles()!!.count()).isEqualTo(0)
-        assertThat(application.cacheDir.listFiles()!!.count()).isEqualTo(1)
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(0)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(1)
     }
 }

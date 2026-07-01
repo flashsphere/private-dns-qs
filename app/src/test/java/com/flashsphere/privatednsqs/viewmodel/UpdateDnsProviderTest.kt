@@ -21,7 +21,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
 
     @Test
     fun updateDnsProvider_with_different_hostname_and_no_icon() = runTest(timeout = 10.seconds) {
-        val currentIcon = File(application.iconsDir, "test-icon.png").apply {
+        val currentIcon = File(context.iconsDir, "test-icon.png").apply {
             copyFromResources("/icons/icon.png", this)
         }
 
@@ -58,7 +58,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
     @Test
     fun updateDnsProvider_with_different_hostname_and_same_icon() = runTest(timeout = 10.seconds) {
         val resIconFile = getFromResources("/icons/icon.png")
-        val currentIcon = File(application.iconsDir, "test-icon.png").apply {
+        val currentIcon = File(context.iconsDir, "test-icon.png").apply {
             copy(resIconFile, this)
         }
 
@@ -87,7 +87,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
             assertThat(dnsProviders[0].enabled).isEqualTo(true)
             assertThat(dnsProviders[0].icon).isEqualTo(currentIcon.name)
 
-            assertThat(File(application.iconsDir, dnsProviders[0].icon!!).readBytes())
+            assertThat(File(context.iconsDir, dnsProviders[0].icon!!).readBytes())
                 .isEqualTo(resIconFile.readBytes())
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
@@ -96,11 +96,11 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
 
     @Test
     fun updateDnsProvider_with_different_icon() = runTest(timeout = 10.seconds) {
-        val currentIcon = File(application.iconsDir, "test-icon.png").apply {
+        val currentIcon = File(context.iconsDir, "test-icon.png").apply {
             copyFromResources("/icons/icon.png", this)
         }
         val assetNewIcon = getFromResources("/icons/icon2.png")
-        val newIcon = File(application.cacheDir, "new-icon.png").apply {
+        val newIcon = File(context.cacheDir, "new-icon.png").apply {
             copy(assetNewIcon, this)
         }
 
@@ -129,7 +129,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
             assertThat(dnsProviders[0].enabled).isEqualTo(true)
             assertThat(dnsProviders[0].icon).isEqualTo(newIcon.name)
 
-            assertThat(File(application.iconsDir, dnsProviders[0].icon!!).readBytes())
+            assertThat(File(context.iconsDir, dnsProviders[0].icon!!).readBytes())
                 .isEqualTo(assetNewIcon.readBytes())
             assertThat(currentIcon.exists()).isFalse()
 

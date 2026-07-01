@@ -23,9 +23,12 @@ junit = "4.13.2"
 mockk = "1.14.11"
 assertk = "0.28.1"
 jsonassert = "1.5.3"
+dagger = "2.59.2"
+ksp = "2.3.9"
 
 [libraries]
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-metadata-jvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
 androidx-datastore-prefs = { module = "androidx.datastore:datastore-preferences", version.ref = "androidxDatastorePrefs" }
@@ -56,6 +59,9 @@ hidden-api-stub = { module = "dev.rikka.hidden:stub", version.ref = "rikkaHidden
 hidden-api-bypass = { module = "org.lsposed.hiddenapibypass:hiddenapibypass", version.ref = "hiddenApiBypass" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
+hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "dagger" }
+hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger" }
 junit = { module = "junit:junit", version.ref = "junit" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "assertk" }
@@ -66,3 +72,5 @@ android-application = { id = "com.android.application", version.ref = "androidGr
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

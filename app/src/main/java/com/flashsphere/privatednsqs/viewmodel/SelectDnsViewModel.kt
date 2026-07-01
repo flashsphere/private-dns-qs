@@ -2,24 +2,20 @@ package com.flashsphere.privatednsqs.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.flashsphere.privatednsqs.PrivateDnsApplication
-import com.flashsphere.privatednsqs.datastore.DnsConfiguration
-import com.flashsphere.privatednsqs.datastore.PrivateDns
-import com.flashsphere.privatednsqs.datastore.dataStore
-import com.flashsphere.privatednsqs.json.json
 import com.flashsphere.privatednsqs.repository.SettingsRepository
+import com.flashsphere.privatednsqs.util.DnsConfiguration
+import com.flashsphere.privatednsqs.util.PrivateDns
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-class SelectDnsViewModel(
-    application: PrivateDnsApplication,
-    settingsRepository: SettingsRepository = SettingsRepository(application.dataStore, application.json),
+@HiltViewModel
+class SelectDnsViewModel @Inject constructor(
+    private val privateDns: PrivateDns,
+    settingsRepository: SettingsRepository,
 ) : ViewModel() {
-    private val privateDns = PrivateDns(application)
 
     val dnsConfigs = mutableStateListOf<DnsConfiguration>()
 
@@ -42,15 +38,5 @@ class SelectDnsViewModel(
 
     fun selectDns(dnsConfig: DnsConfiguration) {
         privateDns.setDnsConfig(dnsConfig)
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-                val application = checkNotNull(extras[APPLICATION_KEY]) as PrivateDnsApplication
-                return SelectDnsViewModel(application) as T
-            }
-        }
     }
 }

@@ -3,33 +3,40 @@ package com.flashsphere.privatednsqs.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import assertk.assertThat
 import assertk.assertions.isSuccess
 import assertk.assertions.isTrue
-import com.flashsphere.privatednsqs.PrivateDnsApplication
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import jakarta.inject.Inject
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class ImageOperationsTest {
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
 
-    private lateinit var application: PrivateDnsApplication
-    private lateinit var testContext: Context
-    private lateinit var tempDir: File
+    @Inject @ApplicationContext lateinit var context: Context
+    @Inject lateinit var imageOperations: ImageOperations
+    lateinit var testContext: Context
+    lateinit var tempDir: File
 
     @Before
     fun setup() {
-        application = ApplicationProvider.getApplicationContext()
+        hiltRule.inject()
         testContext = InstrumentationRegistry.getInstrumentation().context
-        tempDir = File(application.cacheDir, "temp").apply { mkdirs() }
+        tempDir = File(context.cacheDir, "temp").apply { mkdirs() }
     }
 
     @After
@@ -43,7 +50,6 @@ class ImageOperationsTest {
             copy("icons/icon.svg", this)
         }
 
-        val imageOperations = ImageOperations(application)
         val result = imageOperations.processIcon(inputIconFile)
 
         assertThat(result).isSuccess()
@@ -56,7 +62,6 @@ class ImageOperationsTest {
             copy("icons/icon.png", this)
         }
 
-        val imageOperations = ImageOperations(application)
         val result = imageOperations.processIcon(inputIconFile)
 
         assertThat(result).isSuccess()

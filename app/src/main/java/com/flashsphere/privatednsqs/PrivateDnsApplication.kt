@@ -7,17 +7,20 @@ import androidx.compose.runtime.Composer
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
-import coil3.request.CachePolicy
-import coil3.svg.SvgDecoder
 import com.jakewharton.processphoenix.ProcessPhoenix
+import dagger.hilt.android.HiltAndroidApp
+import jakarta.inject.Inject
 import timber.log.Timber
 
+@HiltAndroidApp
 class PrivateDnsApplication : Application(), SingletonImageLoader.Factory {
     init {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
     }
+
+    @Inject lateinit var imageLoader: ImageLoader
 
     private var toast: Toast? = null
 
@@ -35,10 +38,7 @@ class PrivateDnsApplication : Application(), SingletonImageLoader.Factory {
     }
 
     override fun newImageLoader(context: Context): ImageLoader {
-        return ImageLoader.Builder(context)
-            .components { add(SvgDecoder.Factory()) }
-            .diskCachePolicy(CachePolicy.DISABLED)
-            .build()
+        return imageLoader
     }
 
     fun showToast(message: String) {
