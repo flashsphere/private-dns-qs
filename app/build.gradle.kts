@@ -97,6 +97,7 @@ android {
         }
     }
     lint {
+        informational.addAll(setOf("GradleDependency", "NewerVersionAvailable"))
         warningsAsErrors = true
         abortOnError = true
     }
@@ -159,8 +160,9 @@ dependencies {
 
 tasks.named("lint") {
     dependsOn(
-        tasks.matching {
-            it.name.startsWith("lint") && it.name != "lint"
-        }
+        "lintLauncherDebug",
+        "lintNolauncherDebug",
+        "lintLauncherRelease",
+        "lintNolauncherRelease",
     )
 }
