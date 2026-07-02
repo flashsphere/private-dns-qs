@@ -32,7 +32,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -66,14 +66,14 @@ class MainViewModel @Inject constructor(
             onBufferOverflow = BufferOverflow.SUSPEND,
         )
 
-    private val _openHelpDialogFlow = savedStateHandle.getMutableStateFlow("open_help_menu", false)
-    val openHelpDialogFlow = _openHelpDialogFlow.asStateFlow()
+    val openHelpDialogFlow: StateFlow<Boolean>
+        field = savedStateHandle.getMutableStateFlow("open_help_menu", false)
 
-    val dnsOffChecked = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.DNS_OFF_TOGGLE)
-    val dnsAutoChecked = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.DNS_AUTO_TOGGLE)
+    val dnsOffStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.DNS_OFF_TOGGLE)
+    val dnsAutoStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.DNS_AUTO_TOGGLE)
     val dnsProviders = mutableStateListOf<DnsProvider>()
-    val requireUnlockChecked = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.REQUIRE_UNLOCK)
-    val showInTileTitleChecked = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.SHOW_IN_TILE_TITLE)
+    val requireUnlockStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.REQUIRE_UNLOCK)
+    val showInTileTitleStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.SHOW_IN_TILE_TITLE)
 
     init {
         settingsRepository.getDnsProvidersFlow()
@@ -83,27 +83,27 @@ class MainViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
 
-        _openHelpDialogFlow.value = !hasPermission()
+        openHelpDialogFlow.value = !hasPermission()
         cleanupOrphanImages()
     }
 
     fun openHelpDialog(open: Boolean) {
-        _openHelpDialogFlow.value = open
+        openHelpDialogFlow.value = open
     }
 
-    fun dnsOffChecked(checked: Boolean) {
+    fun updateDnsOffToggle(checked: Boolean) {
         viewModelScope.launch { settingsRepository.updateDnsOffToggle(checked) }
     }
 
-    fun dnsAutoChecked(checked: Boolean) {
+    fun updateDnsAutoToggle(checked: Boolean) {
         viewModelScope.launch { settingsRepository.updateDnsAutoToggle(checked) }
     }
 
-    fun requireUnlockChecked(checked: Boolean) {
+    fun updateRequireUnlock(checked: Boolean) {
         viewModelScope.launch { settingsRepository.updateRequireUnlock(checked) }
     }
 
-    fun showInTileTitleChecked(checked: Boolean) {
+    fun updateShowInTileTitle(checked: Boolean) {
         viewModelScope.launch { settingsRepository.updateShowInTileTitle(checked) }
     }
 
@@ -273,10 +273,10 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             suspendRunCatching {
                 val snapshot = SettingsSnapshotV1(
-                    dnsOffToggle = dnsOffChecked.value,
-                    dnsAutoToggle = dnsAutoChecked.value,
-                    requireUnlock = requireUnlockChecked.value,
-                    showInTileTitle = this@MainViewModel.showInTileTitleChecked.value,
+                    dnsOffToggle = dnsOffStateFlow.value,
+                    dnsAutoToggle = dnsAutoStateFlow.value,
+                    requireUnlock = requireUnlockStateFlow.value,
+                    showInTileTitle = showInTileTitleStateFlow.value,
                     dnsProviders = dnsProviders.map {
                         val iconBase64 = it.icon?.let { icon ->
                             fileOperations.toBase64(File(context.iconsDir, icon))
