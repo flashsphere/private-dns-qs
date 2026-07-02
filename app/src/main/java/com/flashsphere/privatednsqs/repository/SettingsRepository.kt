@@ -98,6 +98,14 @@ class SettingsRepository @Inject constructor(
         return update(PreferenceKeys.REQUIRE_UNLOCK, value)
     }
 
+    suspend fun getShowInTileTitle(): Boolean {
+        return dataStore.get(PreferenceKeys.SHOW_IN_TILE_TITLE)
+    }
+
+    suspend fun updateShowInTileTitle(value: Boolean) {
+        return update(PreferenceKeys.SHOW_IN_TILE_TITLE, value)
+    }
+
     fun getDnsProvidersFlow(): Flow<List<DnsProvider>> {
         return getFlow(PreferenceKeys.DNS_PROVIDERS)
             .map {

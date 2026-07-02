@@ -1,6 +1,5 @@
 package com.flashsphere.privatednsqs.backup
 
-import com.flashsphere.privatednsqs.datastore.DnsProvider
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -17,5 +16,6 @@ data class SettingsSnapshotV1(
     val dnsOffToggle: Boolean,
     val dnsAutoToggle: Boolean,
     val requireUnlock: Boolean,
+    val showInTileTitle: Boolean,
     val dnsProviders: List<DnsProviderSnapshot>
 ) : SettingsSnapshot

@@ -94,6 +94,8 @@ fun MainScreen(
         reorderDnsProviders = viewModel::reorderDnsProviders,
         requireUnlockStateFlow = viewModel.requireUnlockChecked,
         onRequireUnlockClick = viewModel::requireUnlockChecked,
+        showInTileTitleStateFlow = viewModel.showInTileTitleChecked,
+        onShowInTileTitleClick = viewModel::showInTileTitleChecked,
         showAppInfo = showAppInfo,
         showMoreInfo = showMoreInfo,
         requestAddTile = requestAddTile,
@@ -128,6 +130,8 @@ private fun MainScreen(
     reorderDnsProviders: () -> Unit,
     requireUnlockStateFlow: StateFlow<Boolean>,
     onRequireUnlockClick: (checked: Boolean) -> Unit,
+    showInTileTitleStateFlow: StateFlow<Boolean>,
+    onShowInTileTitleClick: (checked: Boolean) -> Unit,
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
@@ -272,6 +276,8 @@ private fun MainScreen(
                         Header(stringResource(R.string.other_settings))
                         DnsModeItem(requireUnlockStateFlow, onRequireUnlockClick,
                             stringResource(R.string.require_unlock))
+                        DnsModeItem(showInTileTitleStateFlow, onShowInTileTitleClick,
+                            stringResource(R.string.show_in_tile_tile))
                     }
                 }
             }
@@ -323,6 +329,7 @@ private fun MainScreenPreview() {
     val dnsOff = remember { MutableStateFlow(true) }
     val dnsAuto = remember { MutableStateFlow(true) }
     val requireUnlock = remember { MutableStateFlow(false) }
+    val showInTileTitle = remember { MutableStateFlow(false) }
 
     MainScreen(
         openHelpDialogFlow = openHelpDialogFlow,
@@ -344,6 +351,8 @@ private fun MainScreenPreview() {
         reorderDnsProviders = {},
         requireUnlockStateFlow = requireUnlock,
         onRequireUnlockClick = { requireUnlock.value = it },
+        showInTileTitleStateFlow = showInTileTitle,
+        onShowInTileTitleClick = { showInTileTitle.value = it },
         showAppInfo = {},
         showMoreInfo = {},
         requestAddTile = {},

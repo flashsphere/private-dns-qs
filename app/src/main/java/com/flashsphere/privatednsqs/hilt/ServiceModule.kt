@@ -1,6 +1,7 @@
 package com.flashsphere.privatednsqs.hilt
 
 import android.app.Service
+import com.flashsphere.privatednsqs.repository.SettingsRepository
 import com.flashsphere.privatednsqs.service.DefaultTileInfoUpdater
 import com.flashsphere.privatednsqs.service.SamsungTileInfoUpdater
 import com.flashsphere.privatednsqs.service.TileInfoUpdater
@@ -19,8 +20,9 @@ internal object ServiceModule {
     fun provideTileInfoUpdater(
         context: Service,
         fileOperations: FileOperations,
+        settingsRepository: SettingsRepository,
     ): TileInfoUpdater {
-        val defaultTileInfoUpdater = DefaultTileInfoUpdater(context, fileOperations)
+        val defaultTileInfoUpdater = DefaultTileInfoUpdater(context, fileOperations, settingsRepository)
         return when {
             SamsungTileInfoUpdater.isApplicable() -> SamsungTileInfoUpdater(defaultTileInfoUpdater)
             else -> defaultTileInfoUpdater

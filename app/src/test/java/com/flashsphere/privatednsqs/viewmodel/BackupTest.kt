@@ -33,6 +33,7 @@ class BackupTest : BaseViewModelTest() {
         settingsRepository.updateDnsOffToggle(false)
         settingsRepository.updateDnsAutoToggle(true)
         settingsRepository.updateRequireUnlock(true)
+        settingsRepository.updateShowInTileTitle(true)
         settingsRepository.updateDnsProviders(listOf(
             DnsProvider(
                 id = settingsRepository.getNextId(),

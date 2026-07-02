@@ -7,6 +7,7 @@ import android.os.SystemProperties
 import android.service.quicksettings.Tile
 import androidx.core.graphics.drawable.toIcon
 import com.flashsphere.privatednsqs.R
+import com.flashsphere.privatednsqs.repository.SettingsRepository
 import com.flashsphere.privatednsqs.util.DnsConfiguration
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.iconsDir
@@ -24,6 +25,7 @@ interface TileInfoUpdater {
 class DefaultTileInfoUpdater(
     private val context: Context,
     private val fileOperations: FileOperations,
+    private val settingsRepository: SettingsRepository,
 ) : TileInfoUpdater {
     private val mutex = Mutex()
 
@@ -41,11 +43,14 @@ class DefaultTileInfoUpdater(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             tile.stateDescription = context.getString(dnsMode.tileStateDescription)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            tile.label = label
+        } else if (settingsRepository.getShowInTileTitle()) {
+            tile.label = label
+            tile.subtitle = null
+        } else {
             tile.label = context.getString(R.string.tile_name)
             tile.subtitle = label
-        } else {
-            tile.label = label
         }
         tile.icon = toIcon(dnsConfiguration)
         tile.contentDescription = context.getString(R.string.tile_name)

@@ -16,6 +16,7 @@ object PreferenceKeys {
     val DNS_PROVIDERS = PreferenceKey(stringPreferencesKey("dns_providers"), "[]")
     val ID_SEQUENCE = PreferenceKey(longPreferencesKey("id_sequence"), 0)
     val IMAGE_ID_SEQUENCE = PreferenceKey(longPreferencesKey("image_id_sequence"), 0)
+    val SHOW_IN_TILE_TITLE = PreferenceKey(booleanPreferencesKey("show_in_tile_title"), false)
 
     @Deprecated("Not used since migrating to datastore")
     val FIRST_RUN = booleanPreferencesKey("first_run")

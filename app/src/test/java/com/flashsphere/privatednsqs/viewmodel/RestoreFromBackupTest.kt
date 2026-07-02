@@ -49,6 +49,7 @@ class RestoreFromBackupTest : BaseViewModelTest() {
         assertThat(settingsRepository.getDnsOffToggle()).isEqualTo(false)
         assertThat(settingsRepository.getDnsAutoToggle()).isEqualTo(true)
         assertThat(settingsRepository.getRequireUnlock()).isEqualTo(true)
+        assertThat(settingsRepository.getShowInTileTitle()).isEqualTo(true)
 
         settingsRepository.getDnsProviders().let { dnsProviders ->
             assertThat(dnsProviders).hasSize(2)

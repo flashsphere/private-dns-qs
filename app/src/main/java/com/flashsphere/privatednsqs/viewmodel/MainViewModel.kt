@@ -73,6 +73,7 @@ class MainViewModel @Inject constructor(
     val dnsAutoChecked = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.DNS_AUTO_TOGGLE)
     val dnsProviders = mutableStateListOf<DnsProvider>()
     val requireUnlockChecked = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.REQUIRE_UNLOCK)
+    val showInTileTitleChecked = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.SHOW_IN_TILE_TITLE)
 
     init {
         settingsRepository.getDnsProvidersFlow()
@@ -100,6 +101,10 @@ class MainViewModel @Inject constructor(
 
     fun requireUnlockChecked(checked: Boolean) {
         viewModelScope.launch { settingsRepository.updateRequireUnlock(checked) }
+    }
+
+    fun showInTileTitleChecked(checked: Boolean) {
+        viewModelScope.launch { settingsRepository.updateShowInTileTitle(checked) }
     }
 
     fun showSnackbarMessage(message: SnackbarMessage) {
@@ -271,6 +276,7 @@ class MainViewModel @Inject constructor(
                     dnsOffToggle = dnsOffChecked.value,
                     dnsAutoToggle = dnsAutoChecked.value,
                     requireUnlock = requireUnlockChecked.value,
+                    showInTileTitle = this@MainViewModel.showInTileTitleChecked.value,
                     dnsProviders = dnsProviders.map {
                         val iconBase64 = it.icon?.let { icon ->
                             fileOperations.toBase64(File(context.iconsDir, icon))
@@ -319,6 +325,7 @@ class MainViewModel @Inject constructor(
                         settingsRepository.updateDnsOffToggle(snapshot.dnsOffToggle)
                         settingsRepository.updateDnsAutoToggle(snapshot.dnsAutoToggle)
                         settingsRepository.updateRequireUnlock(snapshot.requireUnlock)
+                        settingsRepository.updateShowInTileTitle(snapshot.showInTileTitle)
                         settingsRepository.updateDnsProviders(snapshot.dnsProviders
                             .map {
                                 // decode base64 icon to a file in the cache dir
