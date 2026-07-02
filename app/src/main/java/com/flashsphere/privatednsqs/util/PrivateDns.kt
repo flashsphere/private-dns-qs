@@ -23,9 +23,7 @@ class PrivateDns @Inject constructor(
     }
 
     fun getCurrentDnsConfig(configs: List<DnsConfiguration>): DnsConfiguration {
-        val setting = Settings.Global.getString(contentResolver, PRIVATE_DNS_MODE)
-
-        return when (setting?.lowercase()) {
+        return when (getMode(contentResolver)) {
             DnsMode.On.value -> {
                 val hostname = getHostname(contentResolver).orEmpty()
                 configs.asSequence()
@@ -43,8 +41,18 @@ class PrivateDns @Inject constructor(
     fun getNextDnsConfig(configs: List<DnsConfiguration>): DnsConfiguration? {
         if (configs.isEmpty()) return null
 
-        val currentConfig = getCurrentDnsConfig(configs)
-        val index = configs.indexOf(currentConfig)
+        val index = when (getMode(contentResolver)) {
+            DnsMode.On.value -> {
+                val hostname = getHostname(contentResolver).orEmpty()
+                configs.indexOfFirst {
+                    it is DnsConfiguration.On && it.hostname.equals(hostname, ignoreCase = true)
+                }
+            }
+            DnsMode.Auto.value -> configs.indexOf(DnsConfiguration.Auto)
+            DnsMode.Off.value -> configs.indexOf(DnsConfiguration.Off)
+            else -> -1
+        }
+
         val nextIndex = if (index == -1) 0 else (index + 1) % configs.size
         return configs[nextIndex]
     }
@@ -58,6 +66,9 @@ class PrivateDns @Inject constructor(
     }
 
     companion object {
+        fun getMode(contentResolver: ContentResolver): String? {
+            return Settings.Global.getString(contentResolver, PRIVATE_DNS_MODE)?.lowercase()
+        }
         fun getHostname(contentResolver: ContentResolver): String? {
             return Settings.Global.getString(contentResolver, PRIVATE_DNS_SPECIFIER)
         }
