@@ -72,7 +72,7 @@ fun MainScreen(
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
-    showToast: (message: String) -> Unit,
+    toastActions: ToastActions,
 ) {
     MainScreen(
         openHelpDialogFlow = viewModel.openHelpDialogFlow,
@@ -103,7 +103,7 @@ fun MainScreen(
         restoreConfig = viewModel::restore,
         processIcon = viewModel::processSelectedIcon,
         deleteFile = viewModel::deleteFile,
-        showToast = showToast,
+        toastActions = toastActions,
         showSnackbarMessage = viewModel::showSnackbarMessage,
     )
 }
@@ -139,7 +139,7 @@ private fun MainScreen(
     restoreConfig: (uri: Uri) -> Unit,
     processIcon: suspend (uri: Uri) -> File?,
     deleteFile: (filePath: String?) -> Unit,
-    showToast: (message: String) -> Unit,
+    toastActions: ToastActions,
     showSnackbarMessage: (message: SnackbarMessage) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -201,6 +201,7 @@ private fun MainScreen(
                     requestAddTile = requestAddTile,
                     backupConfig = backupConfig,
                     restoreConfig = restoreConfig,
+                    toastActions = toastActions,
                     showSnackbarMessage = showSnackbarMessage,
                 )
             },
@@ -286,7 +287,7 @@ private fun MainScreen(
                 getSuggestions = getDnsSuggestions,
                 validate = validateDnsProvider,
                 processIcon = processIcon,
-                showToast = showToast,
+                toastActions = toastActions,
                 addDns = addDnsProvider,
             )
             EditDnsDialog(
@@ -294,7 +295,7 @@ private fun MainScreen(
                 getSuggestions = getDnsSuggestions,
                 validate = validateDnsProvider,
                 processIcon = processIcon,
-                showToast = showToast,
+                toastActions = toastActions,
                 updateDns = updateDnsProvider,
             )
             HelpDialog(
@@ -360,7 +361,7 @@ private fun MainScreenPreview() {
         restoreConfig = {},
         processIcon = { null },
         deleteFile = {},
-        showToast = {},
+        toastActions = NoOpToastActions,
         showSnackbarMessage = {},
     )
 }

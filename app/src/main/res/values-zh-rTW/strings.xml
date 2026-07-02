@@ -42,12 +42,15 @@
     <string name="backup">備份</string>
     <string name="backup_completed">備份完成</string>
     <string name="backup_failed">備份失敗</string>
+    <string name="toast_backup_help">Select a location to save the backup file</string>
     <string name="restore">還原</string>
     <string name="restore_completed">還原完成</string>
     <string name="restore_failed">還原失敗</string>
+    <string name="toast_restore_help">Select a backup file to restore</string>
     <string name="no_file_picker">No file picker app available to select file</string>
     <string name="icon">Icon</string>
     <string name="select_icon">Change</string>
     <string name="default_icon">Default</string>
+    <string name="toast_select_icon_help">Select a PNG or SVG file</string>
     <string name="help">說明</string>
 </resources>

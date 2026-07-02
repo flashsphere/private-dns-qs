@@ -32,6 +32,7 @@ import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.ui.TileAddedMessage
 import com.flashsphere.privatednsqs.ui.TileAlreadyAddedMessage
 import com.flashsphere.privatednsqs.ui.TileNotAddedMessage
+import com.flashsphere.privatednsqs.ui.ToastActions
 import com.flashsphere.privatednsqs.ui.WriteSecureSettingPermissionGrantedUsingShizuku
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,7 +41,7 @@ import rikka.shizuku.Shizuku.OnRequestPermissionResultListener
 import timber.log.Timber
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
+class MainActivity : BaseActivity(), OnRequestPermissionResultListener, ToastActions {
     private val viewModel: MainViewModel by viewModels()
 
     private var toast: Toast? = null
@@ -56,7 +57,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
                 showAppInfo = this::showAppInfo,
                 showMoreInfo = this::showMoreInfo,
                 requestAddTile = this::requestAddTile,
-                showToast = this::showToast,
+                toastActions = this,
             )
         }
 
@@ -101,7 +102,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
             }
     }
 
-    private fun showToast(message: String) {
+    override fun showToast(message: String) {
         cancelToast()
         Toast.makeText(this, message, Toast.LENGTH_LONG)?.apply {
             toast = this
@@ -109,7 +110,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener {
         }
     }
 
-    private fun cancelToast() {
+    override fun cancelToast() {
         toast?.cancel()
         toast = null
     }

@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import com.flashsphere.privatednsqs.R
 import timber.log.Timber
@@ -37,12 +38,16 @@ fun TopBar(
     requestAddTile: () -> Unit,
     backupConfig: (uri: Uri) -> Unit,
     restoreConfig: (uri: Uri) -> Unit,
+    toastActions: ToastActions,
     showSnackbarMessage: (message: SnackbarMessage) -> Unit,
 ) {
+    val resources = LocalResources.current
     val backupDestPicker = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        toastActions.cancelToast()
         uri?.let { backupConfig(it) }
     }
     val restoreFilePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        toastActions.cancelToast()
         uri?.let { restoreConfig(it) }
     }
     TopAppBar(
@@ -89,6 +94,7 @@ fun TopBar(
                         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
                         val timestamp = LocalDateTime.now().format(formatter)
                         runCatching {
+                            toastActions.showToast(resources.getString(R.string.toast_backup_help))
                             backupDestPicker.launch("private-dns-qs-${timestamp}.txt")
                         }.onFailure {
                             Timber.e(it)
@@ -102,6 +108,7 @@ fun TopBar(
                     text = { Text(stringResource(id = R.string.restore))},
                     onClick = {
                         runCatching {
+                            toastActions.showToast(resources.getString(R.string.toast_restore_help))
                             restoreFilePicker.launch(arrayOf("text/plain"))
                         }.onFailure {
                             Timber.e(it)

@@ -76,7 +76,7 @@ fun AddDnsDialog(
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
-    showToast: (message: String) -> Unit,
+    toastActions: ToastActions,
     addDns: (hostname: String, iconFile: File?) -> Unit,
 ) {
     if (openDialog.value) {
@@ -86,7 +86,7 @@ fun AddDnsDialog(
             getSuggestions = getSuggestions,
             validate = validate,
             processIcon = processIcon,
-            showToast = showToast,
+            toastActions = toastActions,
             onDismiss = { openDialog.value = false },
             onConfirm = { newHostname, newIcon ->
                 addDns(newHostname, newIcon)
@@ -103,7 +103,7 @@ fun EditDnsDialog(
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
-    showToast: (message: String) -> Unit,
+    toastActions: ToastActions,
     updateDns: (index: Int, hostname: String, iconFile: File?) -> Unit,
 ) {
     openDialog.value?.let {
@@ -118,7 +118,7 @@ fun EditDnsDialog(
                         validate(trimmedHostname)
             },
             processIcon = processIcon,
-            showToast = showToast,
+            toastActions = toastActions,
             onDismiss = { openDialog.value = null },
             onConfirm = { newHostname, newIcon, ->
                 updateDns(index, newHostname, newIcon)
@@ -136,7 +136,7 @@ private fun DnsProviderDialog(
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
-    showToast: (message: String) -> Unit,
+    toastActions: ToastActions,
     onDismiss: () -> Unit,
     onConfirm: (hostname: String, iconFile: File?) -> Unit,
 ) {
@@ -153,6 +153,7 @@ private fun DnsProviderDialog(
     }
     var selectedIcon by rememberSaveable { mutableStateOf(initialIconPath) }
     val iconPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        toastActions.cancelToast()
         uri?.let {
             coroutineScope.launch {
                 selectedIcon = processIcon(uri)?.absolutePathIfExists
@@ -197,11 +198,13 @@ private fun DnsProviderDialog(
                     Row {
                         TextButton(
                             onClick = {
-                                runCatching { iconPicker.launch(arrayOf("image/png", "image/svg+xml")) }
-                                    .onFailure {
-                                        Timber.e(it)
-                                        showToast(NoFilePicker(it.message).getMessage(resources))
-                                    }
+                                runCatching {
+                                    toastActions.showToast(resources.getString(R.string.toast_select_icon_help))
+                                    iconPicker.launch(arrayOf("image/png", "image/svg+xml"))
+                                }.onFailure {
+                                    Timber.e(it)
+                                    toastActions.showToast(NoFilePicker(it.message).getMessage(resources))
+                                }
                             }
                         ) {
                             Text(stringResource(R.string.select_icon))
@@ -360,7 +363,7 @@ private fun DnsProviderDialogPreview() {
             processIcon = { null },
             onDismiss = {},
             onConfirm = { _, _ -> },
-            showToast = {},
+            toastActions = NoOpToastActions,
         )
     }
 }
