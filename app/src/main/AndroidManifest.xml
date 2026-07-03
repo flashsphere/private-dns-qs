@@ -36,8 +36,9 @@
             android:name=".activity.SelectDnsActivity"
             android:excludeFromRecents="true"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:noHistory="true"
+            android:taskAffinity=""
             android:theme="@style/AppTheme.Dialog"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
