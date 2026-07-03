@@ -6,6 +6,7 @@ This is a fork of [joshuawolfsohn/Private-DNS-Quick-Tile](https://github.com/jos
 - Add "Require device to unlock" setting to toggle tile 
 - Shizuku support
 - Configure multiple DNS
+- Custom tile icon (.png and .svg only) for each DNS 
 - Manual backup and restore 
 
 ## Setup
