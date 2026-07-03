@@ -6,6 +6,8 @@ import coil3.ImageLoader
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
+import coil3.request.transformations
+import coil3.size.Precision
 import coil3.toBitmap
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -17,10 +19,14 @@ class ImageOperations @Inject constructor(
     @ApplicationContext private val context: Context,
     private val imageLoader: ImageLoader,
 ) {
+    private val transformations = listOf(NormalizeIconTransformation())
+
     suspend fun processIcon(src: File): Result<Bitmap> {
         val request = ImageRequest.Builder(context)
             .data(src)
-            .size(ICON_SIZE)
+            .size(MAX_DECODE_SIZE_PX) // decode large images at a bounded size
+            .precision(Precision.INEXACT) // do not upscale if is smaller size
+            .transformations(transformations)
             .build()
 
         return when (val result = imageLoader.execute(request)) {
@@ -34,6 +40,6 @@ class ImageOperations @Inject constructor(
     }
 
     companion object {
-        private const val ICON_SIZE = 96
+        private const val MAX_DECODE_SIZE_PX = 108
     }
 }
