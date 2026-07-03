@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -126,6 +128,11 @@ private fun SelectDnsDialogContent(
                             .padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
+                        val textColor = if (selectedIndex == index) {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.onBackground
+                        }
                         if (item is DnsConfiguration.On) {
                             val iconPath = remember(item.icon) {
                                 item.icon?.let { File(context.iconsDir, it).absolutePathIfExists }
@@ -136,22 +143,22 @@ private fun SelectDnsDialogContent(
                                     modifier = Modifier.size(24.dp),
                                     model = iconPath,
                                     contentDescription = stringResource(R.string.icon),
-                                    colorFilter = if (selectedIndex == index) {
-                                        ColorFilter.tint(MaterialTheme.colorScheme.onPrimaryContainer)
-                                    } else {
-                                        ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
-                                    }
+                                    colorFilter = ColorFilter.tint(textColor),
                                 )
                                 Spacer(Modifier.width(8.dp))
                             }
+                        } else {
+                            Icon(
+                                modifier = Modifier.size(24.dp),
+                                painter = painterResource(id = item.mode.iconResId),
+                                contentDescription = stringResource(R.string.icon),
+                                tint = textColor,
+                            )
+                            Spacer(Modifier.width(8.dp))
                         }
                         Text(
                             modifier = Modifier.weight(1F),
-                            color = if (selectedIndex == index) {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.onBackground
-                            },
+                            color = textColor,
                             text = if (item is DnsConfiguration.On) {
                                 item.hostname
                             } else {
