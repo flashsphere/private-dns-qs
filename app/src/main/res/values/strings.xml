@@ -38,7 +38,7 @@
     <string name="dns_provider_deleted">Deleted: %1$s</string>
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
-    <string name="settings">Settings</string>
+    <string name="settings">Manage DNS</string>
     <string name="ok">OK</string>
     <string name="backup">Backup</string>
     <string name="backup_completed">Backup completed</string>

@@ -37,7 +37,7 @@
     <string name="dns_provider_deleted">Silindi: %1$s</string>
     <string name="cancel">İptal</string>
     <string name="close">Kapat</string>
-    <string name="settings">Ayarlar</string>
+    <string name="settings">Manage DNS</string>
     <string name="ok">Tamam</string>
     <string name="backup">Yedekle</string>
     <string name="backup_completed">Yedekleme tamamlandı</string>
