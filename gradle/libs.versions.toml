@@ -23,7 +23,7 @@ junit = "4.13.2"
 mockk = "1.14.11"
 assertk = "0.28.1"
 jsonassert = "1.5.3"
-dagger = "2.59.2"
+dagger = "2.60.1"
 ksp = "2.3.9"
 
 [libraries]
