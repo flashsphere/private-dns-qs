@@ -14,7 +14,7 @@
     <string name="set_dns_on">Özel DNS\'i Aç</string>
     <string name="toggle_dns">Özel DNS\'i Aç/Kapat</string>
     <string name="require_unlock">Tuşu kullanmak için cihaz kilidinin açılmasını iste</string>
-    <string name="show_in_tile_tile">Show DNS in tile title instead of sub-title</string>
+    <string name="show_in_tile_tile">DNS\'i alt başlık yerine tuş başlığında göster</string>
     <string name="dns_modes_to_toggle">Geçiş yapılacak DNS modları</string>
     <string name="other_settings">Diğer ayarlar</string>
     <string name="toast_no_permission">WRITE_SECURE_SETTINGS izni verilmedi</string>
@@ -37,20 +37,20 @@
     <string name="dns_provider_deleted">Silindi: %1$s</string>
     <string name="cancel">İptal</string>
     <string name="close">Kapat</string>
-    <string name="settings">Manage DNS</string>
+    <string name="settings">DNS Ayarları</string>
     <string name="ok">Tamam</string>
     <string name="backup">Yedekle</string>
     <string name="backup_completed">Yedekleme tamamlandı</string>
     <string name="backup_failed">Yedekleme başarısız</string>
-    <string name="toast_backup_help">Select a location to save the backup file</string>
+    <string name="toast_backup_help">Yedekleme dosyasını kaydetmek için bir konum seç</string>
     <string name="restore">Geri yükle</string>
     <string name="restore_completed">Geri yükleme tamamlandı</string>
     <string name="restore_failed">Geri yükleme başarısız</string>
-    <string name="toast_restore_help">Select a backup file to restore</string>
-    <string name="no_file_picker">No file picker app available to select file</string>
-    <string name="icon">Icon</string>
-    <string name="select_icon">Change</string>
-    <string name="default_icon">Default</string>
-    <string name="toast_select_icon_help">Select a PNG or SVG file</string>
+    <string name="toast_restore_help">Geri yüklemek için bir yedekleme dosyası seç</string>
+    <string name="no_file_picker">Dosya seçmek için hiçbir dosya seçici uygulama bulunamadı</string>
+    <string name="icon">Simge</string>
+    <string name="select_icon">Değiştir</string>
+    <string name="default_icon">Varsayılan</string>
+    <string name="toast_select_icon_help">Bir PNG veya SVG dosyası seç</string>
     <string name="help">Yardım</string>
 </resources>
