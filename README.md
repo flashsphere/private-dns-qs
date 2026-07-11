@@ -55,3 +55,8 @@ Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the p
 <a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank">
     <img alt="Get it on GitHub" height="80" src="https://github.com/flashsphere/private-dns-qs/blob/main/static/get-it-on-github.png?raw=true" /></a>
 </div>
+
+## Contributing
+
+### Translations
+Thanks to Weblate gratis hosting for open-source projects. You can submit translations via their [website](https://hosted.weblate.org/projects/private-dns-qs/android/)
