@@ -3,6 +3,9 @@ name: fastlane
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   validate:
     runs-on: ubuntu-latest
