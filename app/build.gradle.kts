@@ -44,10 +44,10 @@ android {
     }
     signingConfigs {
         create("release") {
-            storeFile = file(project.property("PRIVATE_DNS_QS_RELEASE_STORE_FILE") as String)
-            storePassword = project.property("PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD") as String
-            keyAlias = project.property("PRIVATE_DNS_QS_RELEASE_KEY_ALIAS") as String
-            keyPassword = project.property("PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD") as String
+            storeFile = findProperty("PRIVATE_DNS_QS_RELEASE_STORE_FILE")?.let { file(it as String) }
+            storePassword = findProperty("PRIVATE_DNS_QS_RELEASE_STORE_PASSWORD") as String?
+            keyAlias = findProperty("PRIVATE_DNS_QS_RELEASE_KEY_ALIAS") as String?
+            keyPassword = findProperty("PRIVATE_DNS_QS_RELEASE_KEY_PASSWORD") as String?
 
             enableV1Signing = true
             enableV2Signing = true
