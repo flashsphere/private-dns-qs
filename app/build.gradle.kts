@@ -99,7 +99,11 @@ android {
         }
     }
     lint {
-        informational.addAll(setOf("GradleDependency", "NewerVersionAvailable"))
+        informational.addAll(setOf(
+            "GradleDependency",
+            "NewerVersionAvailable",
+            "AndroidGradlePluginVersion",
+        ))
         warningsAsErrors = true
         abortOnError = true
     }
