@@ -20,20 +20,13 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStream
-import kotlin.io.path.createTempDirectory
 
 @OptIn(ExperimentalSerializationApi::class)
-abstract class BaseViewModelTest {
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
-
-    val testDispatcher = mainDispatcherRule.testDispatcher
-    lateinit var tempDir: File
+abstract class BaseViewModelTest : BaseTest() {
     lateinit var context: Context
     lateinit var privateDns: PrivateDns
     lateinit var contentResolver: ContentResolver
@@ -41,9 +34,7 @@ abstract class BaseViewModelTest {
     lateinit var json: Json
 
     @Before
-    fun setup() {
-        tempDir = createTempDirectory().toFile()
-
+    fun baseVmTestSetup() {
         imageOperations = mockk<ImageOperations>().also {
             coEvery { it.processIcon(any()) } answers {
                 val src = arg<File>(0)
@@ -93,22 +84,6 @@ abstract class BaseViewModelTest {
     @After
     fun tearDown() {
         tempDir.deleteRecursively()
-    }
-
-    fun copyFromResources(asset: String, dest: File) {
-        copy(getFromResources(asset), dest)
-    }
-
-    fun copy(asset: File, dest: File) {
-        asset.inputStream().use { input ->
-            dest.outputStream().use { output ->
-                input.copyTo(output)
-            }
-        }
-    }
-
-    fun getFromResources(asset: String): File {
-        return File(javaClass.getResource(asset)!!.toURI())
     }
 
     fun createSettingsRepository(scope: CoroutineScope): SettingsRepository {

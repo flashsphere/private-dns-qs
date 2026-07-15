@@ -10,5 +10,9 @@ suspend fun <T> DataStore<Preferences>.update(pref: PreferenceKey<T>, value: T) 
 }
 
 suspend fun <T> DataStore<Preferences>.get(pref: PreferenceKey<T>): T {
-    return data.first()[pref.key] ?: pref.defaultValue
+    return data.first().get(pref)
+}
+
+fun <T> Preferences.get(pref: PreferenceKey<T>): T {
+    return this[pref.key] ?: pref.defaultValue
 }

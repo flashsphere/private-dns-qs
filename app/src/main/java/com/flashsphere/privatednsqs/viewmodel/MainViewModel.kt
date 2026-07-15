@@ -74,6 +74,7 @@ class MainViewModel @Inject constructor(
     val dnsProviders = mutableStateListOf<DnsProvider>()
     val requireUnlockStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.REQUIRE_UNLOCK)
     val showInTileTitleStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.SHOW_IN_TILE_TITLE)
+    val dnsAutoAsInactiveTileStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.DNS_AUTO_AS_INACTIVE_TILE)
 
     init {
         settingsRepository.getDnsProvidersFlow()
@@ -105,6 +106,10 @@ class MainViewModel @Inject constructor(
 
     fun updateShowInTileTitle(checked: Boolean) {
         viewModelScope.launch { settingsRepository.updateShowInTileTitle(checked) }
+    }
+
+    fun updateDnsAutoAsInactiveTile(checked: Boolean) {
+        viewModelScope.launch { settingsRepository.updateDnsAutoAsInactiveTile(checked) }
     }
 
     fun showSnackbarMessage(message: SnackbarMessage) {
@@ -277,6 +282,7 @@ class MainViewModel @Inject constructor(
                     dnsAutoToggle = dnsAutoStateFlow.value,
                     requireUnlock = requireUnlockStateFlow.value,
                     showInTileTitle = showInTileTitleStateFlow.value,
+                    dnsAutoAsInactiveTile = dnsAutoAsInactiveTileStateFlow.value,
                     dnsProviders = dnsProviders.map {
                         val iconBase64 = it.icon?.let { icon ->
                             fileOperations.toBase64(File(context.iconsDir, icon))
@@ -326,6 +332,7 @@ class MainViewModel @Inject constructor(
                         settingsRepository.updateDnsAutoToggle(snapshot.dnsAutoToggle)
                         settingsRepository.updateRequireUnlock(snapshot.requireUnlock)
                         settingsRepository.updateShowInTileTitle(snapshot.showInTileTitle)
+                        settingsRepository.updateDnsAutoAsInactiveTile(snapshot.dnsAutoAsInactiveTile)
                         settingsRepository.updateDnsProviders(snapshot.dnsProviders
                             .map {
                                 // decode base64 icon to a file in the cache dir

@@ -2,7 +2,6 @@ package com.flashsphere.privatednsqs.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.datastore.IdGenerator
 import com.flashsphere.privatednsqs.datastore.ImageIdGenerator
@@ -45,7 +44,7 @@ class SettingsRepository @Inject constructor(
 
     private fun <T> getFlow(pref: PreferenceKey<T>): Flow<T> {
         return dataStore.data
-            .map { it[pref.key] ?: pref.defaultValue }
+            .map { it.get(pref) }
             .distinctUntilChanged()
     }
 
@@ -63,7 +62,7 @@ class SettingsRepository @Inject constructor(
     }
 
     private suspend fun <T> update(pref: PreferenceKey<T>, value: T) {
-        dataStore.edit { it[pref.key] = value }
+        dataStore.update(pref, value)
     }
 
     fun getDnsOffToggleFlow(): Flow<Boolean> {
@@ -104,6 +103,14 @@ class SettingsRepository @Inject constructor(
 
     suspend fun updateShowInTileTitle(value: Boolean) {
         return update(PreferenceKeys.SHOW_IN_TILE_TITLE, value)
+    }
+
+    suspend fun getDnsAutoAsInactiveTile(): Boolean {
+        return dataStore.get(PreferenceKeys.DNS_AUTO_AS_INACTIVE_TILE)
+    }
+
+    suspend fun updateDnsAutoAsInactiveTile(value: Boolean) {
+        return update(PreferenceKeys.DNS_AUTO_AS_INACTIVE_TILE, value)
     }
 
     fun getDnsProvidersFlow(): Flow<List<DnsProvider>> {

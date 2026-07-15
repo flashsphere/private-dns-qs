@@ -4,6 +4,7 @@ import android.net.Uri
 import assertk.assertThat
 import assertk.assertions.endsWith
 import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isGreaterThan
 import assertk.assertions.isNotNull
@@ -50,6 +51,7 @@ class RestoreFromBackupTest : BaseViewModelTest() {
         assertThat(settingsRepository.getDnsAutoToggle()).isEqualTo(true)
         assertThat(settingsRepository.getRequireUnlock()).isEqualTo(true)
         assertThat(settingsRepository.getShowInTileTitle()).isEqualTo(true)
+        assertThat(settingsRepository.getDnsAutoAsInactiveTile()).isEqualTo(true)
 
         settingsRepository.getDnsProviders().let { dnsProviders ->
             assertThat(dnsProviders).hasSize(2)
@@ -73,5 +75,49 @@ class RestoreFromBackupTest : BaseViewModelTest() {
         assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
 
         coVerify(exactly = 1) { imageOperations.processIcon(any()) }
+    }
+
+    @Test
+    fun restore_without_new_fields() = runTest(timeout = 10.seconds) {
+        val settingsRepository = createSettingsRepository(backgroundScope)
+        val viewModel = createViewModel(settingsRepository)
+        runCurrent()
+
+        val deferred = async {
+            viewModel.snackbarMessages.first()
+        }
+
+
+        val inputFile = File(tempDir, "backup.txt").also {
+            it.writeText(
+                """
+                    {"version":"1","dnsOffToggle":false,"dnsAutoToggle":true,"requireUnlock":true,"dnsProviders":[]}
+                """.trimIndent()
+            )
+        }
+        val input = mockk<Uri>().also {
+            every { it.toString() } answers { inputFile.toString() }
+        }
+
+        viewModel.restore(input)
+        runCurrent()
+
+        assertThat(deferred.getCompleted()).isEqualTo(RestoreCompleted)
+
+        assertThat(settingsRepository.getDnsOffToggle()).isEqualTo(false)
+        assertThat(settingsRepository.getDnsAutoToggle()).isEqualTo(true)
+        assertThat(settingsRepository.getRequireUnlock()).isEqualTo(true)
+        assertThat(settingsRepository.getShowInTileTitle()).isEqualTo(false)
+        assertThat(settingsRepository.getDnsAutoAsInactiveTile()).isEqualTo(false)
+
+        settingsRepository.getDnsProviders().let { dnsProviders ->
+            assertThat(dnsProviders).isEmpty()
+            assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
+        }
+
+        assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(0)
+        assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
+
+        coVerify(exactly = 0) { imageOperations.processIcon(any()) }
     }
 }

@@ -1,6 +1,7 @@
 package com.flashsphere.privatednsqs.service
 
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
+import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.core.service.quicksettings.PendingIntentActivityWrapper
 import androidx.core.service.quicksettings.TileServiceCompat
@@ -17,6 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +35,8 @@ class PrivateDnsTileService : TileService() {
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var tileInfoUpdater: TileInfoUpdater
     private lateinit var dnsConfigsFlow: Flow<List<DnsConfiguration>>
+
+    private var updateTileJob: Job? = null
 
     override fun onCreate() {
         if (application !is PrivateDnsApplication) {
@@ -63,7 +67,7 @@ class PrivateDnsTileService : TileService() {
         val tile = this.qsTile ?: return
 
         mainScope.launch {
-            tileInfoUpdater.update(tile, privateDns.getCurrentDnsConfig(dnsConfigsFlow.first()))
+            updateTile(tile, privateDns.getCurrentDnsConfig(dnsConfigsFlow.first()))
         }
     }
 
@@ -95,7 +99,14 @@ class PrivateDnsTileService : TileService() {
         privateDns.setDnsConfig(nextConfig)
 
         val tile = this.qsTile ?: return
-        tileInfoUpdater.update(tile, nextConfig)
+        updateTile(tile, nextConfig)
+    }
+
+    private fun updateTile(tile: Tile, dnsConfiguration: DnsConfiguration) {
+        updateTileJob?.cancel()
+        updateTileJob = mainScope.launch {
+            tileInfoUpdater.update(tile, dnsConfiguration)
+        }
     }
 
     private fun showSnackbarMessage(snackbarMessage: SnackbarMessage) {

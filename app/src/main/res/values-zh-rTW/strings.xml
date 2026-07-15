@@ -15,6 +15,7 @@
     <string name="toggle_dns">切換私人 DNS</string>
     <string name="require_unlock">必須解鎖裝置才能切換方塊</string>
     <string name="show_in_tile_tile">Show DNS in tile title instead of sub-title</string>
+    <string name="dns_auto_as_inactive_tile">Show \"DNS Auto\" with an inactive tile state</string>
     <string name="dns_modes_to_toggle">DNS 切換方式</string>
     <string name="other_settings">其他設定</string>
     <string name="toast_no_permission">尚未取得 WRITE_SECURE_SETTINGS 權限</string>

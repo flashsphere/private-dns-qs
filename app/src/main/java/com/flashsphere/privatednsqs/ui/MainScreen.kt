@@ -97,6 +97,8 @@ fun MainScreen(
         onRequireUnlockClick = viewModel::updateRequireUnlock,
         showInTileTitleStateFlow = viewModel.showInTileTitleStateFlow,
         onShowInTileTitleClick = viewModel::updateShowInTileTitle,
+        dnsAutoAsInactiveTileStateFlow = viewModel.dnsAutoAsInactiveTileStateFlow,
+        onDnsAutoAsInactiveTileClick = viewModel::updateDnsAutoAsInactiveTile,
         showAppInfo = showAppInfo,
         showMoreInfo = showMoreInfo,
         requestAddTile = requestAddTile,
@@ -133,6 +135,8 @@ private fun MainScreen(
     onRequireUnlockClick: (checked: Boolean) -> Unit,
     showInTileTitleStateFlow: StateFlow<Boolean>,
     onShowInTileTitleClick: (checked: Boolean) -> Unit,
+    dnsAutoAsInactiveTileStateFlow: StateFlow<Boolean>,
+    onDnsAutoAsInactiveTileClick: (checked: Boolean) -> Unit,
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
@@ -282,6 +286,8 @@ private fun MainScreen(
                             DnsModeItem(showInTileTitleStateFlow, onShowInTileTitleClick,
                                 stringResource(R.string.show_in_tile_tile))
                         }
+                        DnsModeItem(dnsAutoAsInactiveTileStateFlow, onDnsAutoAsInactiveTileClick,
+                            stringResource(R.string.dns_auto_as_inactive_tile))
                     }
                 }
             }
@@ -334,6 +340,7 @@ private fun MainScreenPreview() {
     val dnsAuto = remember { MutableStateFlow(true) }
     val requireUnlock = remember { MutableStateFlow(false) }
     val showInTileTitle = remember { MutableStateFlow(false) }
+    val dnsAutoAsInactiveTile = remember { MutableStateFlow(false) }
 
     MainScreen(
         openHelpDialogFlow = openHelpDialogFlow,
@@ -357,6 +364,8 @@ private fun MainScreenPreview() {
         onRequireUnlockClick = { requireUnlock.value = it },
         showInTileTitleStateFlow = showInTileTitle,
         onShowInTileTitleClick = { showInTileTitle.value = it },
+        dnsAutoAsInactiveTileStateFlow = dnsAutoAsInactiveTile,
+        onDnsAutoAsInactiveTileClick = { dnsAutoAsInactiveTile.value = it },
         showAppInfo = {},
         showMoreInfo = {},
         requestAddTile = {},

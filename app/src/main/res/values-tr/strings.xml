@@ -15,6 +15,7 @@
     <string name="toggle_dns">Özel DNS\'i Aç/Kapat</string>
     <string name="require_unlock">Tuşu kullanmak için cihaz kilidinin açılmasını iste</string>
     <string name="show_in_tile_tile">DNS\'i alt başlık yerine tuş başlığında göster</string>
+    <string name="dns_auto_as_inactive_tile">Show \"DNS Auto\" with an inactive tile state</string>
     <string name="dns_modes_to_toggle">Geçiş yapılacak DNS modları</string>
     <string name="other_settings">Diğer ayarlar</string>
     <string name="toast_no_permission">WRITE_SECURE_SETTINGS izni verilmedi</string>
