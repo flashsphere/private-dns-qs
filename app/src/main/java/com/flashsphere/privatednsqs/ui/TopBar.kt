@@ -4,13 +4,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Backup
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.flashsphere.privatednsqs.R
 import timber.log.Timber
@@ -63,14 +57,15 @@ fun TopBar(
         actions = {
             val openDropdownMenu = rememberSaveable { mutableStateOf(false) }
             IconButton(onClick = { openDropdownMenu.value = true }) {
-                Icon(Icons.Filled.MoreVert, null)
+                Icon(painterResource(R.drawable.ic_more_vert), null)
             }
             DropdownMenu(
                 expanded = openDropdownMenu.value,
                 onDismissRequest = { openDropdownMenu.value = false }
             ) {
                 DropdownMenuItem(
-                    leadingIcon = { Icon(Icons.Outlined.Info, stringResource(id = R.string.app_info)) },
+                    leadingIcon = { Icon(painterResource(R.drawable.ic_info),
+                        stringResource(id = R.string.app_info)) },
                     text = { Text(stringResource(id = R.string.app_info))},
                     onClick = {
                         showAppInfo()
@@ -79,7 +74,8 @@ fun TopBar(
                 )
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     DropdownMenuItem(
-                        leadingIcon = { Icon(Icons.Filled.Add, stringResource(id = R.string.add_tile)) },
+                        leadingIcon = { Icon(painterResource(R.drawable.ic_add),
+                            stringResource(id = R.string.add_tile)) },
                         text = { Text(stringResource(id = R.string.add_tile))},
                         onClick = {
                             requestAddTile()
@@ -88,7 +84,8 @@ fun TopBar(
                     )
                 }
                 DropdownMenuItem(
-                    leadingIcon = { Icon(Icons.Outlined.Backup, stringResource(id = R.string.backup)) },
+                    leadingIcon = { Icon(painterResource(R.drawable.ic_backup),
+                        stringResource(id = R.string.backup)) },
                     text = { Text(stringResource(id = R.string.backup))},
                     onClick = {
                         val formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
@@ -104,7 +101,8 @@ fun TopBar(
                     },
                 )
                 DropdownMenuItem(
-                    leadingIcon = { Icon(Icons.Outlined.Restore, stringResource(id = R.string.restore)) },
+                    leadingIcon = { Icon(painterResource(R.drawable.ic_restore),
+                        stringResource(id = R.string.restore)) },
                     text = { Text(stringResource(id = R.string.restore))},
                     onClick = {
                         runCatching {
@@ -118,7 +116,8 @@ fun TopBar(
                     }
                 )
                 DropdownMenuItem(
-                    leadingIcon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, stringResource(id = R.string.help)) },
+                    leadingIcon = { Icon(painterResource(R.drawable.ic_help),
+                        stringResource(id = R.string.help)) },
                     text = { Text(stringResource(id = R.string.help))},
                     onClick = {
                         openHelpDialog(true)
