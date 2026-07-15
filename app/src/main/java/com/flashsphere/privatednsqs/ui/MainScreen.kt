@@ -1,6 +1,7 @@
 package com.flashsphere.privatednsqs.ui
 
 import android.net.Uri
+import android.os.Build
 import androidx.activity.compose.ReportDrawn
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Column
@@ -277,8 +278,10 @@ private fun MainScreen(
                         Header(stringResource(R.string.other_settings))
                         DnsModeItem(requireUnlockStateFlow, onRequireUnlockClick,
                             stringResource(R.string.require_unlock))
-                        DnsModeItem(showInTileTitleStateFlow, onShowInTileTitleClick,
-                            stringResource(R.string.show_in_tile_tile))
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            DnsModeItem(showInTileTitleStateFlow, onShowInTileTitleClick,
+                                stringResource(R.string.show_in_tile_tile))
+                        }
                     }
                 }
             }
