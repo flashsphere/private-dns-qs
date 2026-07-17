@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Özel DNS Hızlı Ayar</string>
     <string name="tile_name">Özel DNS</string>
@@ -54,4 +55,5 @@
     <string name="default_icon">Varsayılan</string>
     <string name="toast_select_icon_help">Bir PNG veya SVG dosyası seç</string>
     <string name="help">Yardım</string>
+    <string name="message_help_adb" translatable="false"></string>
 </resources>
