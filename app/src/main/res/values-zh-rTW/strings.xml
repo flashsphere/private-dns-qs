@@ -55,5 +55,4 @@
     <string name="default_icon">Default</string>
     <string name="toast_select_icon_help">Select a PNG or SVG file</string>
     <string name="help">說明</string>
-    <string name="message_help_adb" translatable="false"></string>
 </resources>

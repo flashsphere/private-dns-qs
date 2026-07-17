@@ -55,5 +55,4 @@
     <string name="default_icon">Padrão</string>
     <string name="toast_select_icon_help">Selecione um arquivo PNG ou SVG</string>
     <string name="help">Ajuda</string>
-    <string name="message_help_adb" translatable="false"></string>
 </resources>
