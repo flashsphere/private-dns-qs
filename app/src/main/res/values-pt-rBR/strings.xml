@@ -14,9 +14,9 @@
     <string name="set_dns_auto">DNS privado automático</string>
     <string name="set_dns_on">Ativar DNS privado</string>
     <string name="toggle_dns">Alterar DNS privado</string>
-    <string name="require_unlock">Permitir alteração apenas quando aparelho esteja desbloqueado</string>
+    <string name="require_unlock">Permitir alteração apenas quando o aparelho está desbloqueado</string>
     <string name="show_in_tile_tile">Mostrar DNS na parte principal, em vez no subtítulo</string>
-    <string name="dns_auto_as_inactive_tile">Show \"DNS Auto\" with an inactive tile state</string>
+    <string name="dns_auto_as_inactive_tile">Mostrar “DNS Automático” quando desativado</string>
     <string name="dns_modes_to_toggle">Modos de DNS para escolher</string>
     <string name="other_settings">Outras configurações</string>
     <string name="toast_no_permission">WRITE_SECURE_SETTINGS permissão não concedida</string>
@@ -48,7 +48,7 @@
     <string name="restore">Restaurar</string>
     <string name="restore_completed">Restauração concluída</string>
     <string name="restore_failed">Restauração falhou</string>
-    <string name="toast_restore_help">Selecione um arquivo de backup para restaurar</string>
+    <string name="toast_restore_help">Selecione um arquivo de backup</string>
     <string name="no_file_picker">Seletor de arquivo indisponível</string>
     <string name="icon">Ícone</string>
     <string name="select_icon">Mudar</string>
