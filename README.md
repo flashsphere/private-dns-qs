@@ -1,5 +1,9 @@
 # Private DNS Quick Setting
  
+<a href="https://hosted.weblate.org/projects/private-dns-qs/android/" target="_blank" rel="noreferrer noopener">
+    <img alt="Translation status" src="https://hosted.weblate.org/widget/private-dns-qs/android/svg-badge.svg" />
+</a>
+
 Toggle and configure your Private DNS settings on Android 9+ from the comfort of your quick settings panel.
 
 This is a fork of [joshuawolfsohn/Private-DNS-Quick-Tile](https://github.com/joshuawolfsohn/Private-DNS-Quick-Tile) with changes to add the following features:
@@ -37,26 +41,30 @@ Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the p
 
 ### Launcher (Play Store) version
 <div>
-<a href="https://play.google.com/store/apps/details?id=com.flashsphere.privatednsqs" target="_blank">
+<a href="https://play.google.com/store/apps/details?id=com.flashsphere.privatednsqs" target="_blank" rel="noreferrer noopener">
     <img alt="Get it on Google Play" height="80" src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" /></a>
 
-<a href="https://apt.izzysoft.de/fdroid/index/apk/com.flashsphere.privatednsqs" target="_blank">
+<a href="https://apt.izzysoft.de/fdroid/index/apk/com.flashsphere.privatednsqs" target="_blank" rel="noreferrer noopener">
     <img alt="Get it on F-Droid" height="80" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" /></a>
 
-<a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank">
+<a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank" rel="noreferrer noopener">
     <img alt="Get it on GitHub" height="80" src="https://github.com/flashsphere/private-dns-qs/blob/main/static/get-it-on-github.png?raw=true" /></a>
 </div>
 
 ### No-launcher version 
 <div>
-<a href="https://apt.izzysoft.de/fdroid/index/apk/com.flashsphere.privatednsqs.nolauncher" target="_blank">
+<a href="https://apt.izzysoft.de/fdroid/index/apk/com.flashsphere.privatednsqs.nolauncher" target="_blank" rel="noreferrer noopener">
     <img alt="Get it on F-Droid" height="80" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" /></a>
 
-<a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank">
+<a href="https://github.com/flashsphere/private-dns-qs/releases/latest" target="_blank" rel="noreferrer noopener">
     <img alt="Get it on GitHub" height="80" src="https://github.com/flashsphere/private-dns-qs/blob/main/static/get-it-on-github.png?raw=true" /></a>
 </div>
 
 ## Contributing
 
 ### Translations
-Thanks to Weblate gratis hosting for open-source projects. You can submit translations via their [website](https://hosted.weblate.org/projects/private-dns-qs/android/)
+Thanks to Weblate gratis hosting for open-source projects. You can submit translations on their [website](https://hosted.weblate.org/projects/private-dns-qs/android/).
+
+<a href="https://hosted.weblate.org/projects/private-dns-qs/android/" target="_blank" rel="noreferrer noopener">
+    <img alt="Translation status per language" src="https://hosted.weblate.org/widget/private-dns-qs/android/multi-auto.svg" />
+</a>
