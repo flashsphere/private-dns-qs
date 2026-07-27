@@ -103,6 +103,7 @@ android {
             "GradleDependency",
             "NewerVersionAvailable",
             "AndroidGradlePluginVersion",
+            "MissingTranslation",
         ))
         warningsAsErrors = true
         abortOnError = true
