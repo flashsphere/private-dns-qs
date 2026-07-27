@@ -14,15 +14,13 @@
     <string name="set_dns_on">將私人 DNS 設為開啟</string>
     <string name="toggle_dns">切換私人 DNS</string>
     <string name="require_unlock">必須解鎖裝置才能切換方塊</string>
-    <string name="show_in_tile_tile">Show DNS in tile title instead of sub-title</string>
-    <string name="dns_auto_as_inactive_tile">Show \"DNS Auto\" with an inactive tile state</string>
     <string name="dns_modes_to_toggle">DNS 切換方式</string>
     <string name="other_settings">其他設定</string>
     <string name="toast_no_permission">尚未取得 WRITE_SECURE_SETTINGS 權限</string>
     <string name="dns_hostname_hint">DNS 主機名稱</string>
     <string name="toast_cannot_open_app_info">開啟應用程式資訊時發生錯誤：%1$s</string>
     <string name="toast_cannot_open_more_info">開啟網頁時發生錯誤：%1$s</string>
-    <string name="message_help">應用程式需要 WRITE_SECURE_SETTINGS 才能變更私人 DNS 設定。\n這項權限僅能透過 ADB 指令取得：</string>
+    <string name="message_help">應用程式需要 WRITE_SECURE_SETTINGS 才能變更私人 DNS 設定。這項權限僅能透過 ADB 指令取得：</string>
     <string name="permission_granted_using_shizuku">WRITE_SECURE_SETTINGS 權限已使用 Shizuku 取得</string>
     <string name="tile_added">已將 DNS 方塊新增至快速設定</string>
     <string name="tile_not_added">無法將 DNS 方塊新增至快速設定。錯誤代碼：%1$d</string>
@@ -38,20 +36,12 @@
     <string name="dns_provider_deleted">已刪除: %1$s</string>
     <string name="cancel">取消</string>
     <string name="close">關閉</string>
-    <string name="settings">Manage DNS</string>
     <string name="ok">確定</string>
     <string name="backup">備份</string>
     <string name="backup_completed">備份完成</string>
     <string name="backup_failed">備份失敗</string>
-    <string name="toast_backup_help">Select a location to save the backup file</string>
     <string name="restore">還原</string>
     <string name="restore_completed">還原完成</string>
     <string name="restore_failed">還原失敗</string>
-    <string name="toast_restore_help">Select a backup file to restore</string>
-    <string name="no_file_picker">No file picker app available to select file</string>
-    <string name="icon">Icon</string>
-    <string name="select_icon">Change</string>
-    <string name="default_icon">Default</string>
-    <string name="toast_select_icon_help">Select a PNG or SVG file</string>
     <string name="help">說明</string>
 </resources>
