@@ -2,8 +2,8 @@ package com.flashsphere.privatednsqs.activity
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.flashsphere.privatednsqs.ui.NoPermissionMessage
 import com.flashsphere.privatednsqs.ui.SelectDnsDialog
@@ -20,7 +20,7 @@ class SelectDnsActivity : BaseActivity() {
     private val viewModel: SelectDnsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         super.onCreate(savedInstanceState)
 
         if (!viewModel.hasPermission()) {

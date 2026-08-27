@@ -17,11 +17,11 @@ import android.os.Looper
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.net.toUri
 import androidx.core.os.BundleCompat
 import androidx.core.os.ExecutorCompat
+import androidx.core.view.WindowCompat
 import com.flashsphere.privatednsqs.PrivateDnsConstants.HELP_URL
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.service.PrivateDnsTileService
@@ -47,7 +47,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener, ToastAct
     private var toast: Toast? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         super.onCreate(savedInstanceState)
         Shizuku.addRequestPermissionResultListener(this)
 
