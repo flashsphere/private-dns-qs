@@ -1,3 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="toggle">Toggle</string>
+    <string name="toast_no_permission">WRITE_SECURE_SETTINGS permission not granted</string>
+    <string name="dns_toggle">DNS Toggle</string>
+    <string name="dns_auto_as_inactive_tile">Show “DNS Auto” with an inactive tile state</string>
+    <string name="dns_off">DNS Off</string>
+    <string name="on">On</string>
+    <string name="other_settings">Other settings</string>
+    <string name="off">Off</string>
+    <string name="set_dns_off">Set Private DNS to Off</string>
+    <string name="show_in_tile_tile">Show DNS in tile title instead of sub-title</string>
+    <string name="dns_modes_to_toggle">DNS modes to toggle</string>
+    <string name="require_unlock">Require device to be unlocked to toggle tile</string>
+    <string name="set_dns_on">Set Private DNS to On</string>
+    <string name="tile_name">Private DNS</string>
+    <string name="dns_on">DNS On</string>
+    <string name="set_dns_auto">Set Private DNS to Auto</string>
+    <string name="app_name">Private DNS Quick Setting</string>
+    <string name="dns_hostname_hint">DNS provider hostname</string>
+    <string name="toggle_dns">Toggle Private DNS</string>
 </resources>
