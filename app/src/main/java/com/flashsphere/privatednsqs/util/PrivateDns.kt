@@ -30,7 +30,7 @@ class PrivateDns @Inject constructor(
                     .filterIsInstance<DnsConfiguration.On>()
                     .firstOrNull {
                         it.hostname.equals(hostname, ignoreCase = true)
-                    } ?: DnsConfiguration.On(hostname = hostname, icon = null)
+                    } ?: DnsConfiguration.On(hostname = hostname, label = null, icon = null)
             }
             DnsMode.Auto.value -> DnsConfiguration.Auto
             DnsMode.Off.value -> DnsConfiguration.Off

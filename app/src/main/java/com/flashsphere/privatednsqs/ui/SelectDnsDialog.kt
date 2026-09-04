@@ -160,7 +160,7 @@ private fun SelectDnsDialogContent(
                             modifier = Modifier.weight(1F),
                             color = textColor,
                             text = if (item is DnsConfiguration.On) {
-                                item.hostname
+                                item.label.takeUnless { it.isNullOrBlank() } ?: item.hostname
                             } else {
                                 stringResource(item.mode.labelResId)
                             },
@@ -189,17 +189,17 @@ private fun SelectDnsDialogPreview() {
         mutableStateListOf(
             DnsConfiguration.Off,
             DnsConfiguration.Auto,
-            DnsConfiguration.On("one", null),
+            DnsConfiguration.On("one", null, null),
             DnsConfiguration.On("two two two two two two two two two two two two " +
-                    "two two two two two two two two two two two two two two two", null),
-            DnsConfiguration.On("three", null),
-            DnsConfiguration.On("four", null),
+                    "two two two two two two two two two two two two two two two", null, null),
+            DnsConfiguration.On("three", "Label for DNS three", null),
+            DnsConfiguration.On("four", null, null),
         )
     }
     Surface(Modifier.fillMaxSize()) {
         SelectDnsDialog(
             configs = configs,
-            currentConfig = DnsConfiguration.On("one", null),
+            currentConfig = DnsConfiguration.On("one", null, null),
             onSelect = {},
             openApp = {},
             onDismiss = {},

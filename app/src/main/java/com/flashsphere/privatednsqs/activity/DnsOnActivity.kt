@@ -12,7 +12,7 @@ class DnsOnActivity : DnsShortcutActivity() {
     override fun getDnsConfig(): DnsConfiguration? {
         val configs = runBlocking {
             settingsRepository.getEnabledDnsProvidersFlow().first()
-                .map { DnsConfiguration.On(it.hostname, it.icon) }
+                .map { DnsConfiguration.On(it.hostname, it.label, it.icon) }
                 .toList()
         }
         return privateDns.getNextDnsConfig(configs)
