@@ -175,7 +175,7 @@ class DefaultTileInfoUpdaterTest : BaseTest() {
         coEvery { fileOperations.toBitmap(iconFile) } returns bitmap
 
         val tile = mockk<Tile>(relaxed = true)
-        val dnsConfig = DnsConfiguration.On("one.one.one.one", "test-icon.png")
+        val dnsConfig = DnsConfiguration.On("one.one.one.one", null, "test-icon.png")
         tileInfoUpdater.update(tile, dnsConfig)
 
         verify {
@@ -206,7 +206,7 @@ class DefaultTileInfoUpdaterTest : BaseTest() {
         coEvery { fileOperations.toBitmap(iconFile) } returns bitmap
 
         val tile = mockk<Tile>(relaxed = true)
-        val dnsConfig = DnsConfiguration.On("one.one.one.one", "test-icon.png")
+        val dnsConfig = DnsConfiguration.On("one.one.one.one", null, "test-icon.png")
         tileInfoUpdater.update(tile, dnsConfig)
 
         verify {

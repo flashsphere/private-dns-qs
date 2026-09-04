@@ -129,7 +129,7 @@ class PrivateDnsTest {
     fun setDnsConfig_on_with_hostname() {
         every { Settings.Global.putString(any(), any(), any()) } returns true
 
-        val dnsConfiguration = DnsConfiguration.On("one.one.one.one", null)
+        val dnsConfiguration = DnsConfiguration.On("one.one.one.one", null, null)
         privateDns.setDnsConfig(dnsConfiguration)
 
         verify {
@@ -166,8 +166,8 @@ class PrivateDnsTest {
         return listOf(
             DnsConfiguration.Off,
             DnsConfiguration.Auto,
-            DnsConfiguration.On("one.one.one.one", "1.png"),
-            DnsConfiguration.On("dns.google", "2.png"),
+            DnsConfiguration.On("one.one.one.one", null, "1.png"),
+            DnsConfiguration.On("dns.google", null, "2.png"),
         )
     }
 }

@@ -19,7 +19,7 @@ class TileInfoFactory(
     ): TileInfo {
         val dnsMode = dnsConfiguration.mode
         val displayLabel = if (dnsConfiguration is DnsConfiguration.On && dnsConfiguration.hostname.isNotBlank()) {
-            dnsConfiguration.hostname
+            dnsConfiguration.label.takeUnless { it.isNullOrBlank() } ?: dnsConfiguration.hostname
         } else {
             context.getString(dnsMode.labelResId)
         }
