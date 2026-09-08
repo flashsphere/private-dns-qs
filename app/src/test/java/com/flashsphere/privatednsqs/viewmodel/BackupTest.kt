@@ -39,12 +39,14 @@ class BackupTest : BaseViewModelTest() {
             DnsProvider(
                 id = settingsRepository.getNextId(),
                 hostname = "one.one.one.one",
+                label = null,
                 enabled = true,
                 icon = existingIconFile.name,
             ),
             DnsProvider(
                 id = settingsRepository.getNextId(),
                 hostname = "dns.google",
+                label = "Google",
                 enabled = false,
                 icon = null,
             )
