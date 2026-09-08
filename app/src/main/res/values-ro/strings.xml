@@ -55,5 +55,5 @@
     <string name="add_dns_provider">Adaugă furnizor DNS</string>
     <string name="dns_hostname_hint">Nume gazdă al furnizorului DNS</string>
     <string name="toggle_dns">Comută DNS-ul privat</string>
-    <string name="dns_label_hint">Label (optional)</string>
+    <string name="dns_label_hint">Etichetă (opțional)</string>
 </resources>
