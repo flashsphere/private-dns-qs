@@ -77,19 +77,20 @@ fun AddDnsDialog(
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
     toastActions: ToastActions,
-    addDns: (hostname: String, iconFile: File?) -> Unit,
+    addDns: (hostname: String, label: String?, iconFile: File?) -> Unit,
 ) {
     if (openDialog.value) {
         DnsProviderDialog(
             initialHostname = "",
+            initialLabel = null,
             initialIcon = null,
             getSuggestions = getSuggestions,
             validate = validate,
             processIcon = processIcon,
             toastActions = toastActions,
             onDismiss = { openDialog.value = false },
-            onConfirm = { newHostname, newIcon ->
-                addDns(newHostname, newIcon)
+            onConfirm = { newHostname, newLabel, newIcon ->
+                addDns(newHostname, newLabel, newIcon)
                 openDialog.value = false
             },
         )
@@ -104,12 +105,13 @@ fun EditDnsDialog(
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
     toastActions: ToastActions,
-    updateDns: (index: Int, hostname: String, iconFile: File?) -> Unit,
+    updateDns: (index: Int, hostname: String, label: String?, iconFile: File?) -> Unit,
 ) {
     openDialog.value?.let {
         val (index, dnsProvider) = it
         DnsProviderDialog(
             initialHostname = dnsProvider.hostname,
+            initialLabel = dnsProvider.label,
             initialIcon = dnsProvider.icon,
             getSuggestions = getSuggestions,
             validate = { hostname ->
@@ -120,8 +122,8 @@ fun EditDnsDialog(
             processIcon = processIcon,
             toastActions = toastActions,
             onDismiss = { openDialog.value = null },
-            onConfirm = { newHostname, newIcon, ->
-                updateDns(index, newHostname, newIcon)
+            onConfirm = { newHostname, newLabel, newIcon ->
+                updateDns(index, newHostname, newLabel, newIcon)
                 openDialog.value = null
             },
         )
@@ -132,19 +134,21 @@ fun EditDnsDialog(
 @Composable
 private fun DnsProviderDialog(
     initialHostname: String = "",
+    initialLabel: String?,
     initialIcon: String?,
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
     toastActions: ToastActions,
     onDismiss: () -> Unit,
-    onConfirm: (hostname: String, iconFile: File?) -> Unit,
+    onConfirm: (hostname: String, label: String?, iconFile: File?) -> Unit,
 ) {
     val context = LocalContext.current
     val resources = LocalResources.current
     val coroutineScope = rememberCoroutineScope()
 
     val textFieldState = rememberTextFieldState(initialText = initialHostname)
+    val labelFieldState = rememberTextFieldState(initialText = initialLabel ?: "")
 
     val errorMessage = remember { mutableStateOf<String?>(null) }
 
@@ -162,9 +166,10 @@ private fun DnsProviderDialog(
     }
     val onSubmit = {
         val hostname = textFieldState.text.toString()
+        val label = labelFieldState.text.toString().takeIf { it.isNotBlank() }
         val iconFile = selectedIcon?.let { File(it) }
         if (hostname.isNotBlank() && validate(hostname)) {
-            onConfirm(textFieldState.text.toString(), iconFile)
+            onConfirm(hostname, label, iconFile)
         }
     }
 
@@ -225,6 +230,22 @@ private fun DnsProviderDialog(
                     getSuggestions = getSuggestions,
                     validate = validate,
                     onConfirm = onSubmit,
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    state = labelFieldState,
+                    placeholder = { Text(stringResource(R.string.dns_label_hint)) },
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        autoCorrectEnabled = true,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done,
+                    ),
+                    onKeyboardAction = { onSubmit() },
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
@@ -350,6 +371,7 @@ private fun DnsProviderDialogPreview() {
     Surface(Modifier.fillMaxSize()) {
         DnsProviderDialog(
             initialHostname = "",
+            initialLabel = null,
             initialIcon = null,
             getSuggestions = {
                 setOf(
@@ -362,7 +384,7 @@ private fun DnsProviderDialogPreview() {
             validate = { it.isBlank() || it == "test" },
             processIcon = { null },
             onDismiss = {},
-            onConfirm = { _, _ -> },
+            onConfirm = { _, _, _ -> },
             toastActions = NoOpToastActions,
         )
     }

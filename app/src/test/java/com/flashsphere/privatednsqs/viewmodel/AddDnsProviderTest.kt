@@ -29,7 +29,7 @@ class AddDnsProviderTest : BaseViewModelTest() {
             copy(resIconFile, this)
         }
 
-        viewModel.addDnsProvider("one.one.one.one", inputIconFile)
+        viewModel.addDnsProvider(hostname = "one.one.one.one", label = null, iconFile = inputIconFile)
         runCurrent()
 
         settingsRepository.getDnsProviders().let { dnsProviders ->
@@ -46,7 +46,7 @@ class AddDnsProviderTest : BaseViewModelTest() {
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
         }
 
-        viewModel.addDnsProvider("dns.google", null)
+        viewModel.addDnsProvider("dns.google", null, null)
         runCurrent()
 
         settingsRepository.getDnsProviders().let { dnsProviders ->

@@ -20,6 +20,7 @@
     <string name="other_settings">Other settings</string>
     <string name="toast_no_permission">WRITE_SECURE_SETTINGS permission not granted</string>
     <string name="dns_hostname_hint">DNS provider hostname</string>
+    <string name="dns_label_hint">Label (optional)</string>
     <string name="toast_cannot_open_app_info">Error opening app info in Android: %1$s</string>
     <string name="toast_cannot_open_more_info">Error opening webpage: %1$s</string>
     <string name="message_help">To modify the Private DNS settings, this app requires the WRITE_SECURE_SETTINGS permission, which can only be granted by ADB:</string>

@@ -124,8 +124,8 @@ private fun MainScreen(
     dnsProviders: SnapshotStateList<DnsProvider>,
     getDnsSuggestions: (text: String) -> Set<String>,
     validateDnsProvider: (hostname: String) -> Boolean,
-    addDnsProvider: (hostname: String, icon: File?) -> Unit,
-    updateDnsProvider: (index: Int, hostname: String, icon: File?) -> Unit,
+    addDnsProvider: (hostname: String, label: String?, icon: File?) -> Unit,
+    updateDnsProvider: (index: Int, hostname: String, label: String?, icon: File?) -> Unit,
     toggleDnsProvider: (index: Int, enabled: Boolean) -> Unit,
     deleteDnsProvider: (index: Int) -> Unit,
     restoreDnsProvider: (index: Int, deleted: DnsProvider) -> Unit,
@@ -335,7 +335,7 @@ private fun Header(text: String) {
 private fun MainScreenPreview() {
     val openHelpDialogFlow = remember { MutableStateFlow(false) }
     val snackbarMessageFlow = remember { MutableStateFlow(null).filterNotNull() }
-    val dnsProviders = remember { mutableStateListOf(DnsProvider(id = 0, hostname = "one.one.one.one", icon = null)) }
+    val dnsProviders = remember { mutableStateListOf(DnsProvider(id = 0, hostname = "one.one.one.one", label = null, icon = null)) }
     val dnsOff = remember { MutableStateFlow(true) }
     val dnsAuto = remember { MutableStateFlow(true) }
     val requireUnlock = remember { MutableStateFlow(false) }
@@ -353,8 +353,8 @@ private fun MainScreenPreview() {
         dnsProviders = dnsProviders,
         getDnsSuggestions = { emptySet() },
         validateDnsProvider = { true },
-        addDnsProvider = { _, _ -> },
-        updateDnsProvider = { _, _, _ -> },
+        addDnsProvider = { _, _, _ -> },
+        updateDnsProvider = { _, _, _, _ -> },
         toggleDnsProvider = { _, _ -> },
         deleteDnsProvider = {},
         restoreDnsProvider = { _, _ -> },

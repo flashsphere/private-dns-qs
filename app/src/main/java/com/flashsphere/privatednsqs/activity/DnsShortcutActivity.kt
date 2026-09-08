@@ -38,7 +38,7 @@ abstract class DnsShortcutActivity : BaseActivity() {
         if (application !is PrivateDnsApplication) return
 
         val message = if (dnsConfig is DnsConfiguration.On) {
-            dnsConfig.hostname
+            dnsConfig.label.takeUnless { it.isNullOrBlank() } ?: dnsConfig.hostname
         } else {
             getString(dnsConfig.mode.labelResId)
         }

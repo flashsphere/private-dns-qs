@@ -131,20 +131,25 @@ class MainViewModel @Inject constructor(
         return !dnsProviders.any { it.hostname.equals(trimmedHost, true) }
     }
 
-    fun addDnsProvider(hostname: String, iconFile: File? = null) {
+    fun addDnsProvider(hostname: String, label: String? = null, iconFile: File? = null) {
         val trimmedHost = hostname.trim()
         if (trimmedHost.isEmpty()) return
 
         val providers = dnsProviders.toMutableList()
         viewModelScope.launch {
-            Timber.d("Adding '%s'", hostname)
-            val dnsProvider = createDnsProvider(trimmedHost, true, iconFile)
+            Timber.d("Adding '%s' (label: %s)", hostname, label)
+            val dnsProvider = createDnsProvider(trimmedHost, label?.trim(), true, iconFile)
             providers.add(dnsProvider)
             settingsRepository.updateDnsProviders(providers)
         }
     }
 
-    private suspend fun createDnsProvider(hostname: String, enabled: Boolean = true, iconFile: File? = null): DnsProvider {
+    private suspend fun createDnsProvider(
+        hostname: String,
+        label: String? = null,
+        enabled: Boolean = true,
+        iconFile: File? = null
+    ): DnsProvider {
         val id = settingsRepository.getNextId()
 
         val iconFilename = if (iconFile != null && iconFile.exists()) {
@@ -158,12 +163,13 @@ class MainViewModel @Inject constructor(
         return DnsProvider(
             id = id,
             hostname = hostname,
+            label = label,
             enabled = enabled,
             icon = iconFilename,
         )
     }
 
-    fun updateDnsProvider(index: Int, hostname: String, iconFile: File? = null) {
+    fun updateDnsProvider(index: Int, hostname: String, label: String? = null, iconFile: File? = null) {
         if (index >= dnsProviders.size) return
 
         val trimmedHost = hostname.trim()
@@ -184,8 +190,8 @@ class MainViewModel @Inject constructor(
                 filename
             }
 
-            providers[index] = provider.copy(hostname = trimmedHost, icon = iconFilename)
-            Timber.d("Updating '%s' to '%s", provider, trimmedHost)
+            providers[index] = provider.copy(hostname = trimmedHost, label = label?.trim(), icon = iconFilename)
+            Timber.d("Updating '%s' to '%s' (label: %s)", provider, trimmedHost, label)
 
             settingsRepository.updateDnsProviders(providers)
         }
@@ -222,6 +228,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             val provider = createDnsProvider(
                 hostname = deleted.hostname,
+                label = deleted.label,
                 enabled = deleted.enabled,
                 iconFile = deleted.icon?.let { File(it) },
             )
@@ -290,6 +297,7 @@ class MainViewModel @Inject constructor(
 
                         DnsProviderSnapshot(
                             hostname = it.hostname,
+                            label = it.label,
                             enabled = it.enabled,
                             iconBase64 = iconBase64,
                         )
@@ -348,6 +356,7 @@ class MainViewModel @Inject constructor(
 
                                 createDnsProvider(
                                     hostname = it.hostname,
+                                    label = it.label,
                                     enabled = it.enabled,
                                     iconFile = iconFile,
                                 )

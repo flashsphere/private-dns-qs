@@ -18,6 +18,7 @@
     <string name="set_dns_auto">Ustaw prywatny DNS w tryb automatyczny</string>
     <string name="app_name">Szybkie Ustawienia Prywatnego DNS</string>
     <string name="dns_hostname_hint">Nazwa hosta dostawcy DNS</string>
+    <string name="dns_label_hint">Etykieta (opcjonalnie)</string>
     <string name="toggle_dns">Przełącz tryb prywatnego DNS</string>
     <string name="close">Zamknij</string>
     <string name="toast_restore_help">Wybierz plik z kopią zapasową do przywrócenia</string>

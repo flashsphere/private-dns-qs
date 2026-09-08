@@ -39,7 +39,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
         val viewModel = createViewModel(settingsRepository)
         runCurrent()
 
-        viewModel.updateDnsProvider(0, "dns.google", null)
+        viewModel.updateDnsProvider(0, "dns.google", null, null)
         runCurrent()
 
         settingsRepository.getDnsProviders().let { dnsProviders ->
@@ -76,7 +76,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
         val viewModel = createViewModel(settingsRepository)
         runCurrent()
 
-        viewModel.updateDnsProvider(0, "dns.google", currentIcon)
+        viewModel.updateDnsProvider(index = 0, hostname = "dns.google", label = null, iconFile = currentIcon)
         runCurrent()
 
         settingsRepository.getDnsProviders().let { dnsProviders ->
@@ -118,7 +118,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
         val viewModel = createViewModel(settingsRepository)
         runCurrent()
 
-        viewModel.updateDnsProvider(0, "one.one.one.one", newIcon)
+        viewModel.updateDnsProvider(index = 0, hostname = "one.one.one.one", label = null, iconFile = newIcon)
         runCurrent()
 
         settingsRepository.getDnsProviders().let { dnsProviders ->

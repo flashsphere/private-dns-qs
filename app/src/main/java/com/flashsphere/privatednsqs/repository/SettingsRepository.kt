@@ -156,7 +156,7 @@ class SettingsRepository @Inject constructor(
                 if (dnsAutoToggle) {
                     add(DnsConfiguration.Auto)
                 }
-                addAll(dnsProviders.map { DnsConfiguration.On(it.hostname, it.icon) })
+                addAll(dnsProviders.map { DnsConfiguration.On(it.hostname, it.label, it.icon) })
             }
         }.onEmpty { emptyList<DnsConfiguration>() }
     }

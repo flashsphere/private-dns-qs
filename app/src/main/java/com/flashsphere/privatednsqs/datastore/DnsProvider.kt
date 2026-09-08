@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 data class DnsProvider(
     val id: Long,
     val hostname: String,
+    val label: String? = null,
     val enabled: Boolean = true,
     val icon: String? = null,
 ) : Parcelable

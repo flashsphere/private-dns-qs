@@ -86,7 +86,7 @@ fun DnsProviderItem(
 
             Text(
                 modifier = Modifier.weight(1F).padding(vertical = 4.dp),
-                text = dnsProvider.hostname,
+                text = dnsProvider.label.takeUnless { it.isNullOrBlank() } ?: dnsProvider.hostname,
                 style = AppTypography.bodyMedium
             )
             if (canReorder) {
