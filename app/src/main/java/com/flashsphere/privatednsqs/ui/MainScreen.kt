@@ -335,7 +335,10 @@ private fun Header(text: String) {
 private fun MainScreenPreview() {
     val openHelpDialogFlow = remember { MutableStateFlow(false) }
     val snackbarMessageFlow = remember { MutableStateFlow(null).filterNotNull() }
-    val dnsProviders = remember { mutableStateListOf(DnsProvider(id = 0, hostname = "one.one.one.one", label = null, icon = null)) }
+    val dnsProviders = remember { mutableStateListOf(
+        DnsProvider(id = 1, hostname = "one.one.one.one", label = null, icon = null),
+        DnsProvider(id = 2, hostname = "dns.google", label = "Google", icon = null),
+    ) }
     val dnsOff = remember { MutableStateFlow(true) }
     val dnsAuto = remember { MutableStateFlow(true) }
     val requireUnlock = remember { MutableStateFlow(false) }

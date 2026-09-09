@@ -2,9 +2,11 @@ package com.flashsphere.privatednsqs.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -84,11 +86,23 @@ fun DnsProviderItem(
                 Spacer(Modifier.width(8.dp))
             }
 
-            Text(
-                modifier = Modifier.weight(1F).padding(vertical = 4.dp),
-                text = dnsProvider.label.takeUnless { it.isNullOrBlank() } ?: dnsProvider.hostname,
-                style = AppTypography.bodyMedium
-            )
+            Column(Modifier.weight(1F).padding(vertical = 4.dp)) {
+                var hostnameStyle = AppTypography.bodyMedium
+                if (!dnsProvider.label.isNullOrBlank()) {
+                    hostnameStyle = AppTypography.bodySmall
+
+                    Text(
+                        text = dnsProvider.label,
+                        style = AppTypography.bodyMedium
+                    )
+                    Spacer(Modifier.height(2.dp))
+                }
+                Text(
+                    text = dnsProvider.hostname,
+                    style = hostnameStyle
+                )
+            }
+
             if (canReorder) {
                 val tooltipState = rememberTooltipState()
                 Tooltip(
