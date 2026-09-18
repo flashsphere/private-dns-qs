@@ -18,17 +18,26 @@ class TileInfoFactory(
         dnsAutoAsInactiveTile: Boolean,
     ): TileInfo {
         val dnsMode = dnsConfiguration.mode
-        val displayLabel = if (dnsConfiguration is DnsConfiguration.On && dnsConfiguration.hostname.isNotBlank()) {
-            dnsConfiguration.label.takeUnless { it.isNullOrBlank() } ?: dnsConfiguration.hostname
-        } else {
-            context.getString(dnsMode.labelResId)
-        }
+        val displayLabel = when (dnsConfiguration) {
+            is DnsConfiguration.On -> {
+                dnsConfiguration.label.takeUnless(String?::isNullOrBlank)
+                    ?: dnsConfiguration.hostname.takeIf(String::isNotBlank)
+            }
+            else -> null
+        } ?: context.getString(dnsMode.labelResId)
 
         val label: String
         val subtitle: String?
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || showInTileTitle) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             label = displayLabel
             subtitle = null
+        } else if (showInTileTitle) {
+            label = displayLabel
+            subtitle = if (dnsConfiguration is DnsConfiguration.On && !dnsConfiguration.label.isNullOrBlank()) {
+                dnsConfiguration.hostname
+            } else {
+                null
+            }
         } else {
             label = context.getString(R.string.tile_name)
             subtitle = displayLabel

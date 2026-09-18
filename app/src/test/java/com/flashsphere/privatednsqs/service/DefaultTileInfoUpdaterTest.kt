@@ -222,4 +222,35 @@ class DefaultTileInfoUpdaterTest : BaseTest() {
         coVerify { fileOperations.toBitmap(iconFile) }
         assertThat(bitmapCapture.captured).isEqualTo(bitmap)
     }
+
+    @Test
+    fun update_with_dns_on_and_show_label_in_tile_title() = runTest(timeout = 10.seconds) {
+        coEvery { settingsRepository.getShowInTileTitle() } returns true
+        coEvery { settingsRepository.getDnsAutoAsInactiveTile() } returns false
+
+        val bitmapCapture = slot<Bitmap>()
+        val icon = mockk<Icon>()
+        every { Icon.createWithBitmap(capture(bitmapCapture)) } returns icon
+        val iconFile = File(context.iconsDir, "test-icon.png")
+
+        val bitmap = mockk<Bitmap>()
+        coEvery { fileOperations.toBitmap(iconFile) } returns bitmap
+
+        val tile = mockk<Tile>(relaxed = true)
+        val dnsConfig = DnsConfiguration.On("one.one.one.one", "Cloudflare", "test-icon.png")
+        tileInfoUpdater.update(tile, dnsConfig)
+
+        verify {
+            tile.state = Tile.STATE_ACTIVE
+            tile.stateDescription = "Cloudflare"
+            tile.label = "Cloudflare"
+            tile.subtitle = "one.one.one.one"
+            tile.icon = icon
+            tile.contentDescription = "Tile name"
+            tile.updateTile()
+        }
+        confirmVerified(tile)
+        coVerify { fileOperations.toBitmap(iconFile) }
+        assertThat(bitmapCapture.captured).isEqualTo(bitmap)
+    }
 }
