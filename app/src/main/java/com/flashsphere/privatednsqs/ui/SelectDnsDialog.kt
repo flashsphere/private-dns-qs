@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -156,16 +157,37 @@ private fun SelectDnsDialogContent(
                             )
                             Spacer(Modifier.width(8.dp))
                         }
-                        Text(
-                            modifier = Modifier.weight(1F),
-                            color = textColor,
-                            text = if (item is DnsConfiguration.On) {
-                                item.label.takeUnless { it.isNullOrBlank() } ?: item.hostname
-                            } else {
-                                stringResource(item.mode.labelResId)
-                            },
-                            style = AppTypography.bodyMedium
-                        )
+
+                        when (item) {
+                            is DnsConfiguration.On -> {
+                                Column(Modifier.weight(1F)) {
+                                    var hostnameStyle = AppTypography.bodyMedium
+                                    if (!item.label.isNullOrBlank()) {
+                                        hostnameStyle = AppTypography.bodySmall
+
+                                        Text(
+                                            text = item.label,
+                                            color = textColor,
+                                            style = AppTypography.bodyMedium
+                                        )
+                                        Spacer(Modifier.height(2.dp))
+                                    }
+                                    Text(
+                                        text = item.hostname,
+                                        color = textColor,
+                                        style = hostnameStyle
+                                    )
+                                }
+                            }
+                            else -> {
+                                Text(
+                                    modifier = Modifier.weight(1F),
+                                    color = textColor,
+                                    text = stringResource(item.mode.labelResId),
+                                    style = AppTypography.bodyMedium
+                                )
+                            }
+                        }
                     }
                 }
             }
