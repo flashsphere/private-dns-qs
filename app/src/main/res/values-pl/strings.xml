@@ -3,6 +3,7 @@
     <string name="toggle">Przełącznik</string>
     <string name="toast_no_permission">Uprawnienie WRITE_SECURE_SETTINGS nie zostało przyznane</string>
     <string name="dns_toggle">Przełącznik DNS</string>
+    <string name="dns_toggle_shortcut_only">Przełącznik DNS (tylko skrót)</string>
     <string name="dns_auto_as_inactive_tile">Pokazuj kafelek “DNS Automatyczny” jako nieaktywny</string>
     <string name="dns_off">DNS Wyłączony</string>
     <string name="on">Włączony</string>
@@ -37,7 +38,10 @@
     <string name="toast_backup_help">Wybierz lokalizację zapisu kopii zapasowej</string>
     <string name="restore_completed">Przywracanie ukończone</string>
     <string name="app_info">Informacje o aplikacji</string>
+    <string name="show_shortcut">Pokaż skrót</string>
+    <string name="shortcut_limit_warning">Większość launcherów wyświetla maksymalnie 4 skróty. Aktualnie wybranych: %2$d.</string>
     <string name="help">Pomoc</string>
+    <string name="pin_to_home">Przypnij do ekranu głównego</string>
     <string name="toast_select_icon_help">Wybierz plik PNG lub SVG</string>
     <string name="delete">Usuń</string>
     <string name="ok">OK</string>

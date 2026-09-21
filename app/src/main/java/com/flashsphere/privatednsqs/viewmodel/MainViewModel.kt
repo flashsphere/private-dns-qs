@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.flashsphere.privatednsqs.backup.DnsProviderSnapshot
 import com.flashsphere.privatednsqs.backup.SettingsSnapshot
 import com.flashsphere.privatednsqs.backup.SettingsSnapshotV1
+import com.flashsphere.privatednsqs.backup.SettingsSnapshotV2
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.datastore.PreferenceKeys
 import com.flashsphere.privatednsqs.hilt.IoDispatcher
@@ -22,6 +23,7 @@ import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.ImageOperations
 import com.flashsphere.privatednsqs.util.PrivateDns
+import com.flashsphere.privatednsqs.util.ShortcutHelper
 import com.flashsphere.privatednsqs.util.absolutePathIfExists
 import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.util.suspendRunCatching
@@ -32,10 +34,16 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -55,6 +63,7 @@ class MainViewModel @Inject constructor(
     private val fileOperations: FileOperations,
     private val imageOperations: ImageOperations,
     private val settingsRepository: SettingsRepository,
+    private val shortcutHelper: ShortcutHelper,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val contentResolver = context.contentResolver
@@ -75,12 +84,66 @@ class MainViewModel @Inject constructor(
     val requireUnlockStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.REQUIRE_UNLOCK)
     val showInTileTitleStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.SHOW_IN_TILE_TITLE)
     val dnsAutoAsInactiveTileStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.DNS_AUTO_AS_INACTIVE_TILE)
+    val hideDnsToggleShortcutStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.HIDE_DNS_TOGGLE_SHORTCUT)
+    val shortcutOffStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.SHORTCUT_OFF)
+    val shortcutAutoStateFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.SHORTCUT_AUTO)
+
+    val showShortcutLimitWarningFlow = settingsRepository.getStateFlow(viewModelScope, PreferenceKeys.SHOW_SHORTCUT_WARNING)
+
+    val maxShortcuts = 4
+
+    val shortcutCountFlow: StateFlow<Int> = combine(
+        settingsRepository.getDnsProvidersFlow(),
+        hideDnsToggleShortcutStateFlow,
+        shortcutOffStateFlow,
+        shortcutAutoStateFlow
+    ) { providers, hideToggle, offShortcut, autoShortcut ->
+        var count = 0
+        if (!hideToggle) count++
+        if (offShortcut) count++
+        if (autoShortcut) count++
+        count += providers.count { it.enabled && it.shortcutEnabled }
+        Timber.d("Shortcut count calculated: %d", count)
+        count
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = 0
+    )
+
+    val dnsToggleShortcutEnabledStateFlow = hideDnsToggleShortcutStateFlow
+        .map { !it }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val openShortcutOffDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_off", false)
+    val openShortcutAutoDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_auto", false)
+    val openShortcutToggleDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_toggle", false)
 
     init {
-        settingsRepository.getDnsProvidersFlow()
-            .onEach { list ->
-                dnsProviders.clear()
-                dnsProviders.addAll(list)
+        combine(
+            settingsRepository.getDnsProvidersFlow(),
+            hideDnsToggleShortcutStateFlow,
+            shortcutOffStateFlow,
+            shortcutAutoStateFlow
+        ) { providers, hideToggle, offShortcut, autoShortcut ->
+            dnsProviders.clear()
+            dnsProviders.addAll(providers)
+            
+            viewModelScope.launch {
+                shortcutHelper.updateShortcuts(providers, !hideToggle, offShortcut, autoShortcut)
+            }
+        }.launchIn(viewModelScope)
+
+        // Logic for showing/hiding warning based on count changes
+        shortcutCountFlow
+            .drop(1) // Skip initial 0
+            .distinctUntilChanged()
+            .onEach { count ->
+                val lastCount = settingsRepository.getLastShortcutCountFlow().first()
+                if (count != lastCount) {
+                    settingsRepository.updateLastShortcutCount(count)
+                    settingsRepository.updateShowShortcutWarning(count > maxShortcuts)
+                }
             }
             .launchIn(viewModelScope)
 
@@ -112,6 +175,54 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch { settingsRepository.updateDnsAutoAsInactiveTile(checked) }
     }
 
+    fun updateHideDnsToggleShortcut(checked: Boolean) {
+        viewModelScope.launch { settingsRepository.updateHideDnsToggleShortcut(checked) }
+    }
+
+    fun updateShortcutOff(checked: Boolean) {
+        viewModelScope.launch { settingsRepository.updateShortcutOff(checked) }
+    }
+
+    fun updateShortcutAuto(checked: Boolean) {
+        viewModelScope.launch { settingsRepository.updateShortcutAuto(checked) }
+    }
+
+    fun updateShowDnsToggleShortcut(show: Boolean) {
+        updateHideDnsToggleShortcut(!show)
+    }
+
+    fun acknowledgeShortcutLimit() {
+        viewModelScope.launch { settingsRepository.updateShowShortcutWarning(false) }
+    }
+
+    fun pinShortcut(hostname: String, label: String?, iconFile: File?) {
+        viewModelScope.launch { shortcutHelper.pinShortcut(hostname, label, iconFile) }
+    }
+
+    fun pinOffShortcut() {
+        shortcutHelper.pinOffShortcut()
+    }
+
+    fun pinAutoShortcut() {
+        shortcutHelper.pinAutoShortcut()
+    }
+
+    fun pinToggleShortcut() {
+        shortcutHelper.pinToggleShortcut()
+    }
+
+    fun openShortcutOffDialog(open: Boolean) {
+        openShortcutOffDialogFlow.value = open
+    }
+
+    fun openShortcutAutoDialog(open: Boolean) {
+        openShortcutAutoDialogFlow.value = open
+    }
+
+    fun openShortcutToggleDialog(open: Boolean) {
+        openShortcutToggleDialogFlow.value = open
+    }
+
     fun showSnackbarMessage(message: SnackbarMessage) {
         viewModelScope.launch {
             // wait until there's at least 1 subscriber before emitting
@@ -131,14 +242,14 @@ class MainViewModel @Inject constructor(
         return !dnsProviders.any { it.hostname.equals(trimmedHost, true) }
     }
 
-    fun addDnsProvider(hostname: String, label: String? = null, iconFile: File? = null) {
+    fun addDnsProvider(hostname: String, label: String? = null, shortcutEnabled: Boolean = true, iconFile: File? = null) {
         val trimmedHost = hostname.trim()
         if (trimmedHost.isEmpty()) return
 
         val providers = dnsProviders.toMutableList()
         viewModelScope.launch {
-            Timber.d("Adding '%s' (label: %s)", hostname, label)
-            val dnsProvider = createDnsProvider(trimmedHost, label?.trim(), true, iconFile)
+            Timber.d("Adding '%s' (label: %s, shortcut: %s)", hostname, label, shortcutEnabled)
+            val dnsProvider = createDnsProvider(trimmedHost, label?.trim(), shortcutEnabled, true, iconFile)
             providers.add(dnsProvider)
             settingsRepository.updateDnsProviders(providers)
         }
@@ -147,6 +258,7 @@ class MainViewModel @Inject constructor(
     private suspend fun createDnsProvider(
         hostname: String,
         label: String? = null,
+        shortcutEnabled: Boolean = true,
         enabled: Boolean = true,
         iconFile: File? = null
     ): DnsProvider {
@@ -164,12 +276,13 @@ class MainViewModel @Inject constructor(
             id = id,
             hostname = hostname,
             label = label,
+            shortcutEnabled = shortcutEnabled,
             enabled = enabled,
             icon = iconFilename,
         )
     }
 
-    fun updateDnsProvider(index: Int, hostname: String, label: String? = null, iconFile: File? = null) {
+    fun updateDnsProvider(index: Int, hostname: String, label: String? = null, shortcutEnabled: Boolean = true, iconFile: File? = null) {
         if (index >= dnsProviders.size) return
 
         val trimmedHost = hostname.trim()
@@ -190,8 +303,8 @@ class MainViewModel @Inject constructor(
                 filename
             }
 
-            providers[index] = provider.copy(hostname = trimmedHost, label = label?.trim(), icon = iconFilename)
-            Timber.d("Updating '%s' to '%s' (label: %s)", provider, trimmedHost, label)
+            providers[index] = provider.copy(hostname = trimmedHost, label = label?.trim(), shortcutEnabled = shortcutEnabled, icon = iconFilename)
+            Timber.d("Updating '%s' to '%s' (label: %s, shortcut: %s)", provider, trimmedHost, label, shortcutEnabled)
 
             settingsRepository.updateDnsProviders(providers)
         }
@@ -229,6 +342,7 @@ class MainViewModel @Inject constructor(
             val provider = createDnsProvider(
                 hostname = deleted.hostname,
                 label = deleted.label,
+                shortcutEnabled = deleted.shortcutEnabled,
                 enabled = deleted.enabled,
                 iconFile = deleted.icon?.let { File(it) },
             )
@@ -284,12 +398,15 @@ class MainViewModel @Inject constructor(
         Timber.d("Writing to %s", dest.toString())
         viewModelScope.launch {
             suspendRunCatching {
-                val snapshot = SettingsSnapshotV1(
+                val snapshot = SettingsSnapshotV2(
                     dnsOffToggle = dnsOffStateFlow.value,
                     dnsAutoToggle = dnsAutoStateFlow.value,
                     requireUnlock = requireUnlockStateFlow.value,
                     showInTileTitle = showInTileTitleStateFlow.value,
                     dnsAutoAsInactiveTile = dnsAutoAsInactiveTileStateFlow.value,
+                    hideDnsToggleShortcut = hideDnsToggleShortcutStateFlow.value,
+                    shortcutOff = shortcutOffStateFlow.value,
+                    shortcutAuto = shortcutAutoStateFlow.value,
                     dnsProviders = dnsProviders.map {
                         val iconBase64 = it.icon?.let { icon ->
                             fileOperations.toBase64(File(context.iconsDir, icon))
@@ -298,6 +415,7 @@ class MainViewModel @Inject constructor(
                         DnsProviderSnapshot(
                             hostname = it.hostname,
                             label = it.label,
+                            shortcutEnabled = it.shortcutEnabled,
                             enabled = it.enabled,
                             iconBase64 = iconBase64,
                         )
@@ -357,6 +475,38 @@ class MainViewModel @Inject constructor(
                                 createDnsProvider(
                                     hostname = it.hostname,
                                     label = it.label,
+                                    shortcutEnabled = it.shortcutEnabled,
+                                    enabled = it.enabled,
+                                    iconFile = iconFile,
+                                )
+                            })
+                    }
+                    is SettingsSnapshotV2 -> {
+                        settingsRepository.updateDnsOffToggle(snapshot.dnsOffToggle)
+                        settingsRepository.updateDnsAutoToggle(snapshot.dnsAutoToggle)
+                        settingsRepository.updateRequireUnlock(snapshot.requireUnlock)
+                        settingsRepository.updateShowInTileTitle(snapshot.showInTileTitle)
+                        settingsRepository.updateDnsAutoAsInactiveTile(snapshot.dnsAutoAsInactiveTile)
+                        settingsRepository.updateHideDnsToggleShortcut(snapshot.hideDnsToggleShortcut)
+                        settingsRepository.updateShortcutOff(snapshot.shortcutOff)
+                        settingsRepository.updateShortcutAuto(snapshot.shortcutAuto)
+                        settingsRepository.updateDnsProviders(snapshot.dnsProviders
+                            .map {
+                                // decode base64 icon to a file in the cache dir
+                                val iconFile = it.iconBase64?.let { iconBase64 ->
+                                    val imageId = settingsRepository.getNextImageId()
+                                    val file = File(context.cacheDir, "$imageId")
+                                    fileOperations.base64DecodeToFile(iconBase64, file)
+
+                                    // process icon file again in case the json was manually edited
+                                    // to have a larger/non-image file
+                                    processSelectedIcon(file)
+                                }
+
+                                createDnsProvider(
+                                    hostname = it.hostname,
+                                    label = it.label,
+                                    shortcutEnabled = it.shortcutEnabled,
                                     enabled = it.enabled,
                                     iconFile = iconFile,
                                 )

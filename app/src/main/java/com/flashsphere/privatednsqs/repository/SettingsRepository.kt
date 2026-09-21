@@ -113,6 +113,23 @@ class SettingsRepository @Inject constructor(
         return update(PreferenceKeys.DNS_AUTO_AS_INACTIVE_TILE, value)
     }
 
+    suspend fun updateHideDnsToggleShortcut(value: Boolean) {
+        return update(PreferenceKeys.HIDE_DNS_TOGGLE_SHORTCUT, value)
+    }
+
+    suspend fun updateShortcutOff(value: Boolean) {
+        return update(PreferenceKeys.SHORTCUT_OFF, value)
+    }
+
+    suspend fun updateShortcutAuto(value: Boolean) {
+        return update(PreferenceKeys.SHORTCUT_AUTO, value)
+    }
+
+    suspend fun updateShowShortcutWarning(value: Boolean) = update(PreferenceKeys.SHOW_SHORTCUT_WARNING, value)
+
+    fun getLastShortcutCountFlow(): Flow<Int> = getFlow(PreferenceKeys.LAST_SHORTCUT_COUNT)
+    suspend fun updateLastShortcutCount(value: Int) = update(PreferenceKeys.LAST_SHORTCUT_COUNT, value)
+
     fun getDnsProvidersFlow(): Flow<List<DnsProvider>> {
         return getFlow(PreferenceKeys.DNS_PROVIDERS)
             .map {

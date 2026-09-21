@@ -10,6 +10,7 @@ import com.flashsphere.privatednsqs.repository.SettingsRepository
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.ImageOperations
 import com.flashsphere.privatednsqs.util.PrivateDns
+import com.flashsphere.privatednsqs.util.ShortcutHelper
 import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import io.mockk.coEvery
@@ -31,6 +32,7 @@ abstract class BaseViewModelTest : BaseTest() {
     lateinit var privateDns: PrivateDns
     lateinit var contentResolver: ContentResolver
     lateinit var imageOperations: ImageOperations
+    lateinit var shortcutHelper: ShortcutHelper
     lateinit var json: Json
 
     @Before
@@ -75,9 +77,14 @@ abstract class BaseViewModelTest : BaseTest() {
             every { it.contentResolver } returns contentResolver
         }
 
+        shortcutHelper = mockk<ShortcutHelper>().also {
+            coEvery { it.updateShortcuts(any(), any(), any(), any()) } returns Unit
+        }
+
         json = Json {
             ignoreUnknownKeys = true
             exceptionsWithDebugInfo = true
+            encodeDefaults = true
         }
     }
 
@@ -107,6 +114,7 @@ abstract class BaseViewModelTest : BaseTest() {
             fileOperations = FileOperations(testDispatcher),
             imageOperations = imageOperations,
             settingsRepository = settingsRepository,
+            shortcutHelper = shortcutHelper,
             savedStateHandle = SavedStateHandle(),
         )
     }

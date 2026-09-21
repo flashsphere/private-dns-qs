@@ -5,6 +5,7 @@
     <string name="dns_auto">DNS Auto</string>
     <string name="dns_on">DNS On</string>
     <string name="dns_toggle">DNS Toggle</string>
+    <string name="dns_toggle_shortcut_only">DNS Toggle (shortcut only)</string>
     <string name="off">Off</string>
     <string name="auto">Auto</string>
     <string name="on">On</string>
@@ -55,5 +56,8 @@
     <string name="select_icon">Change</string>
     <string name="default_icon">Default</string>
     <string name="toast_select_icon_help">Select a PNG or SVG file</string>
+    <string name="show_shortcut">Show shortcut</string>
+    <string name="shortcut_limit_warning">Most launchers display a maximum of 4 shortcuts. Currently selected: %2$d.</string>
     <string name="help">Help</string>
+    <string name="pin_to_home">Pin to home screen</string>
 </resources>

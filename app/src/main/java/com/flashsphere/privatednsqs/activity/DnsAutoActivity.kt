@@ -5,6 +5,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class DnsAutoActivity : DnsShortcutActivity() {
+    override val showToastAfterSet: Boolean = true
+
     override fun getDnsConfig(): DnsConfiguration {
         return DnsConfiguration.Auto
     }
