@@ -9,6 +9,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.flashsphere.privatednsqs.repository.SettingsRepository
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.ImageOperations
+import com.flashsphere.privatednsqs.util.LauncherIconManager
 import com.flashsphere.privatednsqs.util.PrivateDns
 import com.flashsphere.privatednsqs.util.ShortcutHelper
 import com.flashsphere.privatednsqs.util.iconsDir
@@ -17,6 +18,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -33,6 +35,7 @@ abstract class BaseViewModelTest : BaseTest() {
     lateinit var contentResolver: ContentResolver
     lateinit var imageOperations: ImageOperations
     lateinit var shortcutHelper: ShortcutHelper
+    lateinit var launcherIconManager: LauncherIconManager
     lateinit var json: Json
 
     @Before
@@ -81,6 +84,10 @@ abstract class BaseViewModelTest : BaseTest() {
             coEvery { it.updateShortcuts(any(), any(), any(), any()) } returns Unit
         }
 
+        launcherIconManager = mockk<LauncherIconManager>().also {
+            every { it.getShowIconFlow(any()) } returns MutableStateFlow(true)
+        }
+
         json = Json {
             ignoreUnknownKeys = true
             exceptionsWithDebugInfo = true
@@ -115,6 +122,7 @@ abstract class BaseViewModelTest : BaseTest() {
             imageOperations = imageOperations,
             settingsRepository = settingsRepository,
             shortcutHelper = shortcutHelper,
+            launcherIconManager = launcherIconManager,
             savedStateHandle = SavedStateHandle(),
         )
     }

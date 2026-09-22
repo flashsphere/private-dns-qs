@@ -125,6 +125,13 @@ class SettingsRepository @Inject constructor(
         return update(PreferenceKeys.SHORTCUT_AUTO, value)
     }
 
+    suspend fun <T> updatePreference(pref: PreferenceKey<T>, value: T) = update(pref, value)
+
+    fun <T> getPreferenceStateFlow(
+        scope: CoroutineScope,
+        pref: PreferenceKey<T>
+    ): StateFlow<T> = getStateFlow(scope, pref)
+
     suspend fun updateShowShortcutWarning(value: Boolean) = update(PreferenceKeys.SHOW_SHORTCUT_WARNING, value)
 
     fun getLastShortcutCountFlow(): Flow<Int> = getFlow(PreferenceKeys.LAST_SHORTCUT_COUNT)
@@ -148,7 +155,8 @@ class SettingsRepository @Inject constructor(
     }
 
     fun getEnabledDnsProvidersFlow(): Flow<Sequence<DnsProvider>> {
-        return getDnsProvidersFlow().map { list ->
+        return getFlow(PreferenceKeys.DNS_PROVIDERS).map {
+            val list = runCatching { json.decodeFromString<List<DnsProvider>>(it) }.getOrElse { emptyList() }
             list.asSequence().filter { it.enabled }
         }
     }

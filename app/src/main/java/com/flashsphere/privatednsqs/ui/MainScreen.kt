@@ -108,6 +108,8 @@ fun MainScreen(
         onShowInTileTitleClick = viewModel::updateShowInTileTitle,
         dnsAutoAsInactiveTileStateFlow = viewModel.dnsAutoAsInactiveTileStateFlow,
         onDnsAutoAsInactiveTileClick = viewModel::updateDnsAutoAsInactiveTile,
+        launcherMenuItem = { onDismiss -> viewModel.launcherIconManager.LauncherMenuItem(onDismiss) },
+        shortcutsVisibleStateFlow = viewModel.shortcutsVisibleStateFlow,
         hideDnsToggleShortcutStateFlow = viewModel.hideDnsToggleShortcutStateFlow,
         onHideDnsToggleShortcutClick = { viewModel.updateShowDnsToggleShortcut(it) },
         onPinShortcut = viewModel::pinShortcut,
@@ -170,6 +172,8 @@ private fun MainScreen(
     onShowInTileTitleClick: (checked: Boolean) -> Unit,
     dnsAutoAsInactiveTileStateFlow: StateFlow<Boolean>,
     onDnsAutoAsInactiveTileClick: (checked: Boolean) -> Unit,
+    launcherMenuItem: @Composable (onDismiss: () -> Unit) -> Unit,
+    shortcutsVisibleStateFlow: StateFlow<Boolean>,
     hideDnsToggleShortcutStateFlow: StateFlow<Boolean>,
     onHideDnsToggleShortcutClick: (checked: Boolean) -> Unit,
     onPinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
@@ -207,6 +211,7 @@ private fun MainScreen(
         mutableStateOf<IndexedValue<DnsProvider>?>(null)
     }
 
+    val shortcutsVisible by shortcutsVisibleStateFlow.collectAsStateWithLifecycle()
     val shortcutCount by shortcutCountFlow.collectAsStateWithLifecycle(initialValue = 0)
     val showShortcutLimitWarning by showShortcutLimitWarningFlow.collectAsStateWithLifecycle()
 
@@ -263,6 +268,7 @@ private fun MainScreen(
                     backupConfig = backupConfig,
                     restoreConfig = restoreConfig,
                     toastActions = toastActions,
+                    launcherMenuItem = launcherMenuItem,
                     showSnackbarMessage = showSnackbarMessage,
                 )
             },
@@ -408,6 +414,7 @@ private fun MainScreen(
                 toastActions = toastActions,
                 pinShortcut = onPinShortcut,
                 addDns = addDnsProvider,
+                shortcutsVisible = shortcutsVisible,
             )
             EditDnsDialog(
                 openDialog = showEditDnsDialog,
@@ -417,6 +424,7 @@ private fun MainScreen(
                 toastActions = toastActions,
                 pinShortcut = onPinShortcut,
                 updateDns = updateDnsProvider,
+                shortcutsVisible = shortcutsVisible,
             )
 
             val showShortcutOffDialog by openShortcutOffDialogFlow.collectAsStateWithLifecycle()
@@ -428,6 +436,7 @@ private fun MainScreen(
                     initialShortcutEnabled = shortcutEnabled,
                     onDismiss = { onOpenShortcutOffDialog(false) },
                     onPinShortcut = onPinOffShortcut,
+                    shortcutsVisible = shortcutsVisible,
                     onConfirm = {
                         onShortcutOffToggle(it)
                         onOpenShortcutOffDialog(false)
@@ -444,6 +453,7 @@ private fun MainScreen(
                     initialShortcutEnabled = shortcutEnabled,
                     onDismiss = { onOpenShortcutAutoDialog(false) },
                     onPinShortcut = onPinAutoShortcut,
+                    shortcutsVisible = shortcutsVisible,
                     onConfirm = {
                         onShortcutAutoToggle(it)
                         onOpenShortcutAutoDialog(false)
@@ -460,6 +470,7 @@ private fun MainScreen(
                     initialShortcutEnabled = !hideToggle,
                     onDismiss = { onOpenShortcutToggleDialog(false) },
                     onPinShortcut = onPinToggleShortcut,
+                    shortcutsVisible = shortcutsVisible,
                     onConfirm = {
                         onHideDnsToggleShortcutClick(it)
                         onOpenShortcutToggleDialog(false)
@@ -519,12 +530,12 @@ private fun MainScreenPreview() {
         dnsToggleShortcutEnabledStateFlow = remember { MutableStateFlow(true) },
         onDnsToggleLabelClick = {},
         dnsProviders = dnsProviders,
-        getDnsSuggestions = { emptySet<String>() },
-        validateDnsProvider = { true },
+        getDnsSuggestions = { _ -> emptySet() },
+        validateDnsProvider = { _ -> true },
         addDnsProvider = { _, _, _, _ -> },
         updateDnsProvider = { _, _, _, _, _ -> },
         toggleDnsProvider = { _, _ -> },
-        deleteDnsProvider = {},
+        deleteDnsProvider = { _ -> },
         restoreDnsProvider = { _, _ -> },
         reorderDnsProvider = { _, _ -> },
         reorderDnsProviders = {},
@@ -534,19 +545,21 @@ private fun MainScreenPreview() {
         onShowInTileTitleClick = { showInTileTitleStateFlow.value = it },
         dnsAutoAsInactiveTileStateFlow = dnsAutoAsInactiveTile,
         onDnsAutoAsInactiveTileClick = { dnsAutoAsInactiveTile.value = it },
+        launcherMenuItem = {},
+        shortcutsVisibleStateFlow = MutableStateFlow(true),
         hideDnsToggleShortcutStateFlow = hideDnsToggleShortcut,
         onHideDnsToggleShortcutClick = { hideDnsToggleShortcut.value = it },
         onPinShortcut = { _, _, _ -> },
         openShortcutOffDialogFlow = remember { MutableStateFlow(false) },
         openShortcutAutoDialogFlow = remember { MutableStateFlow(false) },
         openShortcutToggleDialogFlow = remember { MutableStateFlow(false) },
-        onOpenShortcutOffDialog = {},
-        onOpenShortcutAutoDialog = {},
-        onOpenShortcutToggleDialog = {},
+        onOpenShortcutOffDialog = { _ -> },
+        onOpenShortcutAutoDialog = { _ -> },
+        onOpenShortcutToggleDialog = { _ -> },
         shortcutOffStateFlow = remember { MutableStateFlow(true) },
         shortcutAutoStateFlow = remember { MutableStateFlow(true) },
-        onShortcutOffToggle = {},
-        onShortcutAutoToggle = {},
+        onShortcutOffToggle = { _ -> },
+        onShortcutAutoToggle = { _ -> },
         onPinOffShortcut = {},
         onPinAutoShortcut = {},
         onPinToggleShortcut = {},
@@ -557,11 +570,11 @@ private fun MainScreenPreview() {
         showAppInfo = {},
         showMoreInfo = {},
         requestAddTile = {},
-        backupConfig = {},
-        restoreConfig = {},
-        processIcon = { null },
-        deleteFile = {},
+        backupConfig = { _ -> },
+        restoreConfig = { _ -> },
+        processIcon = { _ -> null },
+        deleteFile = { _ -> },
         toastActions = NoOpToastActions,
-        showSnackbarMessage = {},
+        showSnackbarMessage = { _ -> },
     )
 }

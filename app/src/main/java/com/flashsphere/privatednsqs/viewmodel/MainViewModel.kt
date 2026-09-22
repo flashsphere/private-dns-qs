@@ -22,6 +22,7 @@ import com.flashsphere.privatednsqs.ui.RestoreFailed
 import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.ImageOperations
+import com.flashsphere.privatednsqs.util.LauncherIconManager
 import com.flashsphere.privatednsqs.util.PrivateDns
 import com.flashsphere.privatednsqs.util.ShortcutHelper
 import com.flashsphere.privatednsqs.util.absolutePathIfExists
@@ -64,6 +65,7 @@ class MainViewModel @Inject constructor(
     private val imageOperations: ImageOperations,
     private val settingsRepository: SettingsRepository,
     private val shortcutHelper: ShortcutHelper,
+    val launcherIconManager: LauncherIconManager,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val contentResolver = context.contentResolver
@@ -114,6 +116,8 @@ class MainViewModel @Inject constructor(
     val dnsToggleShortcutEnabledStateFlow = hideDnsToggleShortcutStateFlow
         .map { !it }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val shortcutsVisibleStateFlow = launcherIconManager.getShowIconFlow(viewModelScope)
 
     val openShortcutOffDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_off", false)
     val openShortcutAutoDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_auto", false)

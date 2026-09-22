@@ -1,5 +1,6 @@
 package com.flashsphere.privatednsqs.util
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.pm.ShortcutInfoCompat
@@ -10,6 +11,7 @@ import com.flashsphere.privatednsqs.activity.DnsAutoActivity
 import com.flashsphere.privatednsqs.activity.DnsOffActivity
 import com.flashsphere.privatednsqs.activity.DnsOnActivity
 import com.flashsphere.privatednsqs.activity.DnsToggleActivity
+import com.flashsphere.privatednsqs.activity.MainActivity
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
@@ -21,6 +23,8 @@ class ShortcutHelper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val fileOperations: FileOperations,
 ) {
+    private val mainActivityComponent = ComponentName(context, MainActivity::class.java)
+
     suspend fun updateShortcuts(
         dnsProviders: List<DnsProvider>,
         showToggle: Boolean,
@@ -31,6 +35,7 @@ class ShortcutHelper @Inject constructor(
 
         if (showToggle) {
             shortcuts.add(ShortcutInfoCompat.Builder(context, "privatedns.shortcut.toggle")
+                .setActivity(mainActivityComponent)
                 .setShortLabel(context.getString(R.string.dns_toggle))
                 .setLongLabel(context.getString(R.string.dns_toggle))
                 .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher_toggle))
@@ -40,6 +45,7 @@ class ShortcutHelper @Inject constructor(
         
         if (showOff) {
             shortcuts.add(ShortcutInfoCompat.Builder(context, "privatedns.shortcut.off")
+                .setActivity(mainActivityComponent)
                 .setShortLabel(context.getString(R.string.dns_off))
                 .setLongLabel(context.getString(R.string.dns_off))
                 .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher_off))
@@ -49,6 +55,7 @@ class ShortcutHelper @Inject constructor(
 
         if (showAuto) {
             shortcuts.add(ShortcutInfoCompat.Builder(context, "privatedns.shortcut.auto")
+                .setActivity(mainActivityComponent)
                 .setShortLabel(context.getString(R.string.dns_auto))
                 .setLongLabel(context.getString(R.string.dns_auto))
                 .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher))
@@ -67,6 +74,7 @@ class ShortcutHelper @Inject constructor(
             }
 
             val builder = ShortcutInfoCompat.Builder(context, "privatedns.shortcut.on.${provider.id}")
+                .setActivity(mainActivityComponent)
                 .setShortLabel(label)
                 .setLongLabel(label)
                 .setIntent(intent)
@@ -82,7 +90,11 @@ class ShortcutHelper @Inject constructor(
             shortcuts.add(builder.build())
         }
 
-        ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
+        try {
+            ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
+        } catch (e: Exception) {
+            // Ignore if launcher is hidden
+        }
     }
 
     suspend fun pinShortcut(hostname: String, label: String?, iconFile: File?) {
@@ -100,6 +112,7 @@ class ShortcutHelper @Inject constructor(
         } ?: IconCompat.createWithResource(context, R.mipmap.ic_launcher_on)
 
         val shortcut = ShortcutInfoCompat.Builder(context, "privatedns.shortcut.pin.${hostname}")
+            .setActivity(mainActivityComponent)
             .setShortLabel(shortLabel)
             .setLongLabel(shortLabel)
             .setIcon(icon)
@@ -113,6 +126,7 @@ class ShortcutHelper @Inject constructor(
 
     fun pinOffShortcut() {
         val shortcut = ShortcutInfoCompat.Builder(context, "privatedns.shortcut.off.pin")
+            .setActivity(mainActivityComponent)
             .setShortLabel(context.getString(R.string.dns_off))
             .setLongLabel(context.getString(R.string.dns_off))
             .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher_off))
@@ -129,6 +143,7 @@ class ShortcutHelper @Inject constructor(
 
     fun pinAutoShortcut() {
         val shortcut = ShortcutInfoCompat.Builder(context, "privatedns.shortcut.auto.pin")
+            .setActivity(mainActivityComponent)
             .setShortLabel(context.getString(R.string.dns_auto))
             .setLongLabel(context.getString(R.string.dns_auto))
             .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher))
@@ -145,6 +160,7 @@ class ShortcutHelper @Inject constructor(
 
     fun pinToggleShortcut() {
         val shortcut = ShortcutInfoCompat.Builder(context, "privatedns.shortcut.toggle.pin")
+            .setActivity(mainActivityComponent)
             .setShortLabel(context.getString(R.string.dns_toggle))
             .setLongLabel(context.getString(R.string.dns_toggle))
             .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher_toggle))

@@ -83,6 +83,7 @@ fun AddDnsDialog(
     toastActions: ToastActions,
     pinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
     addDns: (hostname: String, label: String?, shortcutEnabled: Boolean, iconFile: File?) -> Unit,
+    shortcutsVisible: Boolean,
 ) {
     if (openDialog.value) {
         DnsProviderDialog(
@@ -100,6 +101,7 @@ fun AddDnsDialog(
                 addDns(newHostname, newLabel, newShortcut, newIcon)
                 openDialog.value = false
             },
+            shortcutsVisible = shortcutsVisible,
         )
     }
 }
@@ -114,6 +116,7 @@ fun EditDnsDialog(
     toastActions: ToastActions,
     pinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
     updateDns: (index: Int, hostname: String, label: String?, shortcutEnabled: Boolean, iconFile: File?) -> Unit,
+    shortcutsVisible: Boolean,
 ) {
     openDialog.value?.let {
         val (index, dnsProvider) = it
@@ -136,6 +139,7 @@ fun EditDnsDialog(
                 updateDns(index, newHostname, newLabel, newShortcut, newIcon)
                 openDialog.value = null
             },
+            shortcutsVisible = shortcutsVisible,
         )
     }
 }
@@ -154,6 +158,7 @@ private fun DnsProviderDialog(
     onDismiss: () -> Unit,
     onPinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
     onConfirm: (hostname: String, label: String?, shortcutEnabled: Boolean, iconFile: File?) -> Unit,
+    shortcutsVisible: Boolean,
 ) {
     val context = LocalContext.current
     val resources = LocalResources.current
@@ -261,17 +266,19 @@ private fun DnsProviderDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-                Spacer(Modifier.height(8.dp))
+                if (shortcutsVisible) {
+                    Spacer(Modifier.height(8.dp))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { shortcutEnabled = !shortcutEnabled }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(checked = shortcutEnabled, onCheckedChange = { shortcutEnabled = it })
-                    Text(text = stringResource(R.string.show_shortcut), style = MaterialTheme.typography.bodyMedium)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { shortcutEnabled = !shortcutEnabled }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(checked = shortcutEnabled, onCheckedChange = { shortcutEnabled = it })
+                        Text(text = stringResource(R.string.show_shortcut), style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
         },
@@ -423,13 +430,17 @@ fun FixedModeShortcutDialog(
     onDismiss: () -> Unit,
     onPinShortcut: () -> Unit,
     onConfirm: (shortcutEnabled: Boolean) -> Unit,
+    shortcutsVisible: Boolean,
 ) {
     var shortcutEnabled by remember { mutableStateOf(initialShortcutEnabled) }
 
     CustomAlertDialog(
         onDismissRequest = onDismiss,
         content = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Icon(
                     modifier = Modifier.size(24.dp),
                     painter = painterResource(iconRes),
@@ -438,16 +449,18 @@ fun FixedModeShortcutDialog(
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(text = label, style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { shortcutEnabled = !shortcutEnabled }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(checked = shortcutEnabled, onCheckedChange = { shortcutEnabled = it })
-                    Text(text = stringResource(R.string.show_shortcut), style = MaterialTheme.typography.bodyMedium)
+                if (shortcutsVisible) {
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { shortcutEnabled = !shortcutEnabled }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(checked = shortcutEnabled, onCheckedChange = { shortcutEnabled = it })
+                        Text(text = stringResource(R.string.show_shortcut), style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
         },
@@ -483,7 +496,7 @@ private fun DnsProviderDialogPreview() {
             initialLabel = null,
             initialShortcutEnabled = true,
             initialIcon = null,
-            getSuggestions = {
+            getSuggestions = { _ ->
                 setOf(
                     "one.one.one.one",
                     "two two two two two two two two two two two two two two two two two two " +
@@ -492,11 +505,12 @@ private fun DnsProviderDialogPreview() {
                 )
             },
             validate = { it.isBlank() || it == "test" },
-            processIcon = { null },
+            processIcon = { _ -> null },
             onDismiss = {},
             onPinShortcut = { _, _, _ -> },
             onConfirm = { _, _, _, _ -> },
             toastActions = NoOpToastActions,
+            shortcutsVisible = true,
         )
     }
 }

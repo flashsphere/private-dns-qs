@@ -33,6 +33,7 @@ fun TopBar(
     backupConfig: (uri: Uri) -> Unit,
     restoreConfig: (uri: Uri) -> Unit,
     toastActions: ToastActions,
+    launcherMenuItem: @Composable (onDismiss: () -> Unit) -> Unit,
     showSnackbarMessage: (message: SnackbarMessage) -> Unit,
 ) {
     val resources = LocalResources.current
@@ -115,6 +116,7 @@ fun TopBar(
                         openDropdownMenu.value = false
                     }
                 )
+                launcherMenuItem { openDropdownMenu.value = false }
                 DropdownMenuItem(
                     leadingIcon = { Icon(painterResource(R.drawable.ic_help),
                         stringResource(id = R.string.help)) },
