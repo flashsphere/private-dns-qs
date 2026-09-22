@@ -55,4 +55,5 @@
     <string name="add_dns_provider">הוסף ספק שרת DNS</string>
     <string name="dns_hostname_hint">שרת ספק של DNS</string>
     <string name="toggle_dns">מתג DNS פרטי</string>
+    <string name="dns_label_hint">תוויות (אופציונלי)</string>
 </resources>
