@@ -117,7 +117,7 @@ class MainViewModel @Inject constructor(
         .map { !it }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
-    val shortcutsVisibleStateFlow = launcherIconManager.getShowIconFlow(viewModelScope)
+    val shortcutsVisibleStateFlow = launcherIconManager.showIconFlow
 
     val openShortcutOffDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_off", false)
     val openShortcutAutoDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_auto", false)
