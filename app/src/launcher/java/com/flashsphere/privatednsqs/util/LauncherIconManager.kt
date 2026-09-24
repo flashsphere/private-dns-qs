@@ -11,8 +11,7 @@ class LauncherIconManager @Inject constructor() {
     val showIconFlow: StateFlow<Boolean>
         field = MutableStateFlow(true)
 
-    @Composable
-    fun LauncherMenuItem(onDismiss: () -> Unit) {
+    fun toggleLauncherIcon() {
         // No-op
     }
 }

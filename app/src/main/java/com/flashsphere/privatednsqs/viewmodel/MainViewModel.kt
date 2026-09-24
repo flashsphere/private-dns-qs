@@ -117,7 +117,8 @@ class MainViewModel @Inject constructor(
         .map { !it }
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
-    val shortcutsVisibleStateFlow = launcherIconManager.showIconFlow
+    val launcherIconVisibleStateFlow
+        get() = launcherIconManager.showIconFlow
 
     val openShortcutOffDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_off", false)
     val openShortcutAutoDialogFlow = savedStateHandle.getMutableStateFlow("open_shortcut_auto", false)
@@ -225,6 +226,10 @@ class MainViewModel @Inject constructor(
 
     fun openShortcutToggleDialog(open: Boolean) {
         openShortcutToggleDialogFlow.value = open
+    }
+
+    fun toggleLauncherIcon() {
+        launcherIconManager.toggleLauncherIcon()
     }
 
     fun showSnackbarMessage(message: SnackbarMessage) {

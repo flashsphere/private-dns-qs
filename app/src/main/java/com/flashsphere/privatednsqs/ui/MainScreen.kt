@@ -108,8 +108,8 @@ fun MainScreen(
         onShowInTileTitleClick = viewModel::updateShowInTileTitle,
         dnsAutoAsInactiveTileStateFlow = viewModel.dnsAutoAsInactiveTileStateFlow,
         onDnsAutoAsInactiveTileClick = viewModel::updateDnsAutoAsInactiveTile,
-        launcherMenuItem = { onDismiss -> viewModel.launcherIconManager.LauncherMenuItem(onDismiss) },
-        shortcutsVisibleStateFlow = viewModel.shortcutsVisibleStateFlow,
+        launcherIconStateFlow = viewModel.launcherIconVisibleStateFlow,
+        toggleLauncherIcon = viewModel::toggleLauncherIcon,
         hideDnsToggleShortcutStateFlow = viewModel.hideDnsToggleShortcutStateFlow,
         onHideDnsToggleShortcutClick = { viewModel.updateShowDnsToggleShortcut(it) },
         onPinShortcut = viewModel::pinShortcut,
@@ -172,8 +172,8 @@ private fun MainScreen(
     onShowInTileTitleClick: (checked: Boolean) -> Unit,
     dnsAutoAsInactiveTileStateFlow: StateFlow<Boolean>,
     onDnsAutoAsInactiveTileClick: (checked: Boolean) -> Unit,
-    launcherMenuItem: @Composable (onDismiss: () -> Unit) -> Unit,
-    shortcutsVisibleStateFlow: StateFlow<Boolean>,
+    launcherIconStateFlow: StateFlow<Boolean>,
+    toggleLauncherIcon: () -> Unit,
     hideDnsToggleShortcutStateFlow: StateFlow<Boolean>,
     onHideDnsToggleShortcutClick: (checked: Boolean) -> Unit,
     onPinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
@@ -211,7 +211,7 @@ private fun MainScreen(
         mutableStateOf<IndexedValue<DnsProvider>?>(null)
     }
 
-    val shortcutsVisible by shortcutsVisibleStateFlow.collectAsStateWithLifecycle()
+    val shortcutsVisible by launcherIconStateFlow.collectAsStateWithLifecycle()
     val shortcutCount by shortcutCountFlow.collectAsStateWithLifecycle(initialValue = 0)
     val showShortcutLimitWarning by showShortcutLimitWarningFlow.collectAsStateWithLifecycle()
 
@@ -267,8 +267,9 @@ private fun MainScreen(
                     requestAddTile = requestAddTile,
                     backupConfig = backupConfig,
                     restoreConfig = restoreConfig,
+                    launcherIconStateFlow = launcherIconStateFlow,
+                    toggleLauncherIcon = toggleLauncherIcon,
                     toastActions = toastActions,
-                    launcherMenuItem = launcherMenuItem,
                     showSnackbarMessage = showSnackbarMessage,
                 )
             },
@@ -545,8 +546,8 @@ private fun MainScreenPreview() {
         onShowInTileTitleClick = { showInTileTitleStateFlow.value = it },
         dnsAutoAsInactiveTileStateFlow = dnsAutoAsInactiveTile,
         onDnsAutoAsInactiveTileClick = { dnsAutoAsInactiveTile.value = it },
-        launcherMenuItem = {},
-        shortcutsVisibleStateFlow = MutableStateFlow(true),
+        launcherIconStateFlow = MutableStateFlow(true),
+        toggleLauncherIcon = {},
         hideDnsToggleShortcutStateFlow = hideDnsToggleShortcut,
         onHideDnsToggleShortcutClick = { hideDnsToggleShortcut.value = it },
         onPinShortcut = { _, _, _ -> },
