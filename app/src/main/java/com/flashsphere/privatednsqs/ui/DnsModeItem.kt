@@ -2,10 +2,13 @@ package com.flashsphere.privatednsqs.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -21,22 +24,40 @@ import kotlinx.coroutines.flow.StateFlow
 fun DnsModeItem(
     state: StateFlow<Boolean>,
     onClick: (checked: Boolean) -> Unit,
+    onLabelClick: (() -> Unit)? = null,
     label: String,
+    checkboxEnabled: Boolean = true,
 ) {
     val checked = state.collectAsStateWithLifecycle().value
-    val checkboxInteractionSource = remember { MutableInteractionSource() }
     Row(modifier = Modifier
         .focusProperties { canFocus = false }
-        .clickable(
-            interactionSource = checkboxInteractionSource,
-            indication = null,
-            onClick = { onClick(!checked) },
-        )
         .fillMaxWidth()
         .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(checked = checked, onCheckedChange = onClick, interactionSource = checkboxInteractionSource)
-        Text(modifier = Modifier.weight(1F), text = label, style = AppTypography.bodyMedium)
+        Box(
+            modifier = Modifier.size(48.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Checkbox(
+                checked = if (checkboxEnabled) checked else false,
+                onCheckedChange = if (checkboxEnabled) onClick else null,
+                enabled = checkboxEnabled
+            )
+        }
+        Text(
+            modifier = Modifier
+                .weight(1F)
+                .clickable(
+                    enabled = onLabelClick != null,
+                    onClick = { onLabelClick?.invoke() },
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                )
+                .padding(vertical = 12.dp),
+            text = label,
+            style = AppTypography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

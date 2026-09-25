@@ -1,5 +1,6 @@
 package com.flashsphere.privatednsqs.activity
 
+import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.core.content.pm.ShortcutManagerCompat
 import com.flashsphere.privatednsqs.PrivateDnsApplication
@@ -19,8 +20,9 @@ abstract class DnsShortcutActivity : BaseActivity() {
     abstract fun getDnsConfig(): DnsConfiguration?
 
     @CallSuper
-    override fun onStart() {
-        super.onStart()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
         reportShortcutUsed()
         if (privateDns.hasPermission()) {
             getDnsConfig()?.let {
@@ -50,14 +52,9 @@ abstract class DnsShortcutActivity : BaseActivity() {
     }
 
     protected fun reportShortcutUsed() {
-        when (val shortcutId = intent?.action) {
-            "privatedns.shortcut.toggle",
-            "privatedns.shortcut.off",
-            "privatedns.shortcut.auto",
-            "privatedns.shortcut.on" -> {
-                ShortcutManagerCompat.reportShortcutUsed(this, shortcutId)
-            }
-            else -> {}
+        val shortcutId = intent?.action
+        if (shortcutId?.startsWith("privatedns.shortcut.") == true) {
+            ShortcutManagerCompat.reportShortcutUsed(this, shortcutId)
         }
     }
 }

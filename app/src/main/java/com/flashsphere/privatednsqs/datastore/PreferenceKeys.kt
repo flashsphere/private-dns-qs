@@ -18,6 +18,11 @@ object PreferenceKeys {
     val IMAGE_ID_SEQUENCE = PreferenceKey(longPreferencesKey("image_id_sequence"), 0)
     val SHOW_IN_TILE_TITLE = PreferenceKey(booleanPreferencesKey("show_in_tile_title"), false)
     val DNS_AUTO_AS_INACTIVE_TILE = PreferenceKey(booleanPreferencesKey("dns_auto_as_inactive_tile"), false)
+    val HIDE_DNS_TOGGLE_SHORTCUT = PreferenceKey(booleanPreferencesKey("hide_dns_toggle_shortcut"), false)
+    val SHORTCUT_OFF = PreferenceKey(booleanPreferencesKey("shortcut_off"), true)
+    val SHORTCUT_AUTO = PreferenceKey(booleanPreferencesKey("shortcut_auto"), true)
+    val SHOW_SHORTCUT_WARNING = PreferenceKey(booleanPreferencesKey("show_shortcut_warning"), false)
+    val LAST_SHORTCUT_COUNT = PreferenceKey(intPreferencesKey("last_shortcut_count"), -1)
 
     @Deprecated("Not used since migrating to datastore")
     val FIRST_RUN = booleanPreferencesKey("first_run")

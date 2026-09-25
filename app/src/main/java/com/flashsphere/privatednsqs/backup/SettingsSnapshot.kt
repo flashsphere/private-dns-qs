@@ -21,3 +21,17 @@ data class SettingsSnapshotV1(
     val dnsAutoAsInactiveTile: Boolean = PreferenceKeys.DNS_AUTO_AS_INACTIVE_TILE.defaultValue,
     val dnsProviders: List<DnsProviderSnapshot>
 ) : SettingsSnapshot
+
+@Serializable
+@SerialName("2")
+data class SettingsSnapshotV2(
+    val dnsOffToggle: Boolean,
+    val dnsAutoToggle: Boolean,
+    val requireUnlock: Boolean,
+    val showInTileTitle: Boolean,
+    val dnsAutoAsInactiveTile: Boolean,
+    val hideDnsToggleShortcut: Boolean,
+    val shortcutOff: Boolean,
+    val shortcutAuto: Boolean,
+    val dnsProviders: List<DnsProviderSnapshot>
+) : SettingsSnapshot

@@ -10,6 +10,7 @@ data class DnsProvider(
     val id: Long,
     val hostname: String,
     val label: String? = null,
+    val shortcutEnabled: Boolean = true,
     val enabled: Boolean = true,
     val icon: String? = null,
 ) : Parcelable

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -13,6 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,8 +52,33 @@ private fun HelpDialog(
         onDismissRequest = onDismiss,
         content = {
             Column {
-                Text(text = stringResource(R.string.message_help),
-                    style = AppTypography.bodyMedium)
+                val shizukuUrl = stringResource(R.string.shizuku_url)
+                val shizukuName = stringResource(R.string.shizuku)
+                val fullText = stringResource(R.string.message_help, shizukuName)
+                
+                val annotatedString = buildAnnotatedString {
+                    append(fullText)
+                    val start = fullText.indexOf(shizukuName)
+                    if (start != -1) {
+                        addLink(
+                            url = LinkAnnotation.Url(
+                                url = shizukuUrl,
+                                styles = TextLinkStyles(
+                                    style = SpanStyle(
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                )
+                            ),
+                            start = start,
+                            end = start + shizukuName.length
+                        )
+                    }
+                }
+
+                Text(
+                    text = annotatedString,
+                    style = AppTypography.bodyMedium
+                )
                 SelectionContainer {
                     Text(text = stringResource(R.string.message_help_adb, context.packageName),
                         fontFamily = Monospace,

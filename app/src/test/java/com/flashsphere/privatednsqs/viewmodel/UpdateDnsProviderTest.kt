@@ -39,7 +39,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
         val viewModel = createViewModel(settingsRepository)
         runCurrent()
 
-        viewModel.updateDnsProvider(0, "dns.google", null, null)
+        viewModel.updateDnsProvider(0, "dns.google", null)
         runCurrent()
 
         settingsRepository.getDnsProviders().let { dnsProviders ->

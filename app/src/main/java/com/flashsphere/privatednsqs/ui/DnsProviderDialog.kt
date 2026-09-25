@@ -3,6 +3,7 @@ package com.flashsphere.privatednsqs.ui
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,16 +20,19 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -77,22 +81,27 @@ fun AddDnsDialog(
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
     toastActions: ToastActions,
-    addDns: (hostname: String, label: String?, iconFile: File?) -> Unit,
+    pinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
+    addDns: (hostname: String, label: String?, shortcutEnabled: Boolean, iconFile: File?) -> Unit,
+    shortcutsVisible: Boolean,
 ) {
     if (openDialog.value) {
         DnsProviderDialog(
             initialHostname = "",
             initialLabel = null,
+            initialShortcutEnabled = true,
             initialIcon = null,
             getSuggestions = getSuggestions,
             validate = validate,
             processIcon = processIcon,
             toastActions = toastActions,
             onDismiss = { openDialog.value = false },
-            onConfirm = { newHostname, newLabel, newIcon ->
-                addDns(newHostname, newLabel, newIcon)
+            onPinShortcut = pinShortcut,
+            onConfirm = { newHostname, newLabel, newShortcut, newIcon ->
+                addDns(newHostname, newLabel, newShortcut, newIcon)
                 openDialog.value = false
             },
+            shortcutsVisible = shortcutsVisible,
         )
     }
 }
@@ -105,13 +114,16 @@ fun EditDnsDialog(
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
     toastActions: ToastActions,
-    updateDns: (index: Int, hostname: String, label: String?, iconFile: File?) -> Unit,
+    pinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
+    updateDns: (index: Int, hostname: String, label: String?, shortcutEnabled: Boolean, iconFile: File?) -> Unit,
+    shortcutsVisible: Boolean,
 ) {
     openDialog.value?.let {
         val (index, dnsProvider) = it
         DnsProviderDialog(
             initialHostname = dnsProvider.hostname,
             initialLabel = dnsProvider.label,
+            initialShortcutEnabled = dnsProvider.shortcutEnabled,
             initialIcon = dnsProvider.icon,
             getSuggestions = getSuggestions,
             validate = { hostname ->
@@ -122,10 +134,12 @@ fun EditDnsDialog(
             processIcon = processIcon,
             toastActions = toastActions,
             onDismiss = { openDialog.value = null },
-            onConfirm = { newHostname, newLabel, newIcon ->
-                updateDns(index, newHostname, newLabel, newIcon)
+            onPinShortcut = pinShortcut,
+            onConfirm = { newHostname, newLabel, newShortcut, newIcon ->
+                updateDns(index, newHostname, newLabel, newShortcut, newIcon)
                 openDialog.value = null
             },
+            shortcutsVisible = shortcutsVisible,
         )
     }
 }
@@ -135,13 +149,16 @@ fun EditDnsDialog(
 private fun DnsProviderDialog(
     initialHostname: String = "",
     initialLabel: String?,
+    initialShortcutEnabled: Boolean,
     initialIcon: String?,
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
     processIcon: suspend (uri: Uri) -> File?,
     toastActions: ToastActions,
     onDismiss: () -> Unit,
-    onConfirm: (hostname: String, label: String?, iconFile: File?) -> Unit,
+    onPinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
+    onConfirm: (hostname: String, label: String?, shortcutEnabled: Boolean, iconFile: File?) -> Unit,
+    shortcutsVisible: Boolean,
 ) {
     val context = LocalContext.current
     val resources = LocalResources.current
@@ -149,6 +166,7 @@ private fun DnsProviderDialog(
 
     val textFieldState = rememberTextFieldState(initialText = initialHostname)
     val labelFieldState = rememberTextFieldState(initialText = initialLabel ?: "")
+    var shortcutEnabled by remember { mutableStateOf(initialShortcutEnabled) }
 
     val errorMessage = remember { mutableStateOf<String?>(null) }
 
@@ -169,7 +187,7 @@ private fun DnsProviderDialog(
         val label = labelFieldState.text.toString().takeIf { it.isNotBlank() }
         val iconFile = selectedIcon?.let { File(it) }
         if (hostname.isNotBlank() && validate(hostname)) {
-            onConfirm(hostname, label, iconFile)
+            onConfirm(hostname, label, shortcutEnabled, iconFile)
         }
     }
 
@@ -247,9 +265,47 @@ private fun DnsProviderDialog(
                     onKeyboardAction = { onSubmit() },
                     modifier = Modifier.fillMaxWidth(),
                 )
+
+                if (shortcutsVisible) {
+                    Spacer(Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { shortcutEnabled = !shortcutEnabled }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(checked = shortcutEnabled, onCheckedChange = { shortcutEnabled = it })
+                        Text(text = stringResource(R.string.show_shortcut), style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
             }
         },
         buttons = {
+            val pinTooltipState = rememberTooltipState()
+            val isPinEnabled = textFieldState.text.isNotBlank() && errorMessage.value == null
+            Tooltip(
+                state = pinTooltipState,
+                text = stringResource(R.string.pin_to_home),
+            ) {
+                IconButton(
+                    enabled = isPinEnabled,
+                    onClick = {
+                        val hostname = textFieldState.text.toString()
+                        val label = labelFieldState.text.toString().takeIf { it.isNotBlank() }
+                        val iconFile = selectedIcon?.let { File(it) }
+                        onPinShortcut(hostname, label, iconFile)
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_pin_to_home),
+                        contentDescription = stringResource(R.string.pin_to_home),
+                        tint = if (isPinEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    )
+                }
+            }
+            Spacer(Modifier.weight(1F))
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
             TextButton(
                 enabled = textFieldState.text.isNotBlank() && errorMessage.value == null,
@@ -365,6 +421,72 @@ private fun DnsHostnameTextField(
 
 private val spaceRegex = "\\s".toRegex()
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FixedModeShortcutDialog(
+    label: String,
+    iconRes: Int,
+    initialShortcutEnabled: Boolean,
+    onDismiss: () -> Unit,
+    onPinShortcut: () -> Unit,
+    onConfirm: (shortcutEnabled: Boolean) -> Unit,
+    shortcutsVisible: Boolean,
+) {
+    var shortcutEnabled by remember { mutableStateOf(initialShortcutEnabled) }
+
+    CustomAlertDialog(
+        onDismissRequest = onDismiss,
+        content = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = painterResource(iconRes),
+                    contentDescription = stringResource(R.string.icon),
+                    tint = MaterialTheme.colorScheme.onBackground,
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(text = label, style = MaterialTheme.typography.titleMedium)
+                if (shortcutsVisible) {
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { shortcutEnabled = !shortcutEnabled }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(checked = shortcutEnabled, onCheckedChange = { shortcutEnabled = it })
+                        Text(text = stringResource(R.string.show_shortcut), style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        },
+        buttons = {
+            val pinTooltipState = rememberTooltipState()
+            Tooltip(
+                state = pinTooltipState,
+                text = stringResource(R.string.pin_to_home),
+            ) {
+                IconButton(onClick = onPinShortcut) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_pin_to_home),
+                        contentDescription = stringResource(R.string.pin_to_home),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            Spacer(Modifier.weight(1F))
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+            TextButton(onClick = { onConfirm(shortcutEnabled) }) {
+                Text(stringResource(R.string.ok))
+            }
+        }
+    )
+}
+
 @Preview
 @Composable
 private fun DnsProviderDialogPreview() {
@@ -372,8 +494,9 @@ private fun DnsProviderDialogPreview() {
         DnsProviderDialog(
             initialHostname = "",
             initialLabel = null,
+            initialShortcutEnabled = true,
             initialIcon = null,
-            getSuggestions = {
+            getSuggestions = { _ ->
                 setOf(
                     "one.one.one.one",
                     "two two two two two two two two two two two two two two two two two two " +
@@ -382,10 +505,12 @@ private fun DnsProviderDialogPreview() {
                 )
             },
             validate = { it.isBlank() || it == "test" },
-            processIcon = { null },
+            processIcon = { _ -> null },
             onDismiss = {},
-            onConfirm = { _, _, _ -> },
+            onPinShortcut = { _, _, _ -> },
+            onConfirm = { _, _, _, _ -> },
             toastActions = NoOpToastActions,
+            shortcutsVisible = true,
         )
     }
 }

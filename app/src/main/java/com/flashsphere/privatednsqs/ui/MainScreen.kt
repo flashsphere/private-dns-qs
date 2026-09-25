@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.ReportDrawn
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
@@ -45,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLocale
@@ -53,6 +57,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.ui.theme.AppTheme
@@ -81,8 +86,12 @@ fun MainScreen(
         snackbarMessageFlow = viewModel.snackbarMessages,
         dnsOffStateFlow = viewModel.dnsOffStateFlow,
         onDnsOffClick = viewModel::updateDnsOffToggle,
+        onDnsOffLabelClick = { viewModel.openShortcutOffDialog(true) },
         dnsAutoStateFlow = viewModel.dnsAutoStateFlow,
         onDnsAutoClick = viewModel::updateDnsAutoToggle,
+        onDnsAutoLabelClick = { viewModel.openShortcutAutoDialog(true) },
+        dnsToggleShortcutEnabledStateFlow = viewModel.dnsToggleShortcutEnabledStateFlow,
+        onDnsToggleLabelClick = { viewModel.openShortcutToggleDialog(true) },
         dnsProviders = viewModel.dnsProviders,
         getDnsSuggestions = viewModel::getSuggestions,
         validateDnsProvider = viewModel::validateDnsProvider,
@@ -99,6 +108,28 @@ fun MainScreen(
         onShowInTileTitleClick = viewModel::updateShowInTileTitle,
         dnsAutoAsInactiveTileStateFlow = viewModel.dnsAutoAsInactiveTileStateFlow,
         onDnsAutoAsInactiveTileClick = viewModel::updateDnsAutoAsInactiveTile,
+        launcherMenuItem = { onDismiss -> viewModel.launcherIconManager.LauncherMenuItem(onDismiss) },
+        shortcutsVisibleStateFlow = viewModel.shortcutsVisibleStateFlow,
+        hideDnsToggleShortcutStateFlow = viewModel.hideDnsToggleShortcutStateFlow,
+        onHideDnsToggleShortcutClick = { viewModel.updateShowDnsToggleShortcut(it) },
+        onPinShortcut = viewModel::pinShortcut,
+        openShortcutOffDialogFlow = viewModel.openShortcutOffDialogFlow,
+        openShortcutAutoDialogFlow = viewModel.openShortcutAutoDialogFlow,
+        openShortcutToggleDialogFlow = viewModel.openShortcutToggleDialogFlow,
+        onOpenShortcutOffDialog = viewModel::openShortcutOffDialog,
+        onOpenShortcutAutoDialog = viewModel::openShortcutAutoDialog,
+        onOpenShortcutToggleDialog = viewModel::openShortcutToggleDialog,
+        shortcutOffStateFlow = viewModel.shortcutOffStateFlow,
+        shortcutAutoStateFlow = viewModel.shortcutAutoStateFlow,
+        onShortcutOffToggle = viewModel::updateShortcutOff,
+        onShortcutAutoToggle = viewModel::updateShortcutAuto,
+        onPinOffShortcut = viewModel::pinOffShortcut,
+        onPinAutoShortcut = viewModel::pinAutoShortcut,
+        onPinToggleShortcut = viewModel::pinToggleShortcut,
+        shortcutCountFlow = viewModel.shortcutCountFlow,
+        showShortcutLimitWarningFlow = viewModel.showShortcutLimitWarningFlow,
+        onShortcutLimitAcknowledge = viewModel::acknowledgeShortcutLimit,
+        maxShortcuts = viewModel.maxShortcuts,
         showAppInfo = showAppInfo,
         showMoreInfo = showMoreInfo,
         requestAddTile = requestAddTile,
@@ -119,13 +150,17 @@ private fun MainScreen(
     snackbarMessageFlow: Flow<SnackbarMessage>,
     dnsOffStateFlow: StateFlow<Boolean>,
     onDnsOffClick: (checked: Boolean) -> Unit,
+    onDnsOffLabelClick: () -> Unit,
     dnsAutoStateFlow: StateFlow<Boolean>,
     onDnsAutoClick: (checked: Boolean) -> Unit,
+    onDnsAutoLabelClick: () -> Unit,
+    dnsToggleShortcutEnabledStateFlow: StateFlow<Boolean>,
+    onDnsToggleLabelClick: () -> Unit,
     dnsProviders: SnapshotStateList<DnsProvider>,
     getDnsSuggestions: (text: String) -> Set<String>,
     validateDnsProvider: (hostname: String) -> Boolean,
-    addDnsProvider: (hostname: String, label: String?, icon: File?) -> Unit,
-    updateDnsProvider: (index: Int, hostname: String, label: String?, icon: File?) -> Unit,
+    addDnsProvider: (hostname: String, label: String?, shortcutEnabled: Boolean, icon: File?) -> Unit,
+    updateDnsProvider: (index: Int, hostname: String, label: String?, shortcutEnabled: Boolean, icon: File?) -> Unit,
     toggleDnsProvider: (index: Int, enabled: Boolean) -> Unit,
     deleteDnsProvider: (index: Int) -> Unit,
     restoreDnsProvider: (index: Int, deleted: DnsProvider) -> Unit,
@@ -137,6 +172,28 @@ private fun MainScreen(
     onShowInTileTitleClick: (checked: Boolean) -> Unit,
     dnsAutoAsInactiveTileStateFlow: StateFlow<Boolean>,
     onDnsAutoAsInactiveTileClick: (checked: Boolean) -> Unit,
+    launcherMenuItem: @Composable (onDismiss: () -> Unit) -> Unit,
+    shortcutsVisibleStateFlow: StateFlow<Boolean>,
+    hideDnsToggleShortcutStateFlow: StateFlow<Boolean>,
+    onHideDnsToggleShortcutClick: (checked: Boolean) -> Unit,
+    onPinShortcut: (hostname: String, label: String?, iconFile: File?) -> Unit,
+    openShortcutOffDialogFlow: StateFlow<Boolean>,
+    openShortcutAutoDialogFlow: StateFlow<Boolean>,
+    openShortcutToggleDialogFlow: StateFlow<Boolean>,
+    onOpenShortcutOffDialog: (Boolean) -> Unit,
+    onOpenShortcutAutoDialog: (Boolean) -> Unit,
+    onOpenShortcutToggleDialog: (Boolean) -> Unit,
+    shortcutOffStateFlow: StateFlow<Boolean>,
+    shortcutAutoStateFlow: StateFlow<Boolean>,
+    onShortcutOffToggle: (Boolean) -> Unit,
+    onShortcutAutoToggle: (Boolean) -> Unit,
+    onPinOffShortcut: () -> Unit,
+    onPinAutoShortcut: () -> Unit,
+    onPinToggleShortcut: () -> Unit,
+    shortcutCountFlow: Flow<Int>,
+    showShortcutLimitWarningFlow: StateFlow<Boolean>,
+    onShortcutLimitAcknowledge: () -> Unit,
+    maxShortcuts: Int,
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
@@ -153,6 +210,10 @@ private fun MainScreen(
     val showEditDnsDialog = rememberSaveable(stateSaver = indexedValueSaver()) {
         mutableStateOf<IndexedValue<DnsProvider>?>(null)
     }
+
+    val shortcutsVisible by shortcutsVisibleStateFlow.collectAsStateWithLifecycle()
+    val shortcutCount by shortcutCountFlow.collectAsStateWithLifecycle(initialValue = 0)
+    val showShortcutLimitWarning by showShortcutLimitWarningFlow.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         snackbarMessageFlow.collect { message ->
@@ -207,6 +268,7 @@ private fun MainScreen(
                     backupConfig = backupConfig,
                     restoreConfig = restoreConfig,
                     toastActions = toastActions,
+                    launcherMenuItem = launcherMenuItem,
                     showSnackbarMessage = showSnackbarMessage,
                 )
             },
@@ -242,8 +304,25 @@ private fun MainScreen(
                 item(key = "header_modes", contentType = "header_modes") {
                     Column(Modifier.animateItem()) {
                         Header(stringResource(R.string.dns_modes_to_toggle))
-                        DnsModeItem(dnsOffStateFlow, onDnsOffClick, stringResource(R.string.dns_off))
-                        DnsModeItem(dnsAutoStateFlow, onDnsAutoClick, stringResource(R.string.dns_auto))
+                        DnsModeItem(
+                            state = dnsToggleShortcutEnabledStateFlow,
+                            onClick = {},
+                            onLabelClick = onDnsToggleLabelClick,
+                            label = stringResource(R.string.dns_toggle_shortcut_only),
+                            checkboxEnabled = false
+                        )
+                        DnsModeItem(
+                            state = dnsOffStateFlow,
+                            onClick = onDnsOffClick,
+                            onLabelClick = onDnsOffLabelClick,
+                            label = stringResource(R.string.dns_off)
+                        )
+                        DnsModeItem(
+                            state = dnsAutoStateFlow,
+                            onClick = onDnsAutoClick,
+                            onLabelClick = onDnsAutoLabelClick,
+                            label = stringResource(R.string.dns_auto)
+                        )
                     }
                 }
                 itemsIndexed(
@@ -275,19 +354,55 @@ private fun MainScreen(
                         Text(stringResource(R.string.add_dns_provider))
                     }
                 }
+                if (showShortcutLimitWarning) {
+                    item(key = "shortcut_limit_warning", contentType = "warning") {
+                        val dismissState = rememberNoFlingSwipeToDismissBoxState()
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            backgroundContent = { SwipeToDismissBackground(dismissState) },
+                            onDismiss = { onShortcutLimitAcknowledge() },
+                        ) {
+                            Surface(
+                                modifier = Modifier
+                                    .animateItem()
+                                    .padding(horizontal = 4.dp, vertical = 8.dp)
+                                    .fillMaxWidth(),
+                                color = Color(0xFFFFF9C4),
+                                shape = RoundedCornerShape(8.dp),
+                                border = BorderStroke(1.dp, Color(0xFFFBC02D))
+                            ) {
+                                Text(
+                                    modifier = Modifier.padding(16.dp),
+                                    text = stringResource(R.string.shortcut_limit_warning, maxShortcuts, shortcutCount),
+                                    style = AppTypography.bodyMedium,
+                                    color = Color.Black
+                                )
+                            }
+                        }
+                    }
+                }
                 item(key = "other_settings", contentType = "other_settings") {
                     Column(Modifier.animateItem()) {
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Header(stringResource(R.string.other_settings))
-                        DnsModeItem(requireUnlockStateFlow, onRequireUnlockClick,
-                            stringResource(R.string.require_unlock))
+                        DnsModeItem(
+                            state = requireUnlockStateFlow,
+                            onClick = onRequireUnlockClick,
+                            label = stringResource(R.string.require_unlock)
+                        )
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            DnsModeItem(showInTileTitleStateFlow, onShowInTileTitleClick,
-                                stringResource(R.string.show_in_tile_tile))
+                            DnsModeItem(
+                                state = showInTileTitleStateFlow,
+                                onClick = onShowInTileTitleClick,
+                                label = stringResource(R.string.show_in_tile_tile)
+                            )
                         }
-                        DnsModeItem(dnsAutoAsInactiveTileStateFlow, onDnsAutoAsInactiveTileClick,
-                            stringResource(R.string.dns_auto_as_inactive_tile))
+                        DnsModeItem(
+                            state = dnsAutoAsInactiveTileStateFlow,
+                            onClick = onDnsAutoAsInactiveTileClick,
+                            label = stringResource(R.string.dns_auto_as_inactive_tile)
+                        )
                     }
                 }
             }
@@ -297,7 +412,9 @@ private fun MainScreen(
                 validate = validateDnsProvider,
                 processIcon = processIcon,
                 toastActions = toastActions,
+                pinShortcut = onPinShortcut,
                 addDns = addDnsProvider,
+                shortcutsVisible = shortcutsVisible,
             )
             EditDnsDialog(
                 openDialog = showEditDnsDialog,
@@ -305,8 +422,62 @@ private fun MainScreen(
                 validate = validateDnsProvider,
                 processIcon = processIcon,
                 toastActions = toastActions,
+                pinShortcut = onPinShortcut,
                 updateDns = updateDnsProvider,
+                shortcutsVisible = shortcutsVisible,
             )
+
+            val showShortcutOffDialog by openShortcutOffDialogFlow.collectAsStateWithLifecycle()
+            if (showShortcutOffDialog) {
+                val shortcutEnabled by shortcutOffStateFlow.collectAsStateWithLifecycle()
+                FixedModeShortcutDialog(
+                    label = stringResource(R.string.dns_off),
+                    iconRes = R.drawable.ic_dns_off,
+                    initialShortcutEnabled = shortcutEnabled,
+                    onDismiss = { onOpenShortcutOffDialog(false) },
+                    onPinShortcut = onPinOffShortcut,
+                    shortcutsVisible = shortcutsVisible,
+                    onConfirm = {
+                        onShortcutOffToggle(it)
+                        onOpenShortcutOffDialog(false)
+                    }
+                )
+            }
+
+            val showShortcutAutoDialog by openShortcutAutoDialogFlow.collectAsStateWithLifecycle()
+            if (showShortcutAutoDialog) {
+                val shortcutEnabled by shortcutAutoStateFlow.collectAsStateWithLifecycle()
+                FixedModeShortcutDialog(
+                    label = stringResource(R.string.dns_auto),
+                    iconRes = R.drawable.ic_dns_auto,
+                    initialShortcutEnabled = shortcutEnabled,
+                    onDismiss = { onOpenShortcutAutoDialog(false) },
+                    onPinShortcut = onPinAutoShortcut,
+                    shortcutsVisible = shortcutsVisible,
+                    onConfirm = {
+                        onShortcutAutoToggle(it)
+                        onOpenShortcutAutoDialog(false)
+                    }
+                )
+            }
+
+            val showShortcutToggleDialog by openShortcutToggleDialogFlow.collectAsStateWithLifecycle()
+            if (showShortcutToggleDialog) {
+                val hideToggle by hideDnsToggleShortcutStateFlow.collectAsStateWithLifecycle()
+                FixedModeShortcutDialog(
+                    label = stringResource(R.string.dns_toggle),
+                    iconRes = R.drawable.ic_dns_toggle,
+                    initialShortcutEnabled = !hideToggle,
+                    onDismiss = { onOpenShortcutToggleDialog(false) },
+                    onPinShortcut = onPinToggleShortcut,
+                    shortcutsVisible = shortcutsVisible,
+                    onConfirm = {
+                        onHideDnsToggleShortcutClick(it)
+                        onOpenShortcutToggleDialog(false)
+                    }
+                )
+            }
+
             HelpDialog(
                 openHelpDialogFlow = openHelpDialogFlow,
                 openHelpDialog = openHelpDialog,
@@ -342,8 +513,9 @@ private fun MainScreenPreview() {
     val dnsOff = remember { MutableStateFlow(true) }
     val dnsAuto = remember { MutableStateFlow(true) }
     val requireUnlock = remember { MutableStateFlow(false) }
-    val showInTileTitle = remember { MutableStateFlow(false) }
+    val showInTileTitleStateFlow = remember { MutableStateFlow(false) }
     val dnsAutoAsInactiveTile = remember { MutableStateFlow(false) }
+    val hideDnsToggleShortcut = remember { MutableStateFlow(false) }
 
     MainScreen(
         openHelpDialogFlow = openHelpDialogFlow,
@@ -351,32 +523,58 @@ private fun MainScreenPreview() {
         snackbarMessageFlow = snackbarMessageFlow,
         dnsOffStateFlow = dnsOff,
         onDnsOffClick = { dnsOff.value = it },
+        onDnsOffLabelClick = {},
         dnsAutoStateFlow = dnsAuto,
         onDnsAutoClick = { dnsAuto.value = it },
+        onDnsAutoLabelClick = {},
+        dnsToggleShortcutEnabledStateFlow = remember { MutableStateFlow(true) },
+        onDnsToggleLabelClick = {},
         dnsProviders = dnsProviders,
-        getDnsSuggestions = { emptySet() },
-        validateDnsProvider = { true },
-        addDnsProvider = { _, _, _ -> },
-        updateDnsProvider = { _, _, _, _ -> },
+        getDnsSuggestions = { _ -> emptySet() },
+        validateDnsProvider = { _ -> true },
+        addDnsProvider = { _, _, _, _ -> },
+        updateDnsProvider = { _, _, _, _, _ -> },
         toggleDnsProvider = { _, _ -> },
-        deleteDnsProvider = {},
+        deleteDnsProvider = { _ -> },
         restoreDnsProvider = { _, _ -> },
         reorderDnsProvider = { _, _ -> },
         reorderDnsProviders = {},
         requireUnlockStateFlow = requireUnlock,
         onRequireUnlockClick = { requireUnlock.value = it },
-        showInTileTitleStateFlow = showInTileTitle,
-        onShowInTileTitleClick = { showInTileTitle.value = it },
+        showInTileTitleStateFlow = showInTileTitleStateFlow,
+        onShowInTileTitleClick = { showInTileTitleStateFlow.value = it },
         dnsAutoAsInactiveTileStateFlow = dnsAutoAsInactiveTile,
         onDnsAutoAsInactiveTileClick = { dnsAutoAsInactiveTile.value = it },
+        launcherMenuItem = {},
+        shortcutsVisibleStateFlow = MutableStateFlow(true),
+        hideDnsToggleShortcutStateFlow = hideDnsToggleShortcut,
+        onHideDnsToggleShortcutClick = { hideDnsToggleShortcut.value = it },
+        onPinShortcut = { _, _, _ -> },
+        openShortcutOffDialogFlow = remember { MutableStateFlow(false) },
+        openShortcutAutoDialogFlow = remember { MutableStateFlow(false) },
+        openShortcutToggleDialogFlow = remember { MutableStateFlow(false) },
+        onOpenShortcutOffDialog = { _ -> },
+        onOpenShortcutAutoDialog = { _ -> },
+        onOpenShortcutToggleDialog = { _ -> },
+        shortcutOffStateFlow = remember { MutableStateFlow(true) },
+        shortcutAutoStateFlow = remember { MutableStateFlow(true) },
+        onShortcutOffToggle = { _ -> },
+        onShortcutAutoToggle = { _ -> },
+        onPinOffShortcut = {},
+        onPinAutoShortcut = {},
+        onPinToggleShortcut = {},
+        shortcutCountFlow = remember { MutableStateFlow(0) },
+        showShortcutLimitWarningFlow = remember { MutableStateFlow(false) },
+        onShortcutLimitAcknowledge = {},
+        maxShortcuts = 4,
         showAppInfo = {},
         showMoreInfo = {},
         requestAddTile = {},
-        backupConfig = {},
-        restoreConfig = {},
-        processIcon = { null },
-        deleteFile = {},
+        backupConfig = { _ -> },
+        restoreConfig = { _ -> },
+        processIcon = { _ -> null },
+        deleteFile = { _ -> },
         toastActions = NoOpToastActions,
-        showSnackbarMessage = {},
+        showSnackbarMessage = { _ -> },
     )
 }
