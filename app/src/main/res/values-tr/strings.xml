@@ -54,5 +54,6 @@
     <string name="default_icon">Varsayılan</string>
     <string name="toast_select_icon_help">Bir PNG veya SVG dosyası seç</string>
     <string name="help">Yardım</string>
-    <string name="dns_label_hint">Etiket (isteğe)</string>
+    <string name="dns_label_hint">Etiket (isteğe bağlı)</string>
+    <string name="dns_auto_as_inactive_tile">“DNS Otomatik” seçeneğini pasif tuş durumunda göster</string>
 </resources>
