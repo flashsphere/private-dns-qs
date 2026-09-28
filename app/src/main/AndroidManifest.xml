@@ -30,6 +30,10 @@
         </activity>
 
         <activity
+            android:name=".activity.AppShortcutsActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".activity.SelectDnsActivity"
             android:excludeFromRecents="true"
             android:exported="true"
@@ -97,6 +101,15 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".receiver.LocaleChangedReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+        </receiver>
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"

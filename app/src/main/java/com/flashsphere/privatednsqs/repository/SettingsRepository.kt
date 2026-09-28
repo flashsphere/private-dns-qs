@@ -113,29 +113,41 @@ class SettingsRepository @Inject constructor(
         return update(PreferenceKeys.DNS_AUTO_AS_INACTIVE_TILE, value)
     }
 
-    suspend fun updateHideDnsToggleShortcut(value: Boolean) {
-        return update(PreferenceKeys.HIDE_DNS_TOGGLE_SHORTCUT, value)
+    fun getDnsOffShortcutFlow(): Flow<Boolean> {
+        return getFlow(PreferenceKeys.DNS_OFF_SHORTCUT)
     }
 
-    suspend fun updateShortcutOff(value: Boolean) {
-        return update(PreferenceKeys.SHORTCUT_OFF, value)
+    suspend fun getDnsOffShortcut(): Boolean {
+        return dataStore.get(PreferenceKeys.DNS_OFF_SHORTCUT)
     }
 
-    suspend fun updateShortcutAuto(value: Boolean) {
-        return update(PreferenceKeys.SHORTCUT_AUTO, value)
+    suspend fun updateDnsOffShortcut(value: Boolean) {
+        return update(PreferenceKeys.DNS_OFF_SHORTCUT, value)
     }
 
-    suspend fun <T> updatePreference(pref: PreferenceKey<T>, value: T) = update(pref, value)
+    fun getDnsAutoShortcutFlow(): Flow<Boolean> {
+        return getFlow(PreferenceKeys.DNS_AUTO_SHORTCUT)
+    }
 
-    fun <T> getPreferenceStateFlow(
-        scope: CoroutineScope,
-        pref: PreferenceKey<T>
-    ): StateFlow<T> = getStateFlow(scope, pref)
+    suspend fun getDnsAutoShortcut(): Boolean {
+        return dataStore.get(PreferenceKeys.DNS_AUTO_SHORTCUT)
+    }
 
-    suspend fun updateShowShortcutWarning(value: Boolean) = update(PreferenceKeys.SHOW_SHORTCUT_WARNING, value)
+    suspend fun updateDnsAutoShortcut(value: Boolean) {
+        return update(PreferenceKeys.DNS_AUTO_SHORTCUT, value)
+    }
 
-    fun getLastShortcutCountFlow(): Flow<Int> = getFlow(PreferenceKeys.LAST_SHORTCUT_COUNT)
-    suspend fun updateLastShortcutCount(value: Int) = update(PreferenceKeys.LAST_SHORTCUT_COUNT, value)
+    fun getDnsToggleShortcutFlow(): Flow<Boolean> {
+        return getFlow(PreferenceKeys.DNS_TOGGLE_SHORTCUT)
+    }
+
+    suspend fun getDnsToggleShortcut(): Boolean {
+        return dataStore.get(PreferenceKeys.DNS_TOGGLE_SHORTCUT)
+    }
+
+    suspend fun updateDnsToggleShortcut(value: Boolean) {
+        return update(PreferenceKeys.DNS_TOGGLE_SHORTCUT, value)
+    }
 
     fun getDnsProvidersFlow(): Flow<List<DnsProvider>> {
         return getFlow(PreferenceKeys.DNS_PROVIDERS)
@@ -155,8 +167,7 @@ class SettingsRepository @Inject constructor(
     }
 
     fun getEnabledDnsProvidersFlow(): Flow<Sequence<DnsProvider>> {
-        return getFlow(PreferenceKeys.DNS_PROVIDERS).map {
-            val list = runCatching { json.decodeFromString<List<DnsProvider>>(it) }.getOrElse { emptyList() }
+        return getDnsProvidersFlow().map { list ->
             list.asSequence().filter { it.enabled }
         }
     }

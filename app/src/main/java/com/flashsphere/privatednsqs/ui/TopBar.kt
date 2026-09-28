@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.flashsphere.privatednsqs.R
-import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -33,8 +32,6 @@ fun TopBar(
     requestAddTile: () -> Unit,
     backupConfig: (uri: Uri) -> Unit,
     restoreConfig: (uri: Uri) -> Unit,
-    launcherIconStateFlow: StateFlow<Boolean>,
-    toggleLauncherIcon: () -> Unit,
     toastActions: ToastActions,
     showSnackbarMessage: (message: SnackbarMessage) -> Unit,
 ) {
@@ -117,13 +114,6 @@ fun TopBar(
                         }
                         openDropdownMenu.value = false
                     }
-                )
-                LauncherMenuItem(
-                    stateFlow = launcherIconStateFlow,
-                    onClick = {
-                        toggleLauncherIcon()
-                        openDropdownMenu.value = false
-                    },
                 )
                 DropdownMenuItem(
                     leadingIcon = { Icon(painterResource(R.drawable.ic_help),

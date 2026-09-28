@@ -3,7 +3,6 @@
     <string name="close">Închide</string>
     <string name="toast_restore_help">Selectează un fișier de backup pentru restaurare</string>
     <string name="select_icon">Modifică</string>
-    <string name="toggle">Comutare</string>
     <string name="add_tile">Adaugă butonul</string>
     <string name="toast_no_permission">Permisiunea WRITE_SECURE_SETTINGS nu a fost acordată</string>
     <string name="dns_toggle">Comutare DNS</string>
@@ -16,7 +15,7 @@
     <string name="icon">Pictogramă</string>
     <string name="toast_cannot_open_more_info">Eroare la deschiderea paginii web: %1$s</string>
     <string name="drag_to_reorder">Trage pentru a reordona</string>
-    <string name="message_help">Pentru a modifica setările legate de DNS-ul privat, această aplicație necesită permisiunea WRITE_SECURE_SETTINGS, care poate fi acordată doar de către ADB:</string>
+    <string name="message_help">Pentru a modifica setările legate de DNS-ul privat, această aplicație necesită permisiunea WRITE_SECURE_SETTINGS, care poate fi acordată doar de către %1$s / ADB:</string>
     <string name="toast_cannot_open_app_info">Eroare la deschiderea informațiilor despre aplicație în Android: %1$s</string>
     <string name="on">Pornit</string>
     <string name="restore">Restaurează</string>
@@ -46,7 +45,6 @@
     <string name="auto">Automat</string>
     <string name="backup_completed">Backup finalizat</string>
     <string name="tile_name">DNS privat</string>
-    <string name="dns_on">DNS pornit</string>
     <string name="tile_not_added">Butonul DNS privat nu a putut fi adăugat în panoul Setări rapide. Cod de eroare = %1$d</string>
     <string name="settings">Gestionează DNS</string>
     <string name="set_dns_auto">Setează DNS-ul privat la Automat</string>

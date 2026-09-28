@@ -17,13 +17,13 @@ class LauncherIconManager @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
     private val launcherComponentName = ComponentName(context, "com.flashsphere.privatednsqs.LauncherActivity")
-    val showIconFlow: StateFlow<Boolean>
+    val iconVisibleFlow: StateFlow<Boolean>
         field = MutableStateFlow(
             context.packageManager.getComponentEnabledSetting(launcherComponentName) == COMPONENT_ENABLED_STATE_ENABLED
         )
 
     fun toggleLauncherIcon() {
-        val updatedState = !showIconFlow.value
+        val updatedState = !iconVisibleFlow.value
         val componentState = if (updatedState) {
             COMPONENT_ENABLED_STATE_ENABLED
         } else {
@@ -34,7 +34,7 @@ class LauncherIconManager @Inject constructor(
             componentState,
             PackageManager.DONT_KILL_APP
         )
-        showIconFlow.value = updatedState
+        iconVisibleFlow.value = updatedState
         Timber.d("Launcher icon visibility updated: %b", updatedState)
     }
 }

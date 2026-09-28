@@ -4,12 +4,10 @@
     <string name="tile_name">DNS privado</string>
     <string name="dns_off">DNS desactivado</string>
     <string name="dns_auto">DNS automático</string>
-    <string name="dns_on">DNS activado</string>
     <string name="dns_toggle">Alternar DNS</string>
     <string name="off">Desactivado</string>
     <string name="auto">Automático</string>
     <string name="on">Activado</string>
-    <string name="toggle">Alternar</string>
     <string name="set_dns_off">Desactivar DNS privado</string>
     <string name="set_dns_auto">Activar DNS en automático</string>
     <string name="set_dns_on">Activar el DNS privado</string>
@@ -24,7 +22,7 @@
     <string name="dns_label_hint">Etiqueta (opcional)</string>
     <string name="toast_cannot_open_app_info">Error al abrir la información de la aplicación en Android: %1$s</string>
     <string name="toast_cannot_open_more_info">Error al abrir la página web: %1$s</string>
-    <string name="message_help">Para modificar los ajustes de DNS privado, esta aplicación requiere el permiso WRITE_SECURE_SETTINGS, que solo puede concederse mediante ADB:</string>
+    <string name="message_help">Para modificar los ajustes de DNS privado, esta aplicación requiere el permiso WRITE_SECURE_SETTINGS, que solo puede concederse mediante %1$s / ADB:</string>
     <string name="permission_granted_using_shizuku">Permiso WRITE_SECURE_SETTINGS concedido usando Shizuku</string>
     <string name="tile_added">Mosaico de DNS privado añadido a los ajustes rápidos</string>
     <string name="tile_not_added">Mosaico de DNS privado no añadido a los ajustes rápidos. Código de error = %1$d</string>

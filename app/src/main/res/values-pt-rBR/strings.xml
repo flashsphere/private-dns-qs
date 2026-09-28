@@ -4,12 +4,10 @@
     <string name="tile_name">DNS privado</string>
     <string name="dns_off">DNS desligado</string>
     <string name="dns_auto">DNS automático</string>
-    <string name="dns_on">DNS ligado</string>
     <string name="dns_toggle">Alteração de DNS</string>
     <string name="off">Desligado</string>
     <string name="auto">Automático</string>
     <string name="on">Ligado</string>
-    <string name="toggle">Alteração</string>
     <string name="set_dns_off">Desativar DNS privado</string>
     <string name="set_dns_auto">DNS privado automático</string>
     <string name="set_dns_on">Ativar DNS privado</string>
@@ -23,7 +21,7 @@
     <string name="dns_hostname_hint">Nome de host do provedor de DNS</string>
     <string name="toast_cannot_open_app_info">Erro ao abrir os detalhes do app no Android: %1$s</string>
     <string name="toast_cannot_open_more_info">Erro ao abrir o site: %1$s</string>
-    <string name="message_help">Este app precisa de permissão WRITE_SECURE_SETTINGS, para modificar as configurações do DNS privado, isto só pode ser concedido via ADB:</string>
+    <string name="message_help">Este app precisa de permissão WRITE_SECURE_SETTINGS, para modificar as configurações do DNS privado, isto só pode ser concedido via %1$s / ADB:</string>
     <string name="permission_granted_using_shizuku">Permissão WRITE_SECURE_SETTINGS concedida via Shizuku</string>
     <string name="tile_added">Botão de DNS privado adicionado às Configurações Rápidas</string>
     <string name="tile_not_added">Botão de DNS privado não foi adicionado às Configurações Rápidas. Código de erro = %1$d</string>
