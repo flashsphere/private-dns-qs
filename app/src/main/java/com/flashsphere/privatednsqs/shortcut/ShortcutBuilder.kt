@@ -26,6 +26,7 @@ class ShortcutBuilder @Inject constructor(
         return ShortcutInfoCompat.Builder(context, shortcutId)
             .setShortLabel(context.getString(R.string.dns_off))
             .setLongLabel(context.getString(R.string.dns_off))
+            .setRank(1)
             .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher_off))
             .setIntent(Intent(context, DnsOffActivity::class.java).apply {
                 action = "privatedns.shortcut.off"
@@ -38,6 +39,7 @@ class ShortcutBuilder @Inject constructor(
         return ShortcutInfoCompat.Builder(context, shortcutId)
             .setShortLabel(context.getString(R.string.dns_auto))
             .setLongLabel(context.getString(R.string.dns_auto))
+            .setRank(2)
             .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher))
             .setIntent(Intent(context, DnsAutoActivity::class.java)
                 .apply { action = "privatedns.shortcut.auto" })
@@ -48,6 +50,7 @@ class ShortcutBuilder @Inject constructor(
         return ShortcutInfoCompat.Builder(context, shortcutId)
             .setShortLabel(context.getString(R.string.dns_toggle))
             .setLongLabel(context.getString(R.string.dns_toggle))
+            .setRank(3)
             .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher_toggle))
             .setIntent(Intent(context, DnsToggleActivity::class.java)
                 .apply { action = "privatedns.shortcut.toggle" })
@@ -65,6 +68,7 @@ class ShortcutBuilder @Inject constructor(
         val builder = ShortcutInfoCompat.Builder(context, shortcutId)
             .setShortLabel(label)
             .setLongLabel(label)
+            .setRank(4)
             .setIntent(intent)
 
         val icon = dnsProvider.icon?.let { iconName ->
