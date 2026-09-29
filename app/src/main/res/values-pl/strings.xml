@@ -56,4 +56,6 @@
     <string name="settings">Zarządzaj DNS</string>
     <string name="dns_provider_deleted">Usunięto: %1$s</string>
     <string name="add_dns_provider">Dodaj dostawcę DNS</string>
+    <string name="app_shortcuts">Skróty aplikacji</string>
+    <string name="launcher_icon_no_app_shortcuts">Skróty aplikacji nie są dostępne jeśli ikona aplikacji jest wyłączona. Nadal możesz przypiąć skróty do ekranu głównego.\nAby włączyć skróty aplikacji, należy przywrócić ikonę aplikacji klikając ikonę w prawym góry rogu.</string>
 </resources>
