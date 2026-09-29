@@ -37,6 +37,7 @@ class PrivateDnsTileService : TileService() {
 
     private val allDnsConfigsFlow = MutableSharedFlow<List<DnsConfiguration>>(replay = 1)
     private val enabledDnsConfigsFlow = MutableSharedFlow<List<DnsConfiguration>>(replay = 1)
+    private var currentDnsConfig: DnsConfiguration? = null
     private var updateTileJob: Job? = null
 
     override fun onCreate() {
@@ -93,7 +94,11 @@ class PrivateDnsTileService : TileService() {
         val tile = this.qsTile ?: return
 
         mainScope.launch {
-            updateTile(tile, privateDns.getCurrentDnsConfig(allDnsConfigsFlow.first()))
+            val resolvedDnsConfig = privateDns.getCurrentDnsConfig(allDnsConfigsFlow.first())
+            if (currentDnsConfig != resolvedDnsConfig) {
+                currentDnsConfig = resolvedDnsConfig
+                updateTile(tile, resolvedDnsConfig)
+            }
         }
     }
 
@@ -125,6 +130,8 @@ class PrivateDnsTileService : TileService() {
         privateDns.setDnsConfig(nextConfig)
 
         val tile = this.qsTile ?: return
+
+        currentDnsConfig = nextConfig
         updateTile(tile, nextConfig)
     }
 
