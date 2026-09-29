@@ -169,6 +169,9 @@ class ShortcutManagerTest : BaseTest() {
 
         val existingPinnedShortcuts = listOf(
             mockk<ShortcutInfoCompat>().also {
+                every { it.id } returns shortcutIdBuilder.buildDnsOffShortcutId()
+            },
+            mockk<ShortcutInfoCompat>().also {
                 every { it.id } returns shortcutIdBuilder.buildDnsOffPinnedShortcutId()
             },
             mockk<ShortcutInfoCompat>().also {
@@ -204,7 +207,11 @@ class ShortcutManagerTest : BaseTest() {
             ShortcutManagerCompat.updateShortcuts(
                 context,
                 withArg {
-                    assertThat(it).hasSize(2)
+                    when (BuildConfig.FLAVOR) {
+                        "launcher" -> assertThat(it).hasSize(2)
+                        "nolauncher" -> assertThat(it).hasSize(3)
+                        else -> fail("Unexpected build variant: ${BuildConfig.FLAVOR}")
+                    }
                 })
             ShortcutManagerCompat.disableShortcuts(
                 context,

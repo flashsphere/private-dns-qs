@@ -129,13 +129,14 @@ class ShortcutManager @Inject constructor(
             null
         }
 
-        if (currentPinnedShortcutIds.remove(pinnedShortcutId)) {
-            val pinnedShortcut = if (dynamicShortcutId == pinnedShortcutId && dynamicShortcut != null) {
-                dynamicShortcut
-            } else {
-                buildShortcut(pinnedShortcutId)
-            }
+        // dynamic shortcuts can be pinned by user on the home screen by long pressing on launcher icon
+        if (currentPinnedShortcutIds.remove(dynamicShortcutId)) {
+            val pinnedShortcut = dynamicShortcut ?: buildShortcut(dynamicShortcutId)
             pinnedShortcuts += pinnedShortcut
+        }
+
+        if (currentPinnedShortcutIds.remove(pinnedShortcutId) && dynamicShortcutId != pinnedShortcutId) {
+            pinnedShortcuts += buildShortcut(pinnedShortcutId)
         }
     }
 
