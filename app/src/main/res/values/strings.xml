@@ -57,6 +57,7 @@
     <string name="toast_select_icon_help">Select a PNG or SVG file</string>
     <string name="app_shortcuts">App shortcuts</string>
     <string name="pin_to_home">Pin to home screen</string>
+    <string name="launcher_icon_no_app_shortcuts">App shortcuts are not available while the launcher icon is disabled. You can still pin shortcuts to your home screen.\nTo enable app shortcuts, enable the launcher icon by tapping the icon in the top-right corner.</string>
     <string name="shortcut_limit_warning" tools:ignore="PluralsCandidate">Most launchers display a maximum of %1$d shortcuts. Currently selected: %2$d.</string>
     <string name="help">Help</string>
 </resources>

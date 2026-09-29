@@ -13,6 +13,7 @@ import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.datastore.PreferenceKeys
 import com.flashsphere.privatednsqs.hilt.IoDispatcher
 import com.flashsphere.privatednsqs.repository.SettingsRepository
+import com.flashsphere.privatednsqs.shortcut.ShortcutManager
 import com.flashsphere.privatednsqs.ui.BackupCompleted
 import com.flashsphere.privatednsqs.ui.BackupFailed
 import com.flashsphere.privatednsqs.ui.DnsProviderDeleted
@@ -22,7 +23,6 @@ import com.flashsphere.privatednsqs.ui.SnackbarMessage
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.ImageOperations
 import com.flashsphere.privatednsqs.util.PrivateDns
-import com.flashsphere.privatednsqs.util.ShortcutHelper
 import com.flashsphere.privatednsqs.util.absolutePathIfExists
 import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.util.suspendRunCatching
@@ -56,7 +56,7 @@ class MainViewModel @Inject constructor(
     private val fileOperations: FileOperations,
     private val imageOperations: ImageOperations,
     private val settingsRepository: SettingsRepository,
-    private val shortcutHelper: ShortcutHelper,
+    private val shortcutManager: ShortcutManager,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private val contentResolver = context.contentResolver
@@ -87,7 +87,7 @@ class MainViewModel @Inject constructor(
             .launchIn(viewModelScope)
 
         viewModelScope.launch {
-            shortcutHelper.populateShortcuts()
+            shortcutManager.updateShortcuts()
         }
 
         openHelpDialogFlow.value = !hasPermission()
@@ -207,6 +207,7 @@ class MainViewModel @Inject constructor(
             Timber.d("Updating '%s' to '%s' (label: %s)", provider, trimmedHost, label)
 
             settingsRepository.updateDnsProviders(providers)
+            shortcutManager.updateShortcut(providers[index])
         }
     }
 
@@ -230,8 +231,10 @@ class MainViewModel @Inject constructor(
                 }
 
             settingsRepository.updateDnsProviders(providers)
-            shortcutHelper.disablePinnedShortcut(provider)
-            snackbarMessages.emit(DnsProviderDeleted(index, provider.copy(icon = newIconFilePath)))
+
+            val updatedProvider = provider.copy(icon = newIconFilePath)
+            shortcutManager.disableShortcut(updatedProvider)
+            snackbarMessages.emit(DnsProviderDeleted(index, updatedProvider))
         }
     }
 
@@ -254,6 +257,7 @@ class MainViewModel @Inject constructor(
             }
             Timber.d("Restoring '%s' with a new id", deleted)
             settingsRepository.updateDnsProviders(providers)
+            shortcutManager.updateShortcut(provider)
         }
     }
 
@@ -348,12 +352,13 @@ class MainViewModel @Inject constructor(
                 }
             }.onSuccess { snapshot ->
                 // delete existing icon files from existing dns
-                dnsProviders.asSequence()
+                val existingDnsProviders = dnsProviders.toList()
+                existingDnsProviders.asSequence()
                     .mapNotNull { it.icon }
                     .map { File(context.iconsDir, it) }
                     .forEach { fileOperations.delete(it) }
                 // disable any pinned shortcuts
-                shortcutHelper.disablePinnedShortcuts(dnsProviders)
+                shortcutManager.disableShortcuts(existingDnsProviders)
 
                 when (snapshot) {
                     is SettingsSnapshotV1 -> {
@@ -388,7 +393,7 @@ class MainViewModel @Inject constructor(
                             })
                     }
                 }
-                shortcutHelper.populateShortcuts()
+                shortcutManager.updateShortcuts()
                 snackbarMessages.emit(RestoreCompleted)
             }.onFailure { t ->
                 Timber.e(t, "Restore from backup '%s' failed", input.toString())

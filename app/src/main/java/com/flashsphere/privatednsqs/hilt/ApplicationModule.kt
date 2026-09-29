@@ -12,6 +12,8 @@ import coil3.ImageLoader
 import coil3.request.CachePolicy
 import coil3.svg.SvgDecoder
 import com.flashsphere.privatednsqs.datastore.SettingsMigration
+import com.flashsphere.privatednsqs.shortcut.ShortcutIdBuilder
+import com.flashsphere.privatednsqs.shortcut.ShortcutIdBuilderImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -63,4 +65,9 @@ internal object ApplicationModule {
     @ComputeDispatcher
     @Provides
     fun provideComputeDispatcher(): CoroutineDispatcher = Dispatchers.Default
+
+    @Provides
+    fun provideShortcutIdBuilder(): ShortcutIdBuilder {
+        return ShortcutIdBuilderImpl()
+    }
 }

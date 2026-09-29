@@ -15,6 +15,7 @@ import com.flashsphere.privatednsqs.util.iconsDir
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -52,6 +53,9 @@ class RestoreFromBackupTest : BaseViewModelTest() {
         assertThat(settingsRepository.getRequireUnlock()).isEqualTo(true)
         assertThat(settingsRepository.getShowInTileTitle()).isEqualTo(true)
         assertThat(settingsRepository.getDnsAutoAsInactiveTile()).isEqualTo(true)
+        assertThat(settingsRepository.getDnsOffShortcut()).isEqualTo(true)
+        assertThat(settingsRepository.getDnsAutoShortcut()).isEqualTo(true)
+        assertThat(settingsRepository.getDnsToggleShortcut()).isEqualTo(true)
 
         settingsRepository.getDnsProviders().let { dnsProviders ->
             assertThat(dnsProviders).hasSize(2)
@@ -59,6 +63,7 @@ class RestoreFromBackupTest : BaseViewModelTest() {
             assertThat(dnsProviders[0].id).isGreaterThan(0)
             assertThat(dnsProviders[0].hostname).isEqualTo("one.one.one.one")
             assertThat(dnsProviders[0].enabled).isEqualTo(true)
+            assertThat(dnsProviders[0].shortcutEnabled).isEqualTo(false)
             assertThat(dnsProviders[0].icon).isNotNull().endsWith(".png")
             assertThat(File(context.iconsDir, dnsProviders[0].icon!!).readBytes())
                 .isEqualTo(getFromResources("/icons/icon.png").readBytes())
@@ -66,6 +71,7 @@ class RestoreFromBackupTest : BaseViewModelTest() {
             assertThat(dnsProviders[1].id).isGreaterThan(0)
             assertThat(dnsProviders[1].hostname).isEqualTo("dns.google")
             assertThat(dnsProviders[1].enabled).isEqualTo(false)
+            assertThat(dnsProviders[0].shortcutEnabled).isEqualTo(false)
             assertThat(dnsProviders[1].icon).isNull()
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
@@ -75,6 +81,10 @@ class RestoreFromBackupTest : BaseViewModelTest() {
         assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
 
         coVerify(exactly = 1) { imageOperations.processIcon(any()) }
+        coVerify(exactly = 2) { shortcutManager.updateShortcuts() }
+        verify(exactly = 1) {
+            shortcutManager.disableShortcuts(withArg { list -> assertThat(list).isEmpty() })
+        }
     }
 
     @Test
@@ -119,5 +129,9 @@ class RestoreFromBackupTest : BaseViewModelTest() {
         assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
 
         coVerify(exactly = 0) { imageOperations.processIcon(any()) }
+        coVerify(exactly = 2) { shortcutManager.updateShortcuts() }
+        verify(exactly = 1) {
+            shortcutManager.disableShortcuts(withArg { list -> assertThat(list).isEmpty() })
+        }
     }
 }

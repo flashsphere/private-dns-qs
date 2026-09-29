@@ -1,23 +1,31 @@
 package com.flashsphere.privatednsqs.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flashsphere.privatednsqs.R
 import com.flashsphere.privatednsqs.datastore.PreferenceKeys
 import com.flashsphere.privatednsqs.repository.SettingsRepository
+import com.flashsphere.privatednsqs.shortcut.ShortcutManager
+import com.flashsphere.privatednsqs.shortcut.ShortcutManager.Companion.MAX_SHORTCUTS
 import com.flashsphere.privatednsqs.util.LauncherIconManager
-import com.flashsphere.privatednsqs.util.ShortcutHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AppShortcutsViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val launcherIconManager: LauncherIconManager,
-    private val shortcutHelper: ShortcutHelper,
+    private val shortcutManager: ShortcutManager,
 ) : ViewModel() {
     val dnsOffShortcutStateFlow = settingsRepository.getStateFlow(
         viewModelScope, PreferenceKeys.DNS_OFF_SHORTCUT)
@@ -34,15 +42,42 @@ class AppShortcutsViewModel @Inject constructor(
     val launcherIconVisibleStateFlow
         get() = launcherIconManager.iconVisibleFlow
     val pinShortcutSupported
-        get() = shortcutHelper.pinShortcutSupported
+        get() = shortcutManager.pinShortcutSupported
 
     val shortcutCountWarningFlow: StateFlow<String>
-        get() = shortcutHelper.shortcutCountWarningFlow
+        field = MutableStateFlow("")
 
     init {
-        viewModelScope.launch {
-            shortcutHelper.monitorShortcuts()
-        }
+        combine(
+            launcherIconVisibleStateFlow,
+            settingsRepository.getDnsOffShortcutFlow(),
+            settingsRepository.getDnsAutoShortcutFlow(),
+            settingsRepository.getDnsToggleShortcutFlow(),
+            settingsRepository.getDnsProvidersFlow(),
+        ) { launcherVisible, dnsOffShortcut, dnsAutoShortcut, dnsToggleShortcut, dnsProviders ->
+            shortcutManager.updateShortcuts(
+                dnsProviders = dnsProviders,
+                showOff = dnsOffShortcut,
+                showAuto = dnsAutoShortcut,
+                showToggle = dnsToggleShortcut,
+            )
+
+            val shortcutCount = shortcutManager.countShortcuts(
+                dnsProviders = dnsProviders,
+                showOff = dnsOffShortcut,
+                showAuto = dnsAutoShortcut,
+                showToggle = dnsToggleShortcut
+            )
+
+            if (!launcherVisible) {
+                shortcutCountWarningFlow.value = context.getString(R.string.launcher_icon_no_app_shortcuts)
+            } else if (shortcutCount > MAX_SHORTCUTS) {
+                shortcutCountWarningFlow.value = context.getString(R.string.shortcut_limit_warning,
+                    MAX_SHORTCUTS, shortcutCount)
+            } else {
+                shortcutCountWarningFlow.value = ""
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun updateDnsOffShortcut(checked: Boolean) {
@@ -50,7 +85,7 @@ class AppShortcutsViewModel @Inject constructor(
     }
 
     fun pinDnsOffShortcut() {
-        shortcutHelper.pinDnsOffShortcut()
+        shortcutManager.pinDnsOffShortcut()
     }
 
     fun updateDnsAutoShortcut(checked: Boolean) {
@@ -58,7 +93,7 @@ class AppShortcutsViewModel @Inject constructor(
     }
 
     fun pinDnsAutoShortcut() {
-        shortcutHelper.pinDnsAutoShortcut()
+        shortcutManager.pinDnsAutoShortcut()
     }
 
     fun updateDnsToggleShortcut(checked: Boolean) {
@@ -66,7 +101,7 @@ class AppShortcutsViewModel @Inject constructor(
     }
 
     fun pinDnsToggleShortcut() {
-        shortcutHelper.pinDnsToggleShortcut()
+        shortcutManager.pinDnsToggleShortcut()
     }
 
     fun updateDnsProviderShortcut(index: Int, checked: Boolean) {
@@ -81,7 +116,7 @@ class AppShortcutsViewModel @Inject constructor(
     fun pinDnsProviderShortcut(index: Int) {
         val provider = dnsProviders.value[index]
         viewModelScope.launch {
-            shortcutHelper.pinShortcut(provider)
+            shortcutManager.pinShortcut(provider)
         }
     }
 
