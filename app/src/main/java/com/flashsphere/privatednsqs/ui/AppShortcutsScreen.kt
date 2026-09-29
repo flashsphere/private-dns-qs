@@ -41,13 +41,18 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -116,6 +121,7 @@ private fun AppShortcutsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val windowInsetsPadding = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
         .union(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal))
+    var snackbarHeight by remember { mutableIntStateOf(0) }
 
     val shortcutsSupported = launcherIconVisibleStateFlow.collectAsStateWithLifecycle().value
 
@@ -161,7 +167,10 @@ private fun AppShortcutsScreen(
                 )
             },
             snackbarHost = {
-                SnackbarHost(snackbarHostState) {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.onSizeChanged { size -> snackbarHeight = size.height }
+                ) {
                     Snackbar(it)
                 }
             }
@@ -175,7 +184,9 @@ private fun AppShortcutsScreen(
                     .padding(padding)
                     .padding(8.dp)
                     .consumeWindowInsets(padding),
-                contentPadding = PaddingValues(bottom = 52.dp)
+                contentPadding = PaddingValues(bottom = with(LocalDensity.current) {
+                    snackbarHeight.toDp()
+                })
             ) {
                 item(key = "header_modes", contentType = "header_modes") {
                     Column(Modifier.animateItem()) {
