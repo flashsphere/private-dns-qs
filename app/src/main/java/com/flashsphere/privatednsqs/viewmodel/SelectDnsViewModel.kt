@@ -20,7 +20,7 @@ class SelectDnsViewModel @Inject constructor(
     val dnsConfigs = mutableStateListOf<DnsConfiguration>()
 
     init {
-        settingsRepository.getDnsConfigurationsFlow()
+        settingsRepository.getEnabledDnsConfigurationsFlow()
             .onEach {
                 dnsConfigs.clear()
                 dnsConfigs.addAll(it)

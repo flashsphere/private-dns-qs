@@ -179,20 +179,22 @@ class SettingsRepository @Inject constructor(
         dataStore.update(PreferenceKeys.DNS_PROVIDERS, json)
     }
 
-    fun getDnsConfigurationsFlow(): Flow<List<DnsConfiguration>> {
+    fun getEnabledDnsConfigurationsFlow(): Flow<List<DnsConfiguration>> {
         return combine(
             getDnsOffToggleFlow(),
             getDnsAutoToggleFlow(),
             getEnabledDnsProvidersFlow(),
         ) { dnsOffToggle, dnsAutoToggle, dnsProviders ->
-            mutableListOf<DnsConfiguration>().apply {
+            buildList {
                 if (dnsOffToggle) {
                     add(DnsConfiguration.Off)
                 }
                 if (dnsAutoToggle) {
                     add(DnsConfiguration.Auto)
                 }
-                addAll(dnsProviders.map { DnsConfiguration.On(it.hostname, it.label, it.icon) })
+                dnsProviders.forEach {
+                    add(DnsConfiguration.On(it.hostname, it.label, it.icon))
+                }
             }
         }.onEmpty { emptyList<DnsConfiguration>() }
     }

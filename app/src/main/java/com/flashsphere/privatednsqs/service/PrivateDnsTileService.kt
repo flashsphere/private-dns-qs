@@ -21,11 +21,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -34,8 +34,9 @@ class PrivateDnsTileService : TileService() {
     @Inject lateinit var privateDns: PrivateDns
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var tileInfoUpdater: TileInfoUpdater
-    private lateinit var dnsConfigsFlow: Flow<List<DnsConfiguration>>
 
+    private val allDnsConfigsFlow = MutableSharedFlow<List<DnsConfiguration>>(replay = 1)
+    private val enabledDnsConfigsFlow = MutableSharedFlow<List<DnsConfiguration>>(replay = 1)
     private var updateTileJob: Job? = null
 
     override fun onCreate() {
@@ -47,13 +48,38 @@ class PrivateDnsTileService : TileService() {
 
         mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
-        dnsConfigsFlow = settingsRepository.getDnsConfigurationsFlow()
-            .buffer(0)
-            .shareIn(
-                scope = mainScope,
-                started = SharingStarted.Eagerly,
-                replay = 1,
-            )
+        combine(
+            settingsRepository.getDnsOffToggleFlow(),
+            settingsRepository.getDnsAutoToggleFlow(),
+            settingsRepository.getDnsProvidersFlow(),
+        ) { dnsOffToggle, dnsAutoToggle, dnsProviders ->
+            val all = mutableListOf<DnsConfiguration>()
+            val enabled = mutableListOf<DnsConfiguration>()
+
+            all += DnsConfiguration.Off
+            if (dnsOffToggle) {
+                enabled += DnsConfiguration.Off
+            }
+
+            all += DnsConfiguration.Auto
+            if (dnsAutoToggle) {
+                enabled += DnsConfiguration.Auto
+            }
+
+            dnsProviders.forEach {
+                val config = DnsConfiguration.On(it.hostname, it.label, it.icon)
+                all += config
+                if (it.enabled) {
+                    enabled += config
+                }
+            }
+            all to enabled
+        }
+        .onEach { (all, enabled) ->
+            allDnsConfigsFlow.emit(all)
+            enabledDnsConfigsFlow.emit(enabled)
+        }
+        .launchIn(mainScope)
     }
 
     override fun onDestroy() {
@@ -67,7 +93,7 @@ class PrivateDnsTileService : TileService() {
         val tile = this.qsTile ?: return
 
         mainScope.launch {
-            updateTile(tile, privateDns.getCurrentDnsConfig(dnsConfigsFlow.first()))
+            updateTile(tile, privateDns.getCurrentDnsConfig(allDnsConfigsFlow.first()))
         }
     }
 
@@ -95,7 +121,7 @@ class PrivateDnsTileService : TileService() {
             return
         }
 
-        val nextConfig = privateDns.getNextDnsConfig(dnsConfigsFlow.first()) ?: return
+        val nextConfig = privateDns.getNextDnsConfig(enabledDnsConfigsFlow.first()) ?: return
         privateDns.setDnsConfig(nextConfig)
 
         val tile = this.qsTile ?: return

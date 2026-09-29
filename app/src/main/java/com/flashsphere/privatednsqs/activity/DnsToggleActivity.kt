@@ -11,7 +11,7 @@ class DnsToggleActivity : DnsShortcutActivity() {
 
     override fun getDnsConfig(): DnsConfiguration? {
         val configs = runBlocking {
-            settingsRepository.getDnsConfigurationsFlow().first()
+            settingsRepository.getEnabledDnsConfigurationsFlow().first()
         }
         return privateDns.getNextDnsConfig(configs)
     }
