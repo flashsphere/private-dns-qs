@@ -1,7 +1,7 @@
 # Private DNS Quick Setting
  
-<a href="https://hosted.weblate.org/projects/private-dns-qs/android/" target="_blank" rel="noreferrer noopener">
-    <img alt="Translation status" src="https://hosted.weblate.org/widget/private-dns-qs/android/svg-badge.svg" />
+<a href="https://hosted.weblate.org/projects/private-dns-qs/" target="_blank" rel="noreferrer noopener">
+    <img alt="Translation status" src="https://hosted.weblate.org/widget/private-dns-qs/svg-badge.svg" />
 </a>
 
 Toggle and configure your Private DNS settings on Android 9+ from the comfort of your quick settings panel.
@@ -63,8 +63,8 @@ Check out https://private-dns-qs.web.app/help on how to use `adb` to grant the p
 ## Contributing
 
 ### Translations
-Thanks to Weblate gratis hosting for open-source projects. You can submit translations on their [website](https://hosted.weblate.org/projects/private-dns-qs/android/).
+Thanks to Weblate gratis hosting for open-source projects. You can submit translations on their [website](https://hosted.weblate.org/projects/private-dns-qs/).
 
-<a href="https://hosted.weblate.org/projects/private-dns-qs/android/" target="_blank" rel="noreferrer noopener">
-    <img alt="Translation status per language" src="https://hosted.weblate.org/widget/private-dns-qs/android/multi-auto.svg" />
+<a href="https://hosted.weblate.org/projects/private-dns-qs/" target="_blank" rel="noreferrer noopener">
+    <img alt="Translation status per language" src="https://hosted.weblate.org/widget/private-dns-qs/multi-auto.svg" />
 </a>
