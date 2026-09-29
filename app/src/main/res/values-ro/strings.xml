@@ -54,4 +54,7 @@
     <string name="dns_hostname_hint">Nume gazdă al furnizorului DNS</string>
     <string name="toggle_dns">Comută DNS-ul privat</string>
     <string name="dns_label_hint">Etichetă (opțional)</string>
+    <string name="app_shortcuts">Scurtături aplicație</string>
+    <string name="pin_to_home">Adaugă pe ecranul de pornire</string>
+    <string name="launcher_icon_no_app_shortcuts">Scurtăturile pentru aplicație nu sunt disponibile atunci când pictograma lansatorului este dezactivată. Poți să adaugi în continuare scurtături pe ecranul de pornire.\nPentru a activa scurtăturile aplicației, activează pictograma lansatorului apăsând pe pictograma din colțul din dreapta sus.</string>
 </resources>
