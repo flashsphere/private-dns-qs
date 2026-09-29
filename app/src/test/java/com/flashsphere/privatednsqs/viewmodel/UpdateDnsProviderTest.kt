@@ -9,6 +9,7 @@ import assertk.assertions.isNull
 import com.flashsphere.privatednsqs.BaseViewModelTest
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.util.iconsDir
+import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -39,7 +40,7 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
         val viewModel = createViewModel(settingsRepository)
         runCurrent()
 
-        viewModel.updateDnsProvider(0, "dns.google", null, null)
+        viewModel.updateDnsProvider(0, "dns.google", null)
         runCurrent()
 
         settingsRepository.getDnsProviders().let { dnsProviders ->
@@ -52,6 +53,10 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
             assertThat(currentIcon.exists()).isFalse()
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
+
+            coVerify(exactly = 1) {
+                shortcutManager.updateShortcut(dnsProviders[0])
+            }
         }
     }
 
@@ -91,6 +96,10 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
                 .isEqualTo(resIconFile.readBytes())
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
+
+            coVerify(exactly = 1) {
+                shortcutManager.updateShortcut(dnsProviders[0])
+            }
         }
     }
 
@@ -134,6 +143,10 @@ class UpdateDnsProviderTest : BaseViewModelTest() {
             assertThat(currentIcon.exists()).isFalse()
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
+
+            coVerify(exactly = 1) {
+                shortcutManager.updateShortcut(dnsProviders[0])
+            }
         }
     }
 }

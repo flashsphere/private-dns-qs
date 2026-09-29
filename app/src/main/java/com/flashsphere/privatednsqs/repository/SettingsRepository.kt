@@ -113,6 +113,42 @@ class SettingsRepository @Inject constructor(
         return update(PreferenceKeys.DNS_AUTO_AS_INACTIVE_TILE, value)
     }
 
+    fun getDnsOffShortcutFlow(): Flow<Boolean> {
+        return getFlow(PreferenceKeys.DNS_OFF_SHORTCUT)
+    }
+
+    suspend fun getDnsOffShortcut(): Boolean {
+        return dataStore.get(PreferenceKeys.DNS_OFF_SHORTCUT)
+    }
+
+    suspend fun updateDnsOffShortcut(value: Boolean) {
+        return update(PreferenceKeys.DNS_OFF_SHORTCUT, value)
+    }
+
+    fun getDnsAutoShortcutFlow(): Flow<Boolean> {
+        return getFlow(PreferenceKeys.DNS_AUTO_SHORTCUT)
+    }
+
+    suspend fun getDnsAutoShortcut(): Boolean {
+        return dataStore.get(PreferenceKeys.DNS_AUTO_SHORTCUT)
+    }
+
+    suspend fun updateDnsAutoShortcut(value: Boolean) {
+        return update(PreferenceKeys.DNS_AUTO_SHORTCUT, value)
+    }
+
+    fun getDnsToggleShortcutFlow(): Flow<Boolean> {
+        return getFlow(PreferenceKeys.DNS_TOGGLE_SHORTCUT)
+    }
+
+    suspend fun getDnsToggleShortcut(): Boolean {
+        return dataStore.get(PreferenceKeys.DNS_TOGGLE_SHORTCUT)
+    }
+
+    suspend fun updateDnsToggleShortcut(value: Boolean) {
+        return update(PreferenceKeys.DNS_TOGGLE_SHORTCUT, value)
+    }
+
     fun getDnsProvidersFlow(): Flow<List<DnsProvider>> {
         return getFlow(PreferenceKeys.DNS_PROVIDERS)
             .map {

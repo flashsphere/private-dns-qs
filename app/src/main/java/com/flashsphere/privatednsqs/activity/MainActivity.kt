@@ -57,6 +57,7 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener, ToastAct
                 showAppInfo = this::showAppInfo,
                 showMoreInfo = this::showMoreInfo,
                 requestAddTile = this::requestAddTile,
+                configureAppShortcuts = this::configureAppShortcuts,
                 toastActions = this,
             )
         }
@@ -174,6 +175,10 @@ class MainActivity : BaseActivity(), OnRequestPermissionResultListener, ToastAct
             Timber.w(it)
         }
         return false
+    }
+
+    private fun configureAppShortcuts() {
+        AppShortcutsActivity.startActivity(this)
     }
 
     companion object {

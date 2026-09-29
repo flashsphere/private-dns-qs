@@ -3,7 +3,6 @@
     <string name="close">סגירה</string>
     <string name="toast_restore_help">בחר קובץ גיבוי לשחזור ההגדרות</string>
     <string name="select_icon">שינוי</string>
-    <string name="toggle">מצג</string>
     <string name="add_tile">הוסף מתג</string>
     <string name="toast_no_permission">WRITE_SECURE_SETTINGS לא הוענקה ההרשאה</string>
     <string name="dns_toggle">DNS מתג</string>
@@ -16,7 +15,7 @@
     <string name="icon">אייקון</string>
     <string name="toast_cannot_open_more_info">נכשל פתיחת האתר: %1$s</string>
     <string name="drag_to_reorder">גרור לסדר מחדש</string>
-    <string name="message_help">בכדי לשנות הגדרות DNS פרטי, האפליקציה צריכה את ההרשאה של WRITE_SECURE_SETTINGS, שאפשר לאשר רק באמצעות ADB:</string>
+    <string name="message_help">בכדי לשנות הגדרות DNS פרטי, האפליקציה צריכה את ההרשאה של WRITE_SECURE_SETTINGS, שאפשר לאשר רק באמצעות ADB / %1$s:</string>
     <string name="toast_cannot_open_app_info">נכשל פתיחת הגדרות של פרטי היישום: %1$s</string>
     <string name="on">פועל</string>
     <string name="restore">שחזור</string>
@@ -46,7 +45,6 @@
     <string name="auto">אוטומטי</string>
     <string name="backup_completed">גיבוי הושלם</string>
     <string name="tile_name">פרטי DNS</string>
-    <string name="dns_on">DNS פועל</string>
     <string name="tile_not_added">מתג הגדרת DNS לא נוסף להגדרות המהירות. קוד שגיאה = %1$d</string>
     <string name="settings">ניהול DNS</string>
     <string name="set_dns_auto">הגדר DNS פרטי לאוטומטי</string>

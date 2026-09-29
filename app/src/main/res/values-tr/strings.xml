@@ -4,12 +4,10 @@
     <string name="tile_name">Özel DNS</string>
     <string name="dns_off">DNS Kapalı</string>
     <string name="dns_auto">DNS Otomatik</string>
-    <string name="dns_on">DNS Açık</string>
     <string name="dns_toggle">DNS Aç/Kapat</string>
     <string name="off">Kapalı</string>
     <string name="auto">Otomatik</string>
     <string name="on">Açık</string>
-    <string name="toggle">Aç/Kapat</string>
     <string name="set_dns_off">Özel DNS\'i Kapat</string>
     <string name="set_dns_auto">Özel DNS\'i Otomatiğe Al</string>
     <string name="set_dns_on">Özel DNS\'i Aç</string>
@@ -22,7 +20,7 @@
     <string name="dns_hostname_hint">DNS sağlayıcı sunucu adı</string>
     <string name="toast_cannot_open_app_info">Android\'de uygulama bilgisi açılırken hata oluştu: %1$s</string>
     <string name="toast_cannot_open_more_info">Web sayfası açılırken hata oluştu: %1$s</string>
-    <string name="message_help">Özel DNS ayarlarını değiştirmek için uygulamanın WRITE_SECURE_SETTINGS iznine ihtiyacı var. Bu izin yalnızca ADB üzerinden verilebilir:</string>
+    <string name="message_help">Özel DNS ayarlarını değiştirmek için uygulamanın WRITE_SECURE_SETTINGS iznine ihtiyacı var. Bu izin yalnızca %1$s / ADB üzerinden verilebilir:</string>
     <string name="permission_granted_using_shizuku">WRITE_SECURE_SETTINGS izni Shizuku kullanılarak verildi</string>
     <string name="tile_added">Özel DNS tuşu Hızlı Ayarlar\'a eklendi</string>
     <string name="tile_not_added">Özel DNS tuşu Hızlı Ayarlar\'a eklenemedi. Hata kodu = %1$d</string>

@@ -46,7 +46,7 @@ class AddDnsProviderTest : BaseViewModelTest() {
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
         }
 
-        viewModel.addDnsProvider("dns.google", null, null)
+        viewModel.addDnsProvider("dns.google", null)
         runCurrent()
 
         settingsRepository.getDnsProviders().let { dnsProviders ->

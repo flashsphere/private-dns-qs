@@ -9,6 +9,7 @@ import assertk.assertions.isNull
 import com.flashsphere.privatednsqs.BaseViewModelTest
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.util.iconsDir
+import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -62,11 +63,16 @@ class RestoreDeletedDnsProviderTest : BaseViewModelTest() {
                 .isEqualTo(resIconFile.readBytes())
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
+
+            coVerify(exactly = 1) {
+                shortcutManager.updateShortcut(dnsProviders[0])
+            }
         }
 
         assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(1)
         assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(0)
     }
+
     @Test
     fun restoreDnsProvider_does_not_restore_if_hostname_is_in_list() = runTest(timeout = 10.seconds) {
         val resIconFile = getFromResources("/icons/icon.png")
@@ -120,6 +126,10 @@ class RestoreDeletedDnsProviderTest : BaseViewModelTest() {
             assertThat(dnsProviders[1].icon).isNull()
 
             assertThat(viewModel.dnsProviders.toList()).isEqualTo(dnsProviders)
+
+            coVerify(exactly = 0) {
+                shortcutManager.updateShortcut(any())
+            }
         }
 
         assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(0)

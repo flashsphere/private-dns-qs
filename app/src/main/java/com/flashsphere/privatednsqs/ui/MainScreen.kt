@@ -26,6 +26,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
@@ -73,6 +74,7 @@ fun MainScreen(
     showAppInfo: () -> Unit,
     showMoreInfo: () -> Unit,
     requestAddTile: () -> Unit,
+    configureAppShortcuts: () -> Unit,
     toastActions: ToastActions,
 ) {
     MainScreen(
@@ -104,6 +106,7 @@ fun MainScreen(
         requestAddTile = requestAddTile,
         backupConfig = viewModel::backup,
         restoreConfig = viewModel::restore,
+        configureAppShortcuts = configureAppShortcuts,
         processIcon = viewModel::processSelectedIcon,
         deleteFile = viewModel::deleteFile,
         toastActions = toastActions,
@@ -124,7 +127,7 @@ private fun MainScreen(
     dnsProviders: SnapshotStateList<DnsProvider>,
     getDnsSuggestions: (text: String) -> Set<String>,
     validateDnsProvider: (hostname: String) -> Boolean,
-    addDnsProvider: (hostname: String, label: String?, icon: File?) -> Unit,
+    addDnsProvider: (hostname: String, label: String?,  icon: File?) -> Unit,
     updateDnsProvider: (index: Int, hostname: String, label: String?, icon: File?) -> Unit,
     toggleDnsProvider: (index: Int, enabled: Boolean) -> Unit,
     deleteDnsProvider: (index: Int) -> Unit,
@@ -142,6 +145,7 @@ private fun MainScreen(
     requestAddTile: () -> Unit,
     backupConfig: (uri: Uri) -> Unit,
     restoreConfig: (uri: Uri) -> Unit,
+    configureAppShortcuts: () -> Unit,
     processIcon: suspend (uri: Uri) -> File?,
     deleteFile: (filePath: String?) -> Unit,
     toastActions: ToastActions,
@@ -242,8 +246,16 @@ private fun MainScreen(
                 item(key = "header_modes", contentType = "header_modes") {
                     Column(Modifier.animateItem()) {
                         Header(stringResource(R.string.dns_modes_to_toggle))
-                        DnsModeItem(dnsOffStateFlow, onDnsOffClick, stringResource(R.string.dns_off))
-                        DnsModeItem(dnsAutoStateFlow, onDnsAutoClick, stringResource(R.string.dns_auto))
+                        DnsModeItem(
+                            state = dnsOffStateFlow,
+                            onClick = onDnsOffClick,
+                            label = stringResource(R.string.dns_off)
+                        )
+                        DnsModeItem(
+                            state = dnsAutoStateFlow,
+                            onClick = onDnsAutoClick,
+                            label = stringResource(R.string.dns_auto)
+                        )
                     }
                 }
                 itemsIndexed(
@@ -280,14 +292,29 @@ private fun MainScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Header(stringResource(R.string.other_settings))
-                        DnsModeItem(requireUnlockStateFlow, onRequireUnlockClick,
-                            stringResource(R.string.require_unlock))
+                        DnsModeItem(
+                            state = requireUnlockStateFlow,
+                            onClick = onRequireUnlockClick,
+                            label = stringResource(R.string.require_unlock)
+                        )
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            DnsModeItem(showInTileTitleStateFlow, onShowInTileTitleClick,
-                                stringResource(R.string.show_in_tile_tile))
+                            DnsModeItem(
+                                state = showInTileTitleStateFlow,
+                                onClick = onShowInTileTitleClick,
+                                label = stringResource(R.string.show_in_tile_tile)
+                            )
                         }
-                        DnsModeItem(dnsAutoAsInactiveTileStateFlow, onDnsAutoAsInactiveTileClick,
-                            stringResource(R.string.dns_auto_as_inactive_tile))
+                        DnsModeItem(
+                            state = dnsAutoAsInactiveTileStateFlow,
+                            onClick = onDnsAutoAsInactiveTileClick,
+                            label = stringResource(R.string.dns_auto_as_inactive_tile)
+                        )
+                        OutlinedButton(
+                            modifier = Modifier.animateItem().padding(horizontal = 4.dp),
+                            onClick = configureAppShortcuts,
+                        ) {
+                            Text(stringResource(R.string.app_shortcuts))
+                        }
                     }
                 }
             }
@@ -307,6 +334,7 @@ private fun MainScreen(
                 toastActions = toastActions,
                 updateDns = updateDnsProvider,
             )
+
             HelpDialog(
                 openHelpDialogFlow = openHelpDialogFlow,
                 openHelpDialog = openHelpDialog,
@@ -342,7 +370,7 @@ private fun MainScreenPreview() {
     val dnsOff = remember { MutableStateFlow(true) }
     val dnsAuto = remember { MutableStateFlow(true) }
     val requireUnlock = remember { MutableStateFlow(false) }
-    val showInTileTitle = remember { MutableStateFlow(false) }
+    val showInTileTitleStateFlow = remember { MutableStateFlow(false) }
     val dnsAutoAsInactiveTile = remember { MutableStateFlow(false) }
 
     MainScreen(
@@ -354,29 +382,30 @@ private fun MainScreenPreview() {
         dnsAutoStateFlow = dnsAuto,
         onDnsAutoClick = { dnsAuto.value = it },
         dnsProviders = dnsProviders,
-        getDnsSuggestions = { emptySet() },
-        validateDnsProvider = { true },
+        getDnsSuggestions = { _ -> emptySet() },
+        validateDnsProvider = { _ -> true },
         addDnsProvider = { _, _, _ -> },
         updateDnsProvider = { _, _, _, _ -> },
         toggleDnsProvider = { _, _ -> },
-        deleteDnsProvider = {},
+        deleteDnsProvider = { _ -> },
         restoreDnsProvider = { _, _ -> },
         reorderDnsProvider = { _, _ -> },
         reorderDnsProviders = {},
         requireUnlockStateFlow = requireUnlock,
         onRequireUnlockClick = { requireUnlock.value = it },
-        showInTileTitleStateFlow = showInTileTitle,
-        onShowInTileTitleClick = { showInTileTitle.value = it },
+        showInTileTitleStateFlow = showInTileTitleStateFlow,
+        onShowInTileTitleClick = { showInTileTitleStateFlow.value = it },
         dnsAutoAsInactiveTileStateFlow = dnsAutoAsInactiveTile,
         onDnsAutoAsInactiveTileClick = { dnsAutoAsInactiveTile.value = it },
         showAppInfo = {},
         showMoreInfo = {},
         requestAddTile = {},
-        backupConfig = {},
-        restoreConfig = {},
-        processIcon = { null },
-        deleteFile = {},
+        backupConfig = { _ -> },
+        restoreConfig = { _ -> },
+        configureAppShortcuts = {},
+        processIcon = { _ -> null },
+        deleteFile = { _ -> },
         toastActions = NoOpToastActions,
-        showSnackbarMessage = {},
+        showSnackbarMessage = { _ -> },
     )
 }

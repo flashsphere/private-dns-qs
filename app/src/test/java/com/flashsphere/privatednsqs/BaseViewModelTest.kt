@@ -7,13 +7,16 @@ import android.net.Uri
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.lifecycle.SavedStateHandle
 import com.flashsphere.privatednsqs.repository.SettingsRepository
+import com.flashsphere.privatednsqs.shortcut.ShortcutManager
 import com.flashsphere.privatednsqs.util.FileOperations
 import com.flashsphere.privatednsqs.util.ImageOperations
 import com.flashsphere.privatednsqs.util.PrivateDns
 import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.viewmodel.MainViewModel
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -31,6 +34,7 @@ abstract class BaseViewModelTest : BaseTest() {
     lateinit var privateDns: PrivateDns
     lateinit var contentResolver: ContentResolver
     lateinit var imageOperations: ImageOperations
+    lateinit var shortcutManager: ShortcutManager
     lateinit var json: Json
 
     @Before
@@ -75,9 +79,17 @@ abstract class BaseViewModelTest : BaseTest() {
             every { it.contentResolver } returns contentResolver
         }
 
+        shortcutManager = mockk<ShortcutManager>().also {
+            coEvery { it.updateShortcuts() } just Runs
+            coEvery { it.updateShortcut(any()) } just Runs
+            every { it.disableShortcut(any()) } just Runs
+            every { it.disableShortcuts(any()) } just Runs
+        }
+
         json = Json {
             ignoreUnknownKeys = true
             exceptionsWithDebugInfo = true
+            encodeDefaults = true
         }
     }
 
@@ -107,6 +119,7 @@ abstract class BaseViewModelTest : BaseTest() {
             fileOperations = FileOperations(testDispatcher),
             imageOperations = imageOperations,
             settingsRepository = settingsRepository,
+            shortcutManager = shortcutManager,
             savedStateHandle = SavedStateHandle(),
         )
     }

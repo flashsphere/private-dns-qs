@@ -12,6 +12,7 @@ import com.flashsphere.privatednsqs.BaseViewModelTest
 import com.flashsphere.privatednsqs.datastore.DnsProvider
 import com.flashsphere.privatednsqs.ui.DnsProviderDeleted
 import com.flashsphere.privatednsqs.util.iconsDir
+import io.mockk.coVerify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -73,5 +74,9 @@ class DeleteDnsProviderTest : BaseViewModelTest() {
 
         assertThat(context.iconsDir.listFiles()!!.count()).isEqualTo(0)
         assertThat(context.cacheDir.listFiles()!!.count()).isEqualTo(1)
+
+        coVerify(exactly = 1) {
+            shortcutManager.disableShortcut(message.dnsProvider)
+        }
     }
 }

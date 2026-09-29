@@ -250,6 +250,7 @@ private fun DnsProviderDialog(
             }
         },
         buttons = {
+            Spacer(Modifier.weight(1F))
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
             TextButton(
                 enabled = textFieldState.text.isNotBlank() && errorMessage.value == null,
@@ -373,7 +374,7 @@ private fun DnsProviderDialogPreview() {
             initialHostname = "",
             initialLabel = null,
             initialIcon = null,
-            getSuggestions = {
+            getSuggestions = { _ ->
                 setOf(
                     "one.one.one.one",
                     "two two two two two two two two two two two two two two two two two two " +
@@ -382,7 +383,7 @@ private fun DnsProviderDialogPreview() {
                 )
             },
             validate = { it.isBlank() || it == "test" },
-            processIcon = { null },
+            processIcon = { _ -> null },
             onDismiss = {},
             onConfirm = { _, _, _ -> },
             toastActions = NoOpToastActions,
