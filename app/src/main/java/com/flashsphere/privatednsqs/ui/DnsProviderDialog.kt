@@ -229,7 +229,6 @@ private fun DnsProviderDialog(
                     errorMessage = errorMessage,
                     getSuggestions = getSuggestions,
                     validate = validate,
-                    onConfirm = onSubmit,
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -269,7 +268,6 @@ private fun DnsHostnameTextField(
     errorMessage: MutableState<String?>,
     getSuggestions: (text: String) -> Set<String>,
     validate: (hostname: String) -> Boolean,
-    onConfirm: () -> Unit,
 ) {
     val resources = LocalResources.current
     var expandSuggestions by remember { mutableStateOf(false) }
@@ -328,9 +326,8 @@ private fun DnsHostnameTextField(
                 capitalization = KeyboardCapitalization.None,
                 autoCorrectEnabled = false,
                 keyboardType = KeyboardType.Uri,
-                imeAction = ImeAction.Done,
+                imeAction = ImeAction.Next,
             ),
-            onKeyboardAction = { onConfirm() },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
