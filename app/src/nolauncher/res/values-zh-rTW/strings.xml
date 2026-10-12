@@ -1,3 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="show_launcher_icon">啟用啟動器圖示</string>
+    <string name="hide_launcher_icon">停用啟動器圖示</string>
 </resources>
