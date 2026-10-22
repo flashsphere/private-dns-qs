@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="close">סגירה</string>
     <string name="toast_restore_help">בחר קובץ גיבוי לשחזור ההגדרות</string>
     <string name="select_icon">שינוי</string>
@@ -54,4 +54,8 @@
     <string name="dns_hostname_hint">שרת ספק של DNS</string>
     <string name="toggle_dns">מתג DNS פרטי</string>
     <string name="dns_label_hint">תוויות (אופציונלי)</string>
+    <string name="app_shortcuts">קיצורי דרך לאפליקציה</string>
+    <string name="pin_to_home">הצמד למסך הבית</string>
+    <string name="launcher_icon_no_app_shortcuts">קיצורי דרך לאפליקציה אינם זמינים כאשר סמל במסך הבית מושבת. עדיין ניתן להצמיד קיצורי דרך למסך הבית.\nכדי להפעיל קיצורי דרך לאפליקציות, הפעל את סמל המסך הבית על ידי הקשה על הסמל בפינה הימנית העליונה.</string>
+    <string name="shortcut_limit_warning" tools:ignore="PluralsCandidate">רוב מסכי הבית מציגים מקסימום של %1$d קיצורים. כרגע בשימוש %2$d.</string>
 </resources>
