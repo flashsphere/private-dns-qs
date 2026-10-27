@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="show_launcher_icon">Launcher-Icon aktivieren</string>
+    <string name="hide_launcher_icon">Launcher-Icon deaktivieren</string>
+</resources>
