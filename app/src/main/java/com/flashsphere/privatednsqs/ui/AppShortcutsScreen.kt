@@ -68,7 +68,7 @@ import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.viewmodel.AppShortcutsViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
 import java.io.File
 
 @Composable
@@ -126,15 +126,13 @@ private fun AppShortcutsScreen(
     val shortcutsSupported = launcherIconVisibleStateFlow.collectAsStateWithLifecycle().value
 
     LaunchedEffect(Unit) {
-        shortcutCountWarningFlow.collect { msg ->
+        shortcutCountWarningFlow.collectLatest { msg ->
             snackbarHostState.currentSnackbarData?.dismiss()
             if (msg.isNotBlank()) {
-                launch {
-                    snackbarHostState.showSnackbar(
-                        message = msg,
-                        duration = SnackbarDuration.Indefinite,
-                    )
-                }
+                snackbarHostState.showSnackbar(
+                    message = msg,
+                    duration = SnackbarDuration.Indefinite,
+                )
             }
         }
     }

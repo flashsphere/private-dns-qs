@@ -4,16 +4,12 @@ import assertk.assertThat
 import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
-import assertk.assertions.isGreaterThan
-import assertk.assertions.isNull
 import com.flashsphere.privatednsqs.BaseViewModelTest
 import com.flashsphere.privatednsqs.datastore.DnsProvider
-import com.flashsphere.privatednsqs.util.iconsDir
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)

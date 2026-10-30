@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -62,8 +61,8 @@ import com.flashsphere.privatednsqs.viewmodel.MainViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import java.io.File
@@ -114,7 +113,6 @@ fun MainScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainScreen(
     openHelpDialogFlow: StateFlow<Boolean>,
@@ -159,38 +157,35 @@ private fun MainScreen(
     }
 
     LaunchedEffect(Unit) {
-        snackbarMessageFlow.collect { message ->
+        snackbarMessageFlow.collectLatest { message ->
             snackbarHostState.currentSnackbarData?.dismiss()
-            // launch is needed so that the current snackbar can be dismissed while it is being shown,
-            // since showSnackbar() suspends the coroutine
-            launch {
-                when (message) {
-                    is NoPermissionMessage -> {
-                        val result = snackbarHostState.showSnackbar(
-                            message = message.getMessage(resources),
-                            actionLabel = resources.getString(R.string.help),
-                            duration = SnackbarDuration.Long)
-                        if (result == SnackbarResult.ActionPerformed) {
-                            openHelpDialog(true)
+            when (message) {
+                is NoPermissionMessage -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = message.getMessage(resources),
+                        actionLabel = resources.getString(R.string.help),
+                        duration = SnackbarDuration.Long)
+                    if (result == SnackbarResult.ActionPerformed) {
+                        openHelpDialog(true)
+                    }
+                }
+                is DnsProviderDeleted -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = message.getMessage(resources),
+                        actionLabel = resources.getString(R.string.undo),
+                        duration = SnackbarDuration.Long
+                    )
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            restoreDnsProvider(message.index, message.dnsProvider)
+                        }
+                        SnackbarResult.Dismissed -> {
+                            deleteFile(message.dnsProvider.icon)
                         }
                     }
-                    is DnsProviderDeleted -> {
-                        val result = snackbarHostState.showSnackbar(
-                            message = message.getMessage(resources),
-                            actionLabel = resources.getString(R.string.undo),
-                            duration = SnackbarDuration.Long)
-                        when (result) {
-                            SnackbarResult.ActionPerformed -> {
-                                restoreDnsProvider(message.index, message.dnsProvider)
-                            }
-                            SnackbarResult.Dismissed -> {
-                                deleteFile(message.dnsProvider.icon)
-                            }
-                        }
-                    }
-                    else -> {
-                        snackbarHostState.showSnackbar(message.getMessage(resources))
-                    }
+                }
+                else -> {
+                    snackbarHostState.showSnackbar(message.getMessage(resources))
                 }
             }
         }

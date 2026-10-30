@@ -30,11 +30,11 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PrivateDnsTileService : TileService() {
-    private lateinit var mainScope: CoroutineScope
     @Inject lateinit var privateDns: PrivateDns
     @Inject lateinit var settingsRepository: SettingsRepository
     @Inject lateinit var tileInfoUpdater: TileInfoUpdater
 
+    private val mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
     private val allDnsConfigsFlow = MutableSharedFlow<List<DnsConfiguration>>(replay = 1)
     private val enabledDnsConfigsFlow = MutableSharedFlow<List<DnsConfiguration>>(replay = 1)
     private var currentDnsConfig: DnsConfiguration? = null
@@ -46,8 +46,6 @@ class PrivateDnsTileService : TileService() {
             return
         }
         super.onCreate()
-
-        mainScope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
         combine(
             settingsRepository.getDnsOffToggleFlow(),

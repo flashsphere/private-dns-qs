@@ -63,13 +63,13 @@ import com.flashsphere.privatednsqs.util.absolutePathIfExists
 import com.flashsphere.privatednsqs.util.iconsDir
 import com.flashsphere.privatednsqs.util.suspendRunCatching
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddDnsDialog(
     openDialog: MutableState<Boolean>,
@@ -97,7 +97,6 @@ fun AddDnsDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditDnsDialog(
     openDialog: MutableState<IndexedValue<DnsProvider>?>,
@@ -130,7 +129,6 @@ fun EditDnsDialog(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DnsProviderDialog(
     initialHostname: String = "",
@@ -280,7 +278,7 @@ private fun DnsHostnameTextField(
     LaunchedEffect(textFieldState) {
         snapshotFlow { textFieldState.text }
             .debounce(300.milliseconds)
-            .collect {
+            .collectLatest {
                 val hostname = it.toString()
                 if (!validate(hostname)) {
                     errorMessage.value = resources.getString(R.string.dns_provider_already_exists)
@@ -291,7 +289,7 @@ private fun DnsHostnameTextField(
                 suggestions.clear()
                 suggestions.addAll(getSuggestions(hostname))
 
-                launch { suspendRunCatching { suggestionsScrollState.scrollTo(0) } }
+                suspendRunCatching { suggestionsScrollState.scrollTo(0) }
                 expandSuggestions = suggestions.isNotEmpty()
             }
     }
