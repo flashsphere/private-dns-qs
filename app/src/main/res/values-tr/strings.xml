@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Özel DNS Hızlı Ayar</string>
     <string name="tile_name">Özel DNS</string>
     <string name="dns_off">DNS Kapalı</string>
@@ -54,4 +54,8 @@
     <string name="help">Yardım</string>
     <string name="dns_label_hint">Etiket (isteğe bağlı)</string>
     <string name="dns_auto_as_inactive_tile">“DNS Otomatik” seçeneğini pasif tuş durumunda göster</string>
+    <string name="app_shortcuts">Uygulama kısayolları</string>
+    <string name="pin_to_home">Ana ekrana sabitle</string>
+    <string name="launcher_icon_no_app_shortcuts">Başlatıcı simgesi devre dışıyken uygulama kısayolları kullanılamaz. Kısayolları yine de ana ekranınıza sabitleyebilirsiniz.\nUygulama kısayollarını etkinleştirmek için sağ üst köşedeki simgeye dokunarak başlatıcı simgesini etkinleştirin.</string>
+    <string name="shortcut_limit_warning" tools:ignore="PluralsCandidate">Çoğu başlatıcı en fazla %1$d kısayol görüntüler. Şu anda seçili olan: %2$d.</string>
 </resources>
