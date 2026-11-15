@@ -25,10 +25,7 @@ runs:
       with:
         java-version: 21
         distribution: 'zulu'
-    - uses: gradle/actions/setup-gradle@v6
-      with:
-        cache-overwrite-existing: true
-        cache-provider: basic
+    - uses: burrunan/gradle-cache-action@v3
     - name: Prepare release keystore
       shell: bash
       run: |
