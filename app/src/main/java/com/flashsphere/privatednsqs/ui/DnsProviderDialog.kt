@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
@@ -270,6 +271,7 @@ private fun DnsHostnameTextField(
     val resources = LocalResources.current
     var expandSuggestions by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
 
     val suggestions = remember { mutableStateListOf<String>() }
     val suggestionsScrollState = rememberScrollState()
@@ -290,7 +292,7 @@ private fun DnsHostnameTextField(
                 suggestions.addAll(getSuggestions(hostname))
 
                 suspendRunCatching { suggestionsScrollState.scrollTo(0) }
-                expandSuggestions = suggestions.isNotEmpty()
+                expandSuggestions = isFocused && suggestions.isNotEmpty()
             }
     }
 
@@ -300,7 +302,7 @@ private fun DnsHostnameTextField(
 
     ExposedDropdownMenuBox(
         expanded = expandSuggestions,
-        onExpandedChange = { expandSuggestions = it && suggestions.isNotEmpty() }
+        onExpandedChange = { expandSuggestions = it && isFocused && suggestions.isNotEmpty() }
     ) {
         OutlinedTextField(
             state = textFieldState,
@@ -329,6 +331,10 @@ private fun DnsHostnameTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                    expandSuggestions = focusState.isFocused && suggestions.isNotEmpty()
+                }
                 .menuAnchor(type = ExposedDropdownMenuAnchorType.PrimaryEditable),
         )
         ExposedDropdownMenu(
