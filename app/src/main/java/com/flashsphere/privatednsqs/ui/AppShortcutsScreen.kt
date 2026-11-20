@@ -97,7 +97,6 @@ fun AppShortcutsScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppShortcutsScreen(
     dnsOffStateFlow: StateFlow<Boolean>,

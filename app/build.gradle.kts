@@ -16,6 +16,7 @@ kotlin {
 android {
     namespace = "com.flashsphere.privatednsqs"
     compileSdk = 37
+    compileSdkMinor = 2
     flavorDimensions += listOf("type")
 
     defaultConfig {
