@@ -1,7 +1,7 @@
 [versions]
 appVersionCode = "65"
 appVersionName = "3.5"
-androidGradlePlugin = "9.5.1"
+androidGradlePlugin = "9.5.3"
 kotlin = "2.4.21"
 androidxCore = "1.19.1"
 androidxDatastorePrefs = "1.3.0"
